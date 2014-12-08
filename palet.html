@@ -1,0 +1,28 @@
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="style.css">
+		<script type="text/javascript" src="con_load.js"></script>
+	</head>
+	<body> <!--onLoad="init_box_set();">-->
+		<table>
+			<tr>
+				<td>Müþteri:</td><td><input type="text" id="name" value="" maxlength="10"/></td>
+			</tr><tr>
+				<td>En:</td><td><input type="text" id="en" value="80.0" maxlength="6"/></td>
+			</tr><tr>
+				<td>Boy:</td><td><input type="text" id="boy" value="100.0" maxlength="6"/></td>
+			<tr><tr>
+				<td>Yükseklik:</td><td><input type="text" id="yukseklik" value="120.0" maxlength="6"/></td>
+			</tr><tr>
+				<td>Adet:</td><td><input type="text" id="adet" value="1" maxlength="6"/></td>
+			</tr><tr>
+				<td>Dik Durmalý mý?:</td><td><input type="checkbox" id="dik" value="1" /></td>
+			</tr><tr>
+				<td colspan="2"><input type="submit" onclick="createBox();" value="Ekle" /></td>
+			<tr>
+		</table><br>
+		<table id="all_boxes"><tr><th>Müþteri</th><th>En</th><th>Boy</th><th>Yükseklik</th><th>Adet</th><th>Dik Durmalý</th></tr></table><br>
+		<input type="submit" onclick="loadBoxes();" value="Yükle" />
+		<div id="write"></div>
+	</body>
+</html>
