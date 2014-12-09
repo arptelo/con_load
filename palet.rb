@@ -1,9 +1,9 @@
-# WebDialog'� olu�tur ve onun HTML dosyas�n� ayarla
+# WebDialog'� oluştur ve onun HTML dosyasını ayarla
 face_dialog = UI::WebDialog.new
 path = Sketchup.find_support_file "palet.html", "Plugins/Yukleme"
 face_dialog.set_file path
 
-# Kamerayı ayarla
+# Adjust camera
 view = Sketchup.active_model.active_view
 eye = [910.33, 784.461, 370.248]
 target = [144.768, 283.353, 60.108]
@@ -11,7 +11,7 @@ up = [-0.268593, -0.175811, 0.947073]
 cam = Sketchup::Camera.new eye, target, up
 view.camera = cam
 
-# Tır modelini yükle
+# Upload vehicle model
 ent = Sketchup.active_model.entities
 dl = Sketchup.active_model.definitions
 file_path = Sketchup.find_support_file "sin.skp", "Plugins/Yukleme"
@@ -21,7 +21,7 @@ inst = ent.add_instance comp_def, t
 
 mats = Sketchup.active_model.materials
 
-#Set the WebDialog's callback
+# Set the WebDialog's callback
 face_dialog.add_action_callback("create_face") {|d, arg|
 	if arg.to_s.length == 0
 		puts "Invalid input. Coordinates must be valid numbers."

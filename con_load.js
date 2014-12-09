@@ -210,7 +210,7 @@ function encode(boxes){
 			}
 		}
 	}
-	for(i=0;i<encoded_box_set.length;i++){
+	for(i=0; i<encoded_box_set.length; i++){
 		var arg="";
 		arg=encoded_box_set[i].x + "," + encoded_box_set[i].y + "," + encoded_box_set[i].z + "," + encoded_box_set[i].length + "," + encoded_box_set[i].width + "," + encoded_box_set[i].heigth + "," + encoded_box_set[i].name;
 		sendPoints(arg);
