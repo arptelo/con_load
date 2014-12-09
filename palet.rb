@@ -1,9 +1,9 @@
-# WebDialog'ý oluþtur ve onun HTML dosyasýný ayarla
+# WebDialog'ï¿½ oluï¿½tur ve onun HTML dosyasï¿½nï¿½ ayarla
 face_dialog = UI::WebDialog.new
 path = Sketchup.find_support_file "palet.html", "Plugins/Yukleme"
 face_dialog.set_file path
 
-# Kamerayý ayarla
+# KamerayÄ± ayarla
 view = Sketchup.active_model.active_view
 eye = [910.33, 784.461, 370.248]
 target = [144.768, 283.353, 60.108]
@@ -11,7 +11,7 @@ up = [-0.268593, -0.175811, 0.947073]
 cam = Sketchup::Camera.new eye, target, up
 view.camera = cam
 
-# Týr modelini yükle
+# TÄ±r modelini yÃ¼kle
 ent = Sketchup.active_model.entities
 dl = Sketchup.active_model.definitions
 file_path = Sketchup.find_support_file "sin.skp", "Plugins/Yukleme"
