@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Container loading problem</title>
+		<link rel="stylesheet" type="text/css" href="style.css">
+		<!-- <link rel="import" href="components/polymer/polymer.html"> -->
+		<script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r69/three.js"></script>
+		<script src="con_load.js"></script>
+	</head>
+	<body> <!--onLoad="init_box_set();">-->
+		<div>
+			<table>
+				<tr>
+					<td>Cargo Name:</td><td><input type="text" id="name" value="" maxlength="10"/></td>
+				</tr><tr>
+					<td>Width:</td><td><input type="text" id="en" value="80.0" maxlength="6"/></td>
+				</tr><tr>
+					<td>Length:</td><td><input type="text" id="boy" value="100.0" maxlength="6"/></td>
+				<tr><tr>
+					<td>Height:</td><td><input type="text" id="yukseklik" value="120.0" maxlength="6"/></td>
+				</tr><tr>
+					<td>Adet:</td><td><input type="text" id="adet" value="1" maxlength="6"/></td>
+				</tr><tr>
+					<td>This Side Up:</td><td><input type="checkbox" id="dik" value="1" /></td>
+				</tr>
+			</table>
+			<div><p id="add-cargo">Add cargo</p></div>
+		</div>
+		<div>
+			<table id="all_boxes"><tr><th>Cargo Name</th><th>Width</th><th>Length</th><th>Height</th><th>Quantity</th><th>This Side Up?</th></tr></table><br>
+			<input type="submit" onclick="loadBoxes();" value="Load" />
+		</div>
+		<div id="write"></div>
+		<div id="container3js"></div>
+	</body>
+</html>

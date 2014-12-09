@@ -4,6 +4,23 @@ var space_array = [];
 var loaded_boxes = [];
 //var itera = 0;
 
+$(document).ready(function(){
+	$("#add-cargo").click(function(){
+		createBox();
+		setScene();
+	});
+});
+
+function setScene() {
+	var container = document.getElementById( 'container3js' );
+	var scene = new THREE.Scene();
+	var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+
+	var renderer = new THREE.WebGLRenderer();
+	renderer.setSize( 600, 600 );
+	container.appendChild( renderer.domElement );
+}
+
 function sendPoints(arg){
 	window.location = 'skp:create_face@' + arg;
 }
@@ -42,8 +59,8 @@ function init_box_set(){
 		}
 	}
 }
-			
-function Box(){
+
+function createBox(){
 	var isim = document.getElementById("name").value;
 	var en = parseFloat(document.getElementById("en").value);
 	var boy = parseFloat(document.getElementById("boy").value);
@@ -60,17 +77,17 @@ function Box(){
 	}
 	if(dik.checked === true){
 		cell = row.insertCell(i);
-		cell.innerHTML = "Evet";
+		cell.innerHTML = "Yes";
 		box1 = new box(isim,boy,en,yukseklik,adet,true,true,false,false,false,false);
 		box_array.push(box1);
 	} else {
 		cell = row.insertCell(i);
-		cell.innerHTML = "Hayır";
+		cell.innerHTML = "No";
 		box1 = new box(isim,boy,en,yukseklik,adet,true,true,true,true,true,true);
 		box_array.push(box1);
 	}
 }
-			
+
 function check_space_usability(box_list, single_space){
 	var is_space_usable = false;
 	for (var i=0;i<box_list.length;i++){
@@ -86,7 +103,7 @@ function check_space_usability(box_list, single_space){
 		return "unusable";
 	}
 }
-			
+
 function loadBoxes(){
 	var usabili;
 	for(var i=0; i<box_array.length; i++){
@@ -456,55 +473,56 @@ function eval1(boxes, space){
 	var y_value;
 	var z_value;
 	var qua_of_boxes;
-	for (var i=0;i<boxes.length;i++){
+	var min;
+	for (var i=0; i<boxes.length; i++){
 		for (var key in boxes[i].orientation){
-			var ory=boxes[i].orientation[key];
+			var ory = boxes[i].orientation[key];
 			if (ory.pos === true && space.dim.x >= ory.x && space.dim.y >= ory.y && space.dim.z >= ory.z){
-				var emp_len_x = space.dim.x-Math.min(boxes[i].quantity, Math.floor(space.dim.x/ory.x))*ory.x;
-				var emp_len_y = space.dim.y-Math.min(boxes[i].quantity, Math.floor(space.dim.y/ory.y))*ory.y;
-				var emp_len_z = space.dim.z-Math.min(boxes[i].quantity, Math.floor(space.dim.z/ory.z))*ory.z;
-				var min = Math.min(emp_len_x,emp_len_y,emp_len_z);
-				if (min==emp_len_x){
-					possible_box = new best_ory(boxes[i].name,ory.name,"x",min,ory.x,ory.y,ory.z,boxes[i].quantity);
+				var emp_len_x = space.dim.x - Math.min(boxes[i].quantity, Math.floor(space.dim.x/ory.x))*ory.x;
+				var emp_len_y = space.dim.y - Math.min(boxes[i].quantity, Math.floor(space.dim.y/ory.y))*ory.y;
+				var emp_len_z = space.dim.z - Math.min(boxes[i].quantity, Math.floor(space.dim.z/ory.z))*ory.z;
+				min = Math.min(emp_len_x, emp_len_y, emp_len_z);
+				if (min == emp_len_x){
+					possible_box = new best_ory(boxes[i].name, ory.name, "x", min, ory.x, ory.y, ory.z, boxes[i].quantity);
 					min_len_of_boxes.push(possible_box);
 				}
-				if (min==emp_len_y){
-					possible_box = new best_ory(boxes[i].name,ory.name,"y",min,ory.x,ory.y,ory.z,boxes[i].quantity);
+				if (min == emp_len_y){
+					possible_box = new best_ory(boxes[i].name, ory.name, "y", min, ory.x, ory.y, ory.z, boxes[i].quantity);
 					min_len_of_boxes.push(possible_box);
 				}
-				if (min==emp_len_z){
-					possible_box = new best_ory(boxes[i].name,ory.name,"z",min,ory.x,ory.y,ory.z,boxes[i].quantity);
+				if (min == emp_len_z){
+					possible_box = new best_ory(boxes[i].name, ory.name, "z", min, ory.x, ory.y, ory.z, boxes[i].quantity);
 					min_len_of_boxes.push(possible_box);
 				}
 			}
 		}
 	}
-	min=1000000;
-	for (i=0;i<min_len_of_boxes.length;i++){
+	min = 1000000;
+	for (i=0; i<min_len_of_boxes.length; i++){
 		if (min_len_of_boxes[i].value < min){
 			min = min_len_of_boxes[i].value;
 		}
 	}
-	for (i=0;i<min_len_of_boxes.length;i++){
-		var can_box=min_len_of_boxes[i];
+	for (i=0; i<min_len_of_boxes.length; i++){
+		var can_box = min_len_of_boxes[i];
 		if (can_box.value == min){
-			if (can_box.direction=="x"){
-				x_value = space.dim.x-can_box.value;
+			if (can_box.direction == "x"){
+				x_value = space.dim.x - can_box.value;
 				y_value = can_box.new_y;
 				z_value = can_box.new_z;
-				qua_of_boxes = x_value/can_box.new_x;
-			} else if (can_box.direction=="y"){
+				qua_of_boxes = x_value / can_box.new_x;
+			} else if (can_box.direction == "y"){
 				x_value = can_box.new_x;
-				y_value = space.dim.y-can_box.value;
+				y_value = space.dim.y - can_box.value;
 				z_value = can_box.new_z;
-				qua_of_boxes = y_value/can_box.new_y;
+				qua_of_boxes = y_value / can_box.new_y;
 			} else {
 				x_value = can_box.new_x;
 				y_value = can_box.new_y;
-				z_value = space.dim.z-can_box.value;
-				qua_of_boxes = z_value/can_box.new_z;
+				z_value = space.dim.z - can_box.value;
+				qua_of_boxes = z_value / can_box.new_z;
 			}
-			var min_box = new box(can_box.name,x_value,y_value,z_value,Math.max(Math.floor(can_box.quantity/qua_of_boxes),1),true,false,false,false,false,false);
+			var min_box = new box(can_box.name, x_value, y_value, z_value, Math.max(Math.floor(can_box.quantity/qua_of_boxes),1), true, false, false, false, false, false);
 			returned_boxes_set.push(min_box);
 		}
 	}

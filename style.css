@@ -1,26 +1,35 @@
-table
-{
+body {
+	font-family:"Trebuchet MS", "Arial", "Helvetica", "sans-serif";
+}
+table {
 	margin-left:auto; 
 	margin-right:auto;
 	width:100%;
-	font-family:"Trebuchet MS", "Arial", "Helvetica", "sans-serif";
 	border-collapse:collapse;
 	color:#336699
 }
-td
-{
+td {
 	font-size:0.7em;
 	padding:3px 7px 2px 7px;
 }
-th 
-{
+th {
 	border-bottom:2px solid #336699;
 	font-size:0.8em;
 	text-align:center;
 	padding-top:5px;
 	padding-bottom:4px;
 }
-tr.alt td 
-{
+.alt td {
 	background-color:#EFEFFF;
+}
+#add-cargo p {
+	background-color: #000044;	
+}
+#add-cargo p:hover {
+	background-color: #000099;
+}
+
+#container3js {
+	width: 600px;
+	height: 600px;
 }
