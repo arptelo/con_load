@@ -6,7 +6,8 @@ table {
 	margin-right:auto;
 	width:100%;
 	border-collapse:collapse;
-	color:#336699
+	color:#336699;
+	text-align: center;
 }
 td {
 	font-size:0.7em;
@@ -33,4 +34,5 @@ th {
 	width: 600px;
 	height: 600px;
 	margin: 20px auto;
+	border: 1px solid gray;
 }

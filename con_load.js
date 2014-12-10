@@ -2,9 +2,6 @@ var box_array = [];
 var copy_box_array = [];
 var space_array = [];
 var loaded_boxes = [];
-var scene;
-var camera;
-var renderer;
 //var itera = 0;
 
 $(document).ready(function(){
@@ -13,83 +10,6 @@ $(document).ready(function(){
 		createBox();
 	});
 });
-
-function setScene() {
-	scene = new THREE.Scene();
-	camera = new THREE.PerspectiveCamera( 45, 600 / 600, 0.1, 1000 );
-	var container = document.getElementById("container3js")
-	renderer = new THREE.WebGLRenderer({alpha: true});
-	renderer.setSize( 600, 600 );
-	container.appendChild( renderer.domElement );
-	
-	camera.position.x = 680;
-	camera.position.y = 120;
-	camera.position.z = 400;
-	var skyboxGeometry = new THREE.BoxGeometry(10000, 10000, 10000);
-	var skyboxMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.BackSide });
-	var skybox = new THREE.Mesh(skyboxGeometry, skyboxMaterial);
-	scene.add(skybox);
-	var pointLight = new THREE.PointLight(0xffffff);
-	pointLight.position.set(700, 300, 200);
-	
-	scene.add(pointLight);
-	renderer.render(scene, camera);
-}
-
-function drawCube(w ,h, d, x, y, z, color, texture){
-	console.log("w: " + w + " h: " + h + " d: " + d + " x: " + x + " y: " + y + " z: " + z);
-	texture = texture || "noTexture";
-	var geometry = new THREE.BoxGeometry( w, h, d );
-	for ( var i = 0; i < geometry.faces.length; i ++ ) {
-		geometry.faces[ i ].color.setHex( color );
-	}
-
-	var material = new THREE.MeshLambertMaterial( { vertexColors: THREE.FaceColors } );
-	
-	var cube = new THREE.Mesh( geometry, material );
-	cube.position.x = x;
-	cube.position.y = y;
-	cube.position.z = z;
-	cube.matrixAutoUpdate = false;
-	cube.updateMatrix();
-	return cube;
-}
-
-function drawGrid(x1,z1,x2,z2){
-	var step = 20;
-	var maxx, minx, maxz, minz;
-	if(x1<x2) {
-		maxx=x2; 
-		minx=x1;
-	} else {
-		maxx=x1;
-		minx=x2;
-	}
-	if(z1<z2) {
-		maxz=z2; 
-		minz=z1;
-	} else {
-		maxz=z1;
-		minz=z2;
-	}
-
-	var geometry = new THREE.Geometry();
-
-	for ( var i = minx; i <= maxx; i += step ) {
-		geometry.vertices.push( new THREE.Vector3( i, 0, z1 ) );
-		geometry.vertices.push( new THREE.Vector3( i, 0, z2 ) );
-	}
-
-	for ( var i = minz; i <= maxz; i += step ) {
-		geometry.vertices.push( new THREE.Vector3( x1, 0, i ) );
-		geometry.vertices.push( new THREE.Vector3( x2, 0, i ) );
-	}
-
-	var material = new THREE.LineBasicMaterial( { color: 0x000000, opacity: 0.2 } );
-	var line = new THREE.Line( geometry, material );
-	line.type = THREE.LinePieces;
-	scene.add( line );
-}
 
 function randColor(){
 	var col = '0x'+Math.floor(Math.random()*16777215).toString(16);
@@ -258,9 +178,8 @@ function loadBoxes(){
 	for(i=0;i<space_array.length;i++){
 		empty_volume = empty_volume + (space_array[i].empty_space.dim.x*space_array[i].empty_space.dim.y*space_array[i].empty_space.dim.z);
 	}
-	alert(1-(empty_volume/(space1.dim.x*space1.dim.y*space1.dim.z)));
 	for(i=0;i<box_array.length;i++){
-		alert(box_array[i].quantity);
+		
 	}
 	encode(loaded_boxes);
 }
