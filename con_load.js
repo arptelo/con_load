@@ -2,27 +2,98 @@ var box_array = [];
 var copy_box_array = [];
 var space_array = [];
 var loaded_boxes = [];
+var scene;
+var camera;
+var renderer;
 //var itera = 0;
 
 $(document).ready(function(){
+	setScene();
 	$("#add-cargo").click(function(){
 		createBox();
-		setScene();
 	});
 });
 
 function setScene() {
-	var container = document.getElementById( 'container3js' );
-	var scene = new THREE.Scene();
-	var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-
-	var renderer = new THREE.WebGLRenderer();
+	scene = new THREE.Scene();
+	camera = new THREE.PerspectiveCamera( 45, 600 / 600, 0.1, 1000 );
+	var container = document.getElementById("container3js")
+	renderer = new THREE.WebGLRenderer({alpha: true});
 	renderer.setSize( 600, 600 );
 	container.appendChild( renderer.domElement );
+	
+	camera.position.x = 680;
+	camera.position.y = 120;
+	camera.position.z = 400;
+	var skyboxGeometry = new THREE.BoxGeometry(10000, 10000, 10000);
+	var skyboxMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.BackSide });
+	var skybox = new THREE.Mesh(skyboxGeometry, skyboxMaterial);
+	scene.add(skybox);
+	var pointLight = new THREE.PointLight(0xffffff);
+	pointLight.position.set(700, 300, 200);
+	
+	scene.add(pointLight);
+	renderer.render(scene, camera);
 }
 
-function sendPoints(arg){
-	window.location = 'skp:create_face@' + arg;
+function drawCube(w ,h, d, x, y, z, color, texture){
+	console.log("w: " + w + " h: " + h + " d: " + d + " x: " + x + " y: " + y + " z: " + z);
+	texture = texture || "noTexture";
+	var geometry = new THREE.BoxGeometry( w, h, d );
+	for ( var i = 0; i < geometry.faces.length; i ++ ) {
+		geometry.faces[ i ].color.setHex( color );
+	}
+
+	var material = new THREE.MeshLambertMaterial( { vertexColors: THREE.FaceColors } );
+	
+	var cube = new THREE.Mesh( geometry, material );
+	cube.position.x = x;
+	cube.position.y = y;
+	cube.position.z = z;
+	cube.matrixAutoUpdate = false;
+	cube.updateMatrix();
+	return cube;
+}
+
+function drawGrid(x1,z1,x2,z2){
+	var step = 20;
+	var maxx, minx, maxz, minz;
+	if(x1<x2) {
+		maxx=x2; 
+		minx=x1;
+	} else {
+		maxx=x1;
+		minx=x2;
+	}
+	if(z1<z2) {
+		maxz=z2; 
+		minz=z1;
+	} else {
+		maxz=z1;
+		minz=z2;
+	}
+
+	var geometry = new THREE.Geometry();
+
+	for ( var i = minx; i <= maxx; i += step ) {
+		geometry.vertices.push( new THREE.Vector3( i, 0, z1 ) );
+		geometry.vertices.push( new THREE.Vector3( i, 0, z2 ) );
+	}
+
+	for ( var i = minz; i <= maxz; i += step ) {
+		geometry.vertices.push( new THREE.Vector3( x1, 0, i ) );
+		geometry.vertices.push( new THREE.Vector3( x2, 0, i ) );
+	}
+
+	var material = new THREE.LineBasicMaterial( { color: 0x000000, opacity: 0.2 } );
+	var line = new THREE.Line( geometry, material );
+	line.type = THREE.LinePieces;
+	scene.add( line );
+}
+
+function randColor(){
+	var col = '0x'+Math.floor(Math.random()*16777215).toString(16);
+	return col;
 }
 
 function init_box_set(){
@@ -48,12 +119,12 @@ function init_box_set(){
 		}
 		if(dik.checked === true){
 			cell = row.insertCell(i);
-			cell.innerHTML = "Evet";
+			cell.innerHTML = "Yes";
 			box1 = new box(isim[j],boy[j],en[j],yukseklik[j],adet[j],true,true,false,false,false,false);
 			box_array.push(box1);
 		} else {
 			cell = row.insertCell(i);
-			cell.innerHTML = "Hayır";
+			cell.innerHTML = "No";
 			box1 = new box(isim[j],boy[j],en[j],yukseklik[j],adet[j],true,true,true,true,true,true);
 			box_array.push(box1);
 		}
@@ -228,10 +299,10 @@ function encode(boxes){
 		}
 	}
 	for(i=0; i<encoded_box_set.length; i++){
-		var arg="";
-		arg=encoded_box_set[i].x + "," + encoded_box_set[i].y + "," + encoded_box_set[i].z + "," + encoded_box_set[i].length + "," + encoded_box_set[i].width + "," + encoded_box_set[i].heigth + "," + encoded_box_set[i].name;
-		sendPoints(arg);
+		scene.add(drawCube(encoded_box_set[i].length, encoded_box_set[i].width, encoded_box_set[i].heigth, encoded_box_set[i].x, encoded_box_set[i].y, encoded_box_set[i].z, randColor()));
 	}
+	camera.lookAt(new THREE.Vector3( 0, 0, 0 ));
+	renderer.render(scene, camera);
 }
 
 function merge_spaces(spaces){
