@@ -6,7 +6,8 @@ var loaded_boxes = [];
 
 $(document).ready(function(){
 	setScene();
-	$("#add-cargo").click(function(){
+	$("#add-cargo").click(function(e){
+		e.preventDefault();
 		createBox();
 	});
 });

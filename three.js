@@ -1,14 +1,21 @@
 var scene;
 var camera;
+var projector;
 var renderer;
+var controls;
 
 function setScene() {
 	scene = new THREE.Scene();
-	camera = new THREE.PerspectiveCamera( 45, 600 / 600, 0.1, 1000 );
+	camera = new THREE.PerspectiveCamera( 45, 600 / 600, 0.1, 2000 );
 	var container = document.getElementById("container3js");
-	renderer = new THREE.WebGLRenderer({alpha: true});
+	renderer = new THREE.WebGLRenderer({alpha: true, antialias: true});
 	renderer.setSize( 600, 600 );
+	controls = new THREE.OrbitControls( camera, container );
+	controls.damping = 0.2;
+	controls.addEventListener( 'change', render );
 	container.appendChild( renderer.domElement );
+	
+	projector = new THREE.Projector();
 	
 	camera.position.x = 680;
 	camera.position.y = 120;
@@ -22,9 +29,10 @@ function setScene() {
 	
 	scene.add(pointLight);
 	renderer.render(scene, camera);
-	
-	container.addEventListener( 'mousewheel', mousewheel, false );
-    container.addEventListener( 'DOMMouseScroll', mousewheel, false ); // firefox
+	/*
+	container.addEventListener( 'mousewheel', mousewheel);
+    container.addEventListener( 'DOMMouseScroll', mousewheel); // firefox
+	*/
 }
 
 function drawCube(w ,h, d, x, y, z, color, texture){
@@ -45,6 +53,7 @@ function drawCube(w ,h, d, x, y, z, color, texture){
 	return cube;
 }
 
+/*
 var mousewheel  = function (e) {
     e.preventDefault();
     var d = ((typeof e.wheelDelta != "undefined")?(-e.wheelDelta):e.detail);
@@ -64,3 +73,7 @@ var mousewheel  = function (e) {
     camera.position.z = cPos.z * mb;
     renderer.render( scene, camera );
 };
+*/
+function render() {
+	renderer.render( scene, camera );
+}

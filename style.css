@@ -23,11 +23,11 @@ th {
 .alt td {
 	background-color:#EFEFFF;
 }
-#add-cargo p {
-	background-color: #000044;	
+#add-cargo {
+	color: #000044;	
 }
-#add-cargo p:hover {
-	background-color: #000099;
+#add-cargo:hover {
+	color: #000099;
 }
 
 #container3js {
