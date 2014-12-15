@@ -12,12 +12,12 @@ $(document).ready(function(){
 	});
 });
 
-function randColor(){
+var randColor = function(){
 	var col = '0x'+Math.floor(Math.random()*16777215).toString(16);
 	return col;
-}
+};
 
-function init_box_set(){
+var init_box_set = function(){
 	var isim = [];
 	var en = [];
 	var boy = [];
@@ -34,8 +34,9 @@ function init_box_set(){
 		var yeni_kutu_satiri = [isim[j],en[j],boy[j],yukseklik[j],adet[j]];
 		var table = document.getElementById("all_boxes");
 		var row = table.insertRow(table.rows.length);
+		var cell;
 		for(var i=0;i<5;i++){
-			var cell = row.insertCell(i);
+			cell = row.insertCell(i);
 			cell.innerHTML = yeni_kutu_satiri[i];
 		}
 		if(dik.checked === true){
@@ -49,10 +50,12 @@ function init_box_set(){
 			box1 = new box(isim[j],boy[j],en[j],yukseklik[j],adet[j],true,true,true,true,true,true);
 			box_array.push(box1);
 		}
+		cell = row.insertCell(i+1);
+		cell.innerHTML = "<input type='color' value='#" + randColor().split('x')[1] + "'/>";
 	}
-}
+};
 
-function createBox(){
+var createBox = function(){
 	var isim = document.getElementById("name").value;
 	var en = parseFloat(document.getElementById("en").value);
 	var boy = parseFloat(document.getElementById("boy").value);
@@ -63,8 +66,9 @@ function createBox(){
 	var yeni_kutu_satiri = [isim,en,boy,yukseklik,adet];
 	var table = document.getElementById("all_boxes");
 	var row = table.insertRow(table.rows.length);
+	var cell;
 	for(var i=0;i<5;i++){
-		var cell = row.insertCell(i);
+		cell = row.insertCell(i);
 		cell.innerHTML = yeni_kutu_satiri[i];
 	}
 	if(dik.checked === true){
@@ -78,30 +82,16 @@ function createBox(){
 		box1 = new box(isim,boy,en,yukseklik,adet,true,true,true,true,true,true);
 		box_array.push(box1);
 	}
-}
-
-function check_space_usability(box_list, single_space){
-	var is_space_usable = false;
-	for (var i=0;i<box_list.length;i++){
-		for (var key in box_list[i].orientation){
-			if(box_list[i].orientation[key].pos===true && box_list[i].orientation[key].x<=single_space.dim.x && box_list[i].orientation[key].y<=single_space.dim.y && box_list[i].orientation[key].z<=single_space.dim.z){
-				is_space_usable = true;
-			}
-		}
-	}
-	if(is_space_usable === true){
-		return "usable";
-	} else {
-		return "unusable";
-	}
-}
+};
 
 function loadBoxes(){
 	var usabili;
 	for(var i=0; i<box_array.length; i++){
 		copy_box_array[i] = box_array[i];
 	}
-	var space1 = new space(0,0,0,1360,240,300);
+	var space1 = new space(0, 0, 0, 1360, 240, 300);
+	//scene.add(drawCube(1360 ,240, 300, 0, 0, 0, randColor(), 0.3));
+	//renderer.render(scene, camera);
 	var space_element = {
 		empty_space: space1,
 		usability: "usable"
@@ -122,47 +112,46 @@ function loadBoxes(){
 		b.loading_point.z = space_array[0].empty_space.origin.z;
 		loaded_boxes.push(b);
 		for(i=0;i<box_array.length;i++){
-			var exit_for = 0;
 			for (var key in box_array[i].orientation){
-				if(exit_for === 0 && b.loaded_box.name==box_array[i].name && b.loaded_box.dim.x % box_array[i].orientation[key].x === 0 && b.loaded_box.dim.y % box_array[i].orientation[key].y === 0 && b.loaded_box.dim.z % box_array[i].orientation[key].z === 0){
+				if(b.loaded_box.name == box_array[i].name && b.loaded_box.dim.x % box_array[i].orientation[key].x === 0 && b.loaded_box.dim.y % box_array[i].orientation[key].y === 0 && b.loaded_box.dim.z % box_array[i].orientation[key].z === 0){
 					var box_number = (b.loaded_box.dim.x/box_array[i].orientation[key].x)*(b.loaded_box.dim.y/box_array[i].orientation[key].y)*(b.loaded_box.dim.z/box_array[i].orientation[key].z);
 					if(box_array[i].quantity - box_number === 0){
 						box_array.splice(i,1);
 					} else {
-						box_array[i].quantity = box_array[i].quantity-box_number;
+						box_array[i].quantity = box_array[i].quantity - box_number;
 					}
-					exit_for = 1;
+					break;
 				}
 			}
 		}
-		if(b.loaded_box.dim.x !== 0 && space_array[0].empty_space.dim.y-b.loaded_box.dim.y !== 0 && space_array[0].empty_space.dim.z !== 0){
+		if(b.loaded_box.dim.x !== 0 && space_array[0].empty_space.dim.y-b.loaded_box.dim.y !== 0 && space_array[0].empty_space.dim.z !== 0) {
 			var space_side = new space(space_array[0].empty_space.origin.x,space_array[0].empty_space.origin.y+b.loaded_box.dim.y,space_array[0].empty_space.origin.z,b.loaded_box.dim.x,space_array[0].empty_space.dim.y-b.loaded_box.dim.y,space_array[0].empty_space.dim.z);
-			usabili = check_space_usability(box_array,space_side);
-			setSpaceElement(space_side,usabili);
+			usabili = space_side.check_space_usability(box_array);
+			space_array.push(new spaceelement(space_side, usabili));
 		}
-		if(space_array[0].empty_space.dim.x-b.loaded_box.dim.x !== 0 && space_array[0].empty_space.dim.y !== 0 && space_array[0].empty_space.dim.z !== 0){
+		if(space_array[0].empty_space.dim.x-b.loaded_box.dim.x !== 0 && space_array[0].empty_space.dim.y !== 0 && space_array[0].empty_space.dim.z !== 0) {
 			var space_front = new space(space_array[0].empty_space.origin.x+b.loaded_box.dim.x,space_array[0].empty_space.origin.y,space_array[0].empty_space.origin.z,space_array[0].empty_space.dim.x-b.loaded_box.dim.x,space_array[0].empty_space.dim.y,space_array[0].empty_space.dim.z);
-			usabili = check_space_usability(box_array,space_front);
-			setSpaceElement(space_front,usabili);
+			usabili = space_front.check_space_usability(box_array);
+			space_array.push(new spaceelement(space_front, usabili));
 		}
-		if(b.loaded_box.dim.x !== 0 && b.loaded_box.dim.y !== 0 && space_array[0].empty_space.dim.z-b.loaded_box.dim.z !== 0){
+		if(b.loaded_box.dim.x !== 0 && b.loaded_box.dim.y !== 0 && space_array[0].empty_space.dim.z-b.loaded_box.dim.z !== 0) {
 			var space_overhead = new space(space_array[0].empty_space.origin.x,space_array[0].empty_space.origin.y,space_array[0].empty_space.origin.z+b.loaded_box.dim.z,b.loaded_box.dim.x,b.loaded_box.dim.y,space_array[0].empty_space.dim.z-b.loaded_box.dim.z);
-			usabili = check_space_usability(box_array,space_overhead);
-			setSpaceElement(space_overhead,usabili);
+			usabili = space_overhead.check_space_usability(box_array);
+			space_array.push(new spaceelement(space_overhead, usabili));
 		}
 //		var dtw=document.getElementById("write");
 //		dtw.innerHTML = dtw.innerHTML + "iter: " + itera + " Silinen:  " + " " + space_array[0].empty_space.origin.x + " " + space_array[0].empty_space.origin.y + " " + space_array[0].empty_space.origin.z + " " + space_array[0].empty_space.dim.x + " " + space_array[0].empty_space.dim.y + " " + space_array[0].empty_space.dim.z + "<br>";
 		space_array.splice(0,1);
-		for(var j=0;j<space_array.length;j++){
-			space_array[j].usability=check_space_usability(box_array,space_array[j].empty_space);
+		for(var j=0;j<space_array.length;j++) {
+			space_array[j].usability = space_array[j].empty_space.check_space_usability(box_array);
 		}
 		space_array = merge_spaces(space_array);
 		var min_distance_to_origin = 10000;
-		for(i=0;i<space_array.length;i++){
+		for(i=0;i<space_array.length;i++) {
 			if(space_array[i].usability=="usable" && Math.sqrt(Math.pow(space_array[i].empty_space.origin.x,2)+Math.pow(space_array[i].empty_space.origin.y,2)+Math.pow(space_array[i].empty_space.origin.z,2))<min_distance_to_origin){
 				min_distance_to_origin = Math.sqrt(Math.pow(space_array[i].empty_space.origin.x,2)+Math.pow(space_array[i].empty_space.origin.y,2)+Math.pow(space_array[i].empty_space.origin.z,2));
 			}
-			if(space_array[i].usability=="usable"){
+			if(space_array[i].usability=="usable") {
 				number_of_usable_spaces=number_of_usable_spaces+1;
 			}
 		}
@@ -184,11 +173,12 @@ function loadBoxes(){
 	}
 	encode(loaded_boxes);
 }
-			
+
 function encode(boxes){
 	var encoded_box_set = [];
+	var i;
 	for(var j=0;j<boxes.length;j++){
-		for(var i=0;i<copy_box_array.length;i++){
+		for(i=0;i<copy_box_array.length;i++){
 			var exit_for = 0;
 			if(boxes[j].loaded_box.name == copy_box_array[i].name){
 				for (var key in copy_box_array[i].orientation){
@@ -219,7 +209,8 @@ function encode(boxes){
 		}
 	}
 	for(i=0; i<encoded_box_set.length; i++){
-		scene.add(drawCube(encoded_box_set[i].length, encoded_box_set[i].width, encoded_box_set[i].heigth, encoded_box_set[i].x, encoded_box_set[i].y, encoded_box_set[i].z, randColor()));
+		$("#write").html($("#write").html() + "<br>l:" + encoded_box_set[i].length + " w:" + encoded_box_set[i].width + " h:" +  encoded_box_set[i].heigth + " x:" +  encoded_box_set[i].x + " y:" + encoded_box_set[i].y + " z:" + encoded_box_set[i].z);
+		scene.add(drawCube(encoded_box_set[i].length, encoded_box_set[i].width, encoded_box_set[i].heigth, encoded_box_set[i].x, encoded_box_set[i].y, encoded_box_set[i].z, randColor(), 1));
 	}
 	camera.lookAt(new THREE.Vector3( 0, 0, 0 ));
 	renderer.render(scene, camera);
@@ -244,9 +235,9 @@ function merge_spaces(spaces){
 						spaces.splice(j,1);
 					}
 					for(var k=0;k<set_spaces.length;k++){
-						checkusability = check_space_usability(box_array,set_spaces[k]);
+						checkusability = set_spaces[k].check_space_usability(box_array);
 //						dtw.innerHTML = dtw.innerHTML  + "iter: " + itera + " Eklenen:  " + " " + set_spaces[k].origin.x + " " + set_spaces[k].origin.y + " " + set_spaces[k].origin.z + " " + set_spaces[k].dim.x + " " + set_spaces[k].dim.y + " " + set_spaces[k].dim.z + "<br>";
-						spaces[spaces.length] = new spaceelement(set_spaces[k],checkusability);
+						spaces[spaces.length] = new spaceelement(set_spaces[k], checkusability);
 					}
 					l=0;
 					j=0;
@@ -275,7 +266,7 @@ function merge_spaces(spaces){
 						spaces.splice(j,1);
 					}
 					for(k=0;k<set_spaces2.length;k++){
-						checkusability = check_space_usability(box_array,set_spaces2[k]);
+						checkusability = set_spaces2[k].check_space_usability(box_array);
 //						dtw.innerHTML = dtw.innerHTML + "iter: " + itera  + " Eklenen:  " + " " + set_spaces2[k].origin.x + " " + set_spaces2[k].origin.y + " " + set_spaces2[k].origin.z + " " + set_spaces2[k].dim.x + " " + set_spaces2[k].dim.y + " " + set_spaces2[k].dim.z + "<br>";
 						new_spaces[new_spaces.length] = new spaceelement(set_spaces2[k],checkusability);
 					}
@@ -291,7 +282,7 @@ function merge_spaces(spaces){
 	return spaces;
 }
 
-function merge_spaces1(space1,space2){
+function merge_spaces1(space1, space2) {
 	var returned_spaces = [];
 	var merged_space;
 	if(space1.origin.z==space2.origin.z){
@@ -306,17 +297,17 @@ function merge_spaces1(space1,space2){
 	return returned_spaces;
 }
 
-function merge_spaces2(space1, space2){
+function merge_spaces2(space1, space2) {
 	var returned_spaces = [];
 	var merged_space1;
 	var merged_space2;
 	var merged_space3;
-	if(space1.origin.z == space2.origin.z){
-		if(space1.origin.x+space1.dim.x == space2.origin.x){
-			if(Math.max(space1.origin.y,space2.origin.y) == space1.origin.y && space2.dim.y + space2.origin.y > space1.origin.y){
+	if(space1.origin.z == space2.origin.z) {
+		if(space1.origin.x+space1.dim.x == space2.origin.x) {
+			if(Math.max(space1.origin.y,space2.origin.y) == space1.origin.y && space2.dim.y + space2.origin.y > space1.origin.y) {
 				merged_space1 = new space(space2.origin.x,space2.origin.y,space2.origin.z,space2.dim.x,space1.origin.y-space2.origin.y,space2.dim.z);
 				returned_spaces.push(merged_space1);
-				if(Math.min(space1.origin.y+space1.dim.y,space2.origin.y+space2.dim.y) == space1.origin.y+space1.dim.y){
+				if(Math.min(space1.origin.y+space1.dim.y,space2.origin.y+space2.dim.y) == space1.origin.y+space1.dim.y) {
 					merged_space2 = new space(space1.origin.x,space1.origin.y,space1.origin.z,space1.dim.x+space2.dim.x,space1.dim.y,space1.dim.z);
 					returned_spaces.push(merged_space2);
 					merged_space3 = new space(space2.origin.x,space1.origin.y+space1.dim.y,space1.origin.z,space2.dim.x,(space2.dim.y+space2.origin.y)-(space1.origin.y+space1.dim.y),space1.dim.z);
@@ -327,10 +318,10 @@ function merge_spaces2(space1, space2){
 					merged_space3 = new space(space1.origin.x,space2.origin.y+space2.dim.y,space1.origin.z,space1.dim.x,(space1.origin.y+space1.dim.y)-(space2.origin.y+space2.dim.y),space1.dim.z);
 					returned_spaces.push(merged_space3);
 				}
-			} else if(Math.max(space1.origin.y,space2.origin.y) == space2.origin.y && space1.dim.y + space1.origin.y >= space2.origin.y){
+			} else if(Math.max(space1.origin.y,space2.origin.y) == space2.origin.y && space1.dim.y + space1.origin.y >= space2.origin.y) {
 				merged_space1 = new space(space1.origin.x,space1.origin.y,space1.origin.z,space1.dim.x,space2.origin.y-space1.origin.y,space1.dim.z);
 				returned_spaces.push(merged_space1);
-				if(Math.min(space1.origin.y+space1.dim.y,space2.origin.y+space2.dim.y) == space1.origin.y+space1.dim.y){
+				if(Math.min(space1.origin.y+space1.dim.y,space2.origin.y+space2.dim.y) == space1.origin.y+space1.dim.y) {
 					merged_space2 = new space(space1.origin.x,space2.origin.y,space1.origin.z,space1.dim.x+space2.dim.x,space1.origin.y+space1.dim.y-space2.origin.y,space1.dim.z);
 					returned_spaces.push(merged_space2);
 					merged_space3 = new space(space2.origin.x,space1.origin.y+space1.dim.y,space1.origin.z,space2.dim.x,space2.origin.y+space2.dim.y-(space1.origin.y+space1.dim.y),space1.dim.z);
@@ -342,11 +333,11 @@ function merge_spaces2(space1, space2){
 					returned_spaces.push(merged_space3);
 				}
 			}
-		} else if(space1.origin.y+space1.dim.y == space2.origin.y){
-			if(Math.max(space1.origin.x,space2.origin.x) == space1.origin.x && space1.origin.x < space2.origin.x + space2.dim.x){
+		} else if(space1.origin.y+space1.dim.y == space2.origin.y) {
+			if(Math.max(space1.origin.x,space2.origin.x) == space1.origin.x && space1.origin.x < space2.origin.x + space2.dim.x) {
 				merged_space1 = new space(space2.origin.x,space2.origin.y,space2.origin.z,space1.origin.x-space2.origin.x,space2.dim.y,space2.dim.z);
 				returned_spaces.push(merged_space1);
-				if(Math.min(space1.origin.x+space1.dim.x,space2.origin.x+space2.dim.x) == space1.origin.x+space1.dim.x){
+				if(Math.min(space1.origin.x+space1.dim.x,space2.origin.x+space2.dim.x) == space1.origin.x+space1.dim.x) {
 					merged_space2 = new space(space1.origin.x,space1.origin.y,space1.origin.z,space1.dim.x,space1.dim.y+space2.dim.y,space1.dim.z);
 					returned_spaces.push(merged_space2);
 					merged_space3 = new space(space1.dim.x+space1.origin.x,space2.origin.y,space1.origin.z,space2.origin.x+space2.dim.x-(space1.dim.x+space1.origin.x),space2.dim.y,space1.dim.z);
@@ -357,10 +348,10 @@ function merge_spaces2(space1, space2){
 					merged_space3 = new space(space2.origin.x+space2.dim.x,space1.origin.y,space1.origin.z,space1.dim.x+space1.origin.x-(space2.dim.x+space2.origin.x),space1.dim.y,space1.dim.z);
 					returned_spaces.push(merged_space3);
 				}
-			} else if(Math.max(space1.origin.x,space2.origin.x) == space2.origin.x && space2.origin.x < space1.origin.x + space1.dim.x){
+			} else if(Math.max(space1.origin.x,space2.origin.x) == space2.origin.x && space2.origin.x < space1.origin.x + space1.dim.x) {
 				merged_space1 = new space(space1.origin.x,space1.origin.y,space1.origin.z,space2.origin.x-space1.origin.x,space1.dim.y,space1.dim.z);
 				returned_spaces.push(merged_space1);
-				if(Math.min(space1.origin.x+space1.dim.x,space2.origin.x+space2.dim.x) == space1.origin.x+space1.dim.x){
+				if(Math.min(space1.origin.x+space1.dim.x,space2.origin.x+space2.dim.x) == space1.origin.x+space1.dim.x) {
 					merged_space2 = new space(space2.origin.x,space1.origin.y,space1.origin.z,space1.dim.x+space1.origin.x-space2.origin.x,space1.dim.y+space2.dim.y,space1.dim.z);
 					returned_spaces.push(merged_space2);
 					merged_space3 = new space(space1.origin.x+space1.dim.x,space2.origin.y,space1.origin.z,space2.dim.x+space2.origin.x-(space1.dim.x+space1.origin.x),space2.dim.y,space1.dim.z);
@@ -377,111 +368,30 @@ function merge_spaces2(space1, space2){
 	return returned_spaces;
 }
 
-function box(name,l,w,h,q,xyz,yxz,xzy,zxy,zyx,yzx){
-	this.name=name;
-	this.dim = {};
-	this.dim.x=l;
-	this.dim.y=w;
-	this.dim.z=h;
-	this.quantity=q;
-	this.orientation = {};
-	this.orientation.first = {};
-	this.orientation.first.name="first";
-	this.orientation.first.pos=xyz;
-	this.orientation.first.x=l;
-	this.orientation.first.y=w;
-	this.orientation.first.z=h;
-	this.orientation.second = {};
-	this.orientation.second.name="second";
-	this.orientation.second.pos=yxz;
-	this.orientation.second.x=w;
-	this.orientation.second.y=l;
-	this.orientation.second.z=h;
-	this.orientation.third = {};
-	this.orientation.third.name="third";
-	this.orientation.third.pos=xzy;
-	this.orientation.third.x=l;
-	this.orientation.third.y=h;
-	this.orientation.third.z=w;
-	this.orientation.fourth = {};
-	this.orientation.fourth.name="fourth";
-	this.orientation.fourth.pos=zxy;
-	this.orientation.fourth.x=h;
-	this.orientation.fourth.y=l;
-	this.orientation.fourth.z=w;
-	this.orientation.fifth = {};
-	this.orientation.fifth.name="fifth";
-	this.orientation.fifth.pos=zyx;
-	this.orientation.fifth.x=h;
-	this.orientation.fifth.y=w;
-	this.orientation.fifth.z=l;
-	this.orientation.sixth ={};
-	this.orientation.sixth.name="sixth";
-	this.orientation.sixth.pos=yzx;
-	this.orientation.sixth.x=w;
-	this.orientation.sixth.y=h;
-	this.orientation.sixth.z=l;
-}
-
-function space(x,y,z,l,w,h){
-	this.origin = {};
-	this.origin.x=x;
-	this.origin.y=y;
-	this.origin.z=z;
-	this.dim = {};
-	this.dim.x=l;
-	this.dim.y=w;
-	this.dim.z=h;
-}
-
-function spaceelement(spac, usab){
-	this.empty_space = spac;
-	this.usability = usab;
-}
-
-function setSpaceElement(spa, usa){
-    space_array[space_array.length] = new spaceelement(spa, usa);
-//	var dtw=document.getElementById("write");
-//	dtw.innerHTML = dtw.innerHTML  + "iter: " + itera + " Eklenen:  " + " " + spa.origin.x + " " + spa.origin.y + " " + spa.origin.z + " " + spa.dim.x + " " + spa.dim.y + " " + spa.dim.z + "<br>";
-}
-
-function best_ory(box,orientation,direction,rest_value,x,y,z,q){
-	this.name=box;
-	this.orientation=orientation;
-	this.direction=direction;
-	this.value=rest_value;
-	this.new_x=x;
-	this.new_y=y;
-	this.new_z=z;
-	this.quantity=q;
-}
-
-function eval1(boxes, space){
+var eval1 = function(boxes, space) {
 	var returned_boxes_set = [];
 	var min_len_of_boxes = [];
 	var possible_box;
-	var x_value;
-	var y_value;
-	var z_value;
+	var x_value, y_value, z_value;
 	var qua_of_boxes;
 	var min;
-	for (var i=0; i<boxes.length; i++){
-		for (var key in boxes[i].orientation){
+	for (var i=0; i<boxes.length; i++) {
+		for (var key in boxes[i].orientation) {
 			var ory = boxes[i].orientation[key];
-			if (ory.pos === true && space.dim.x >= ory.x && space.dim.y >= ory.y && space.dim.z >= ory.z){
+			if (ory.pos === true && space.dim.x >= ory.x && space.dim.y >= ory.y && space.dim.z >= ory.z) {
 				var emp_len_x = space.dim.x - Math.min(boxes[i].quantity, Math.floor(space.dim.x/ory.x))*ory.x;
 				var emp_len_y = space.dim.y - Math.min(boxes[i].quantity, Math.floor(space.dim.y/ory.y))*ory.y;
 				var emp_len_z = space.dim.z - Math.min(boxes[i].quantity, Math.floor(space.dim.z/ory.z))*ory.z;
 				min = Math.min(emp_len_x, emp_len_y, emp_len_z);
-				if (min == emp_len_x){
+				if (min == emp_len_x) {
 					possible_box = new best_ory(boxes[i].name, ory.name, "x", min, ory.x, ory.y, ory.z, boxes[i].quantity);
 					min_len_of_boxes.push(possible_box);
 				}
-				if (min == emp_len_y){
+				if (min == emp_len_y) {
 					possible_box = new best_ory(boxes[i].name, ory.name, "y", min, ory.x, ory.y, ory.z, boxes[i].quantity);
 					min_len_of_boxes.push(possible_box);
 				}
-				if (min == emp_len_z){
+				if (min == emp_len_z) {
 					possible_box = new best_ory(boxes[i].name, ory.name, "z", min, ory.x, ory.y, ory.z, boxes[i].quantity);
 					min_len_of_boxes.push(possible_box);
 				}
@@ -489,20 +399,20 @@ function eval1(boxes, space){
 		}
 	}
 	min = 1000000;
-	for (i=0; i<min_len_of_boxes.length; i++){
-		if (min_len_of_boxes[i].value < min){
+	for (i=0; i<min_len_of_boxes.length; i++) {
+		if (min_len_of_boxes[i].value < min) {
 			min = min_len_of_boxes[i].value;
 		}
 	}
-	for (i=0; i<min_len_of_boxes.length; i++){
+	for (i=0; i<min_len_of_boxes.length; i++) {
 		var can_box = min_len_of_boxes[i];
-		if (can_box.value == min){
-			if (can_box.direction == "x"){
+		if (can_box.value == min) {
+			if (can_box.direction == "x") {
 				x_value = space.dim.x - can_box.value;
 				y_value = can_box.new_y;
 				z_value = can_box.new_z;
 				qua_of_boxes = x_value / can_box.new_x;
-			} else if (can_box.direction == "y"){
+			} else if (can_box.direction == "y") {
 				x_value = can_box.new_x;
 				y_value = space.dim.y - can_box.value;
 				z_value = can_box.new_z;
@@ -518,13 +428,14 @@ function eval1(boxes, space){
 		}
 	}
 	return returned_boxes_set;
-}
+};
 
-function eval2(boxes,space) {
+var eval2 = function(boxes, space) {
 	var returned_boxes_set = [];
 	var possible_boxes_set = [];
+	var boxs;
 	for (var j=0;j<boxes.length;j++){
-		var boxs=boxes[j];
+		boxs = boxes[j];
 		for (var key in boxes[j].orientation){
 			var ory=boxes[j].orientation[key];
 			if (ory.pos === true){
@@ -561,13 +472,14 @@ function eval2(boxes,space) {
 		}
 	}
 	return returned_boxes_set;
-}
+};
 
-function eval3(boxes,space) {
+var eval3 = function(boxes, space) {
 	var returned_boxes_set = [];
 	var possible_boxes_set = [];
+	var boxs;
 	for (var j=0;j<boxes.length;j++){
-		var boxs=boxes[j];
+		boxs = boxes[j];
 		for (var key in boxes[j].orientation){
 			var ory=boxes[j].orientation[key];
 			if (ory.pos === true){
@@ -604,13 +516,14 @@ function eval3(boxes,space) {
 		}
 	}
 	return returned_boxes_set;
-}
+};
 
-function eval4(boxes,space) {
+var eval4 = function(boxes, space) {
 	var returned_boxes_set = [];
 	var possible_boxes_set = [];
+	var boxs;
 	for (var j=0;j<boxes.length;j++){
-		var boxs=boxes[j];
+		boxs = boxes[j];
 		for (var key in boxes[j].orientation){
 			var ory=boxes[j].orientation[key];
 			if (ory.pos === true){
@@ -647,4 +560,4 @@ function eval4(boxes,space) {
 		}
 	}
 	return returned_boxes_set;
-}
+};

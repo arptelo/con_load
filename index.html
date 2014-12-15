@@ -5,8 +5,6 @@
 		<link rel="stylesheet" type="text/css" href="style.css">
 		<!-- <link rel="import" href="components/polymer/polymer.html"> -->
 		<script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r69/three.js"></script>
-		<script src="orbit_control.js"></script>
 	</head>
 	<body> <!--onLoad="init_box_set();">-->
 		<div>
@@ -23,17 +21,22 @@
 					<td>Adet:</td><td><input type="text" id="adet" value="1" maxlength="6"/></td>
 				</tr><tr>
 					<td>This Side Up:</td><td><input type="checkbox" id="dik" value="1" /></td>
+				</tr><tr>
+					<td>Color:</td><td><input type="color" id="color" value="#FF0000" /></td>
 				</tr>
 			</table>
 			<div><a href="#" id="add-cargo">Add cargo</a></div>
 		</div>
 		<div>
-			<table id="all_boxes"><tr><th>Cargo Name</th><th>Width</th><th>Length</th><th>Height</th><th>Quantity</th><th>This Side Up?</th></tr></table><br>
+			<table id="all_boxes"><tr><th>Cargo Name</th><th>Width</th><th>Length</th><th>Height</th><th>Quantity</th><th>This Side Up?</th><th>Color</th></th></tr></table><br>
 			<input type="submit" onclick="loadBoxes();" value="Load" />
 		</div>
 		<div id="write"></div>
 		<div id="container3js"></div>
-		<script src="three.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r69/three.js"></script>
+		<script src="orbit_control.js"></script>
+		<script src="three_utilities.js"></script>
+		<script src="objects.js"></script>
 		<script src="con_load.js"></script>
 	</body>
 </html>
