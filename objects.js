@@ -1,4 +1,4 @@
-var box = function(name, l, w, h, q, xyz, yxz, xzy, zxy, zyx, yzx) {
+var box = function(name, l, w, h, q, xyz, yxz, xzy, zxy, zyx, yzx, color) {
 	this.name = name;
 	this.dim = {
 		x: l,
@@ -14,6 +14,7 @@ var box = function(name, l, w, h, q, xyz, yxz, xzy, zxy, zyx, yzx) {
 		fifth:  { name: "fifth",  pos: zyx, x: h, y: w, z: l },
 		sixth:  { name: "sixth",  pos: yzx, x: w, y: h, z: l }
 	};
+	this.color = color;
 };
 
 var space = function(x, y, z, l, w, h) {

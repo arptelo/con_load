@@ -39,9 +39,9 @@ function setScene() {
 
 function drawCube(w ,d, h, x, z, y, color, opacity, texture){
 	texture = texture || "noTexture";
-	var geometry = new THREE.BoxGeometry( w, h, d );
+	var geometry = new THREE.BoxGeometry(w, h, d);
 	for ( var i = 0; i < geometry.faces.length; i ++ ) {
-		geometry.faces[ i ].color.setHex( color );
+		geometry.faces[ i ].color.set(color);
 	}
 
 	var material = new THREE.MeshLambertMaterial( { transparent: true, opacity: opacity, vertexColors: THREE.FaceColors } );

@@ -1,33 +1,59 @@
+/* Space out content a bit */
 body {
-	font-family:"Trebuchet MS", "Arial", "Helvetica", "sans-serif";
+  padding-top: 20px;
+  padding-bottom: 20px;
 }
+
+/* Everything but the jumbotron gets side spacing for mobile first views */
+.header,
+.marketing,
+.footer {
+  padding-right: 15px;
+  padding-left: 15px;
+}
+
+/* Custom page header */
+.header {
+  border-bottom: 1px solid #e5e5e5;
+}
+/* Make the masthead heading the same height as the navigation */
+.header h3 {
+  padding-bottom: 19px;
+  margin-top: 0;
+  margin-bottom: 0;
+  line-height: 40px;
+}
+
+/* Custom page footer */
+.footer {
+  padding-top: 19px;
+  color: #777;
+  border-top: 1px solid #e5e5e5;
+}
+
 table {
 	margin-left:auto; 
 	margin-right:auto;
 	width:100%;
 	border-collapse:collapse;
-	color:#336699;
 	text-align: center;
 }
+
 td {
-	font-size:0.7em;
+	font-size:0.8em;
 	padding:3px 7px 2px 7px;
 }
+
 th {
-	border-bottom:2px solid #336699;
+	border-bottom:2px solid black;
 	font-size:0.8em;
 	text-align:center;
 	padding-top:5px;
 	padding-bottom:4px;
 }
+
 .alt td {
 	background-color:#EFEFFF;
-}
-#add-cargo {
-	color: #000044;	
-}
-#add-cargo:hover {
-	color: #000099;
 }
 
 #container3js {
@@ -41,4 +67,82 @@ th {
 	height: 100px;
 	width: 100%;
 	overflow:scroll;
+}
+
+/* Customize container */
+@media (min-width: 768px) {
+  .container {
+    max-width: 730px;
+  }
+}
+
+.container-narrow > hr {
+  margin: 30px 0;
+}
+
+/* Main marketing message and sign up button */
+.jumbotron {
+  text-align: center;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.jumbotron .btn {
+  padding: 14px 24px;
+  font-size: 21px;
+}
+
+/* Supporting marketing content */
+.marketing {
+  margin: 40px 0;
+}
+
+.marketing p + h4 {
+  margin-top: 28px;
+}
+
+/* Checkpoint Box */
+.checkInput {
+  padding: 7px;
+  font-size: 0.8em;
+} 
+
+.inputLabel {
+  font-weight: bold;
+  width: 100px;
+}
+
+.delCheck {
+  float: right;
+  margin: 5px;
+  height: 20px;
+  width: 20px;
+  text-align: center;
+}
+
+.container {
+  padding: 0;
+}
+
+.buttonDiv {
+  text-align:center;
+  margin-bottom: 20px;
+}
+
+/* Responsive: Portrait tablets and up */
+@media screen and (min-width: 768px) {
+  /* Remove the padding we set earlier */
+  .header,
+  .marketing,
+  .footer {
+    padding-right: 0;
+    padding-left: 0;
+  }
+  /* Space out the masthead */
+  .header {
+    margin-bottom: 30px;
+  }
+  /* Remove the bottom border on the jumbotron for visual effect */
+  .jumbotron {
+    border-bottom: 0;
+  }
 }

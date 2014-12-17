@@ -8,7 +8,9 @@ $(document).ready(function(){
 	setScene();
 	$("#add-cargo").click(function(e){
 		e.preventDefault();
-		createBox();
+		var contents = "<div class='panel panel-primary'><div class='panel-heading'>Checkpoint and box properties</div><div class='panel-body'>" + $('.checkpointTemplate').html() + "</div></div>";
+		$(this).closest('.container').append(contents);
+		$('.checkpointTemplate').removeClass("hide");
 	});
 });
 
@@ -43,15 +45,16 @@ var init_box_set = function(){
 			cell = row.insertCell(i);
 			cell.innerHTML = "Yes";
 			box1 = new box(isim[j],boy[j],en[j],yukseklik[j],adet[j],true,true,false,false,false,false);
-			box_array.push(box1);
 		} else {
 			cell = row.insertCell(i);
 			cell.innerHTML = "No";
 			box1 = new box(isim[j],boy[j],en[j],yukseklik[j],adet[j],true,true,true,true,true,true);
-			box_array.push(box1);
 		}
 		cell = row.insertCell(i+1);
-		cell.innerHTML = "<input type='color' value='#" + randColor().split('x')[1] + "'/>";
+		var color = "#" + randColor().split('x')[1];
+		cell.innerHTML = "<input type='color' value='" + color + "'/>";
+		box1.color = color;
+		box_array.push(box1);
 	}
 };
 
@@ -62,6 +65,7 @@ var createBox = function(){
 	var yukseklik = parseFloat(document.getElementById("yukseklik").value);
 	var adet = parseInt(document.getElementById("adet").value, 10);
 	var dik = document.getElementById("dik");
+	var color = document.getElementById("color").value;
 	var box1;
 	var yeni_kutu_satiri = [isim,en,boy,yukseklik,adet];
 	var table = document.getElementById("all_boxes");
@@ -75,13 +79,15 @@ var createBox = function(){
 		cell = row.insertCell(i);
 		cell.innerHTML = "Yes";
 		box1 = new box(isim,boy,en,yukseklik,adet,true,true,false,false,false,false);
-		box_array.push(box1);
 	} else {
 		cell = row.insertCell(i);
 		cell.innerHTML = "No";
 		box1 = new box(isim,boy,en,yukseklik,adet,true,true,true,true,true,true);
-		box_array.push(box1);
 	}
+	cell = row.insertCell(i+1);
+	cell.innerHTML = "<input type='color' value='" + color + "'/>";
+	box1.color = color;
+	box_array.push(box1);
 };
 
 function loadBoxes(){
@@ -174,15 +180,14 @@ function loadBoxes(){
 	encode(loaded_boxes);
 }
 
-function encode(boxes){
+function encode(boxes) {
 	var encoded_box_set = [];
 	var i;
-	for(var j=0;j<boxes.length;j++){
-		for(i=0;i<copy_box_array.length;i++){
-			var exit_for = 0;
-			if(boxes[j].loaded_box.name == copy_box_array[i].name){
+	for(var j=0; j<boxes.length; j++) {
+		for(i=0; i<copy_box_array.length; i++) {
+			if(boxes[j].loaded_box.name == copy_box_array[i].name) {
 				for (var key in copy_box_array[i].orientation){
-					if(exit_for === 0 && boxes[j].loaded_box.dim.x % copy_box_array[i].orientation[key].x === 0 && boxes[j].loaded_box.dim.y % copy_box_array[i].orientation[key].y === 0 && boxes[j].loaded_box.dim.z % copy_box_array[i].orientation[key].z === 0){
+					if(boxes[j].loaded_box.dim.x % copy_box_array[i].orientation[key].x === 0 && boxes[j].loaded_box.dim.y % copy_box_array[i].orientation[key].y === 0 && boxes[j].loaded_box.dim.z % copy_box_array[i].orientation[key].z === 0){
 						var how_many_through_x = boxes[j].loaded_box.dim.x/copy_box_array[i].orientation[key].x;
 						var how_many_through_y = boxes[j].loaded_box.dim.y/copy_box_array[i].orientation[key].y;
 						var how_many_through_z = boxes[j].loaded_box.dim.z/copy_box_array[i].orientation[key].z;
@@ -198,19 +203,20 @@ function encode(boxes){
 									encoded_box_element.width  = copy_box_array[i].orientation[key].y;
 									encoded_box_element.heigth = copy_box_array[i].orientation[key].z;
 									encoded_box_element.name   = copy_box_array[i].name;
+									encoded_box_element.color   = copy_box_array[i].color;
 									encoded_box_set.push(encoded_box_element);
 								}
 							}
 						}
-						exit_for = 1;
+						break;
 					}
 				}
 			}
 		}
 	}
-	for(i=0; i<encoded_box_set.length; i++){
-		$("#write").html($("#write").html() + "<br>l:" + encoded_box_set[i].length + " w:" + encoded_box_set[i].width + " h:" +  encoded_box_set[i].heigth + " x:" +  encoded_box_set[i].x + " y:" + encoded_box_set[i].y + " z:" + encoded_box_set[i].z);
-		scene.add(drawCube(encoded_box_set[i].length, encoded_box_set[i].width, encoded_box_set[i].heigth, encoded_box_set[i].x, encoded_box_set[i].y, encoded_box_set[i].z, randColor(), 1));
+	for(i=0; i<encoded_box_set.length; i++) {
+		//$("#write").html($("#write").html() + "<br>l:" + encoded_box_set[i].length + " w:" + encoded_box_set[i].width + " h:" +  encoded_box_set[i].heigth + " x:" +  encoded_box_set[i].x + " y:" + encoded_box_set[i].y + " z:" + encoded_box_set[i].z);
+		scene.add(drawCube(encoded_box_set[i].length, encoded_box_set[i].width, encoded_box_set[i].heigth, encoded_box_set[i].x, encoded_box_set[i].y, encoded_box_set[i].z, encoded_box_set[i].color, 1));
 	}
 	camera.lookAt(new THREE.Vector3( 0, 0, 0 ));
 	renderer.render(scene, camera);
