@@ -2,15 +2,76 @@ var box_array = [];
 var copy_box_array = [];
 var space_array = [];
 var loaded_boxes = [];
+var noCheckpoints = 0;
+var map;
+var mapPin = {
+    path: 'M24,47c0,0-18-9.417-18-28C6,9.059,14.059,1,24,1s18,8.059,18,18  C42,37.583,24,47,24,47z M24,3C15.178,3,8,10.178,8,19c0,14.758,12.462,23.501,16.003,25.687C27.547,42.51,40,33.805,40,19  C40,10.178,32.822,3,24,3z M24,28c-4.971,0-9-4.029-9-9s4.029-9,9-9s9,4.029,9,9S28.971,28,24,28z M24,12c-3.866,0-7,3.134-7,7  s3.134,7,7,7s7-3.134,7-7S27.866,12,24,12z',
+    fillOpacity: 0.8,
+    scale: 0.5,
+    strokeWeight: 2,
+    anchor: {x:24, y:48}
+};
 //var itera = 0;
 
 $(document).ready(function(){
 	setScene();
+	var mapOptions = {
+		center: { lat: 39.13, lng: 35.4},
+		zoom: 5
+        };
+        map = new google.maps.Map($('#map-canvas')[0], mapOptions);
 	$("#add-cargo").click(function(e){
 		e.preventDefault();
-		var contents = "<div class='panel panel-primary'><div class='panel-heading'>Checkpoint and box properties</div><div class='panel-body'>" + $('.checkpointTemplate').html() + "</div></div>";
-		$(this).closest('.container').append(contents);
-		$('.checkpointTemplate').removeClass("hide");
+		noCheckpoints++;
+		var $chCon = $(this).closest('.container');
+		$chCon.append($('.checkpointTemplate').html());
+		var $chPanel = $chCon.find('.panel').last();
+		$chPanel.find('.panel-heading').attr("id", "heading" + noCheckpoints);
+		$chPanel.find('.expand').attr({
+			"href": "#collapse" + noCheckpoints,
+			"aria-controls": "collapse" + noCheckpoints 
+		});
+		$chPanel.find('.panel-collapse').attr({
+			"id": "collapse" + noCheckpoints,
+			"aria-labelledby": "heading" + noCheckpoints
+		});
+		$chPanel.find('.checkName').attr("id","checkName" + noCheckpoints);
+		var input = $('#checkName' + noCheckpoints)[0];
+		var searchBox = new google.maps.places.SearchBox(input);
+		google.maps.event.addListener(searchBox, 'places_changed', function() {
+			var places = searchBox.getPlaces();
+			if (places.length === 0) {
+				return;
+			}
+			mapPin.strokeColor = $chPanel.find('.color').val();
+			var marker = new google.maps.Marker({
+				map: map,
+				icon: mapPin,
+				title: places[0].name,
+				position: places[0].geometry.location
+      			});
+		});
+		$(".loadButtonDiv").removeClass("hidden");
+		$("#map-canvas").removeClass("hidden");
+		google.maps.event.trigger(map, 'resize');
+	});
+	$("#load-cargo").click(function(e){
+		e.preventDefault();
+		$(".panel").each(function(){
+			createBox($(this).find(".name").val(),$(this).find(".length").val(),$(this).find(".width").val(),$(this).find(".height").val(),$(this).find(".quantity").val(),$(this).find(".thisSideUp").is(":checked"),$(this).find(".color").val());
+		});
+		loadBoxes();
+		$(".canvasAndMap").removeClass("hidden");
+	});
+	$(".container").on("click", ".delCheck", function(e){
+		e.preventDefault();
+		if($(this).closest('.container').find('.panel').length == 1){
+			$(".loadButtonDiv").addClass("hidden");
+		}
+		$(this).closest(".panel").remove();
+	});
+	$(".container").on("click", ".expand", function(e){
+		e.preventDefault();			
 	});
 });
 
@@ -44,11 +105,11 @@ var init_box_set = function(){
 		if(dik.checked === true){
 			cell = row.insertCell(i);
 			cell.innerHTML = "Yes";
-			box1 = new box(isim[j],boy[j],en[j],yukseklik[j],adet[j],true,true,false,false,false,false);
+			box1 = new Box(isim[j],boy[j],en[j],yukseklik[j],adet[j],true,true,false,false,false,false);
 		} else {
 			cell = row.insertCell(i);
 			cell.innerHTML = "No";
-			box1 = new box(isim[j],boy[j],en[j],yukseklik[j],adet[j],true,true,true,true,true,true);
+			box1 = new Box(isim[j],boy[j],en[j],yukseklik[j],adet[j],true,true,true,true,true,true);
 		}
 		cell = row.insertCell(i+1);
 		var color = "#" + randColor().split('x')[1];
@@ -58,35 +119,12 @@ var init_box_set = function(){
 	}
 };
 
-var createBox = function(){
-	var isim = document.getElementById("name").value;
-	var en = parseFloat(document.getElementById("en").value);
-	var boy = parseFloat(document.getElementById("boy").value);
-	var yukseklik = parseFloat(document.getElementById("yukseklik").value);
-	var adet = parseInt(document.getElementById("adet").value, 10);
-	var dik = document.getElementById("dik");
-	var color = document.getElementById("color").value;
-	var box1;
-	var yeni_kutu_satiri = [isim,en,boy,yukseklik,adet];
-	var table = document.getElementById("all_boxes");
-	var row = table.insertRow(table.rows.length);
-	var cell;
-	for(var i=0;i<5;i++){
-		cell = row.insertCell(i);
-		cell.innerHTML = yeni_kutu_satiri[i];
-	}
-	if(dik.checked === true){
-		cell = row.insertCell(i);
-		cell.innerHTML = "Yes";
-		box1 = new box(isim,boy,en,yukseklik,adet,true,true,false,false,false,false);
-	} else {
-		cell = row.insertCell(i);
-		cell.innerHTML = "No";
-		box1 = new box(isim,boy,en,yukseklik,adet,true,true,true,true,true,true);
-	}
-	cell = row.insertCell(i+1);
-	cell.innerHTML = "<input type='color' value='" + color + "'/>";
-	box1.color = color;
+var createBox = function(name, length, width, height, quantity, thisSideUp, color){
+	length = parseFloat(length);
+	width = parseFloat(width);
+	height = parseFloat(height);
+	quantity = parseInt(quantity, 10);
+	var box1 = new Box(name, length, width, height, quantity, true, true, !thisSideUp, !thisSideUp, !thisSideUp, !thisSideUp, color);
 	box_array.push(box1);
 };
 
@@ -96,8 +134,8 @@ function loadBoxes(){
 		copy_box_array[i] = box_array[i];
 	}
 	var space1 = new space(0, 0, 0, 1360, 240, 300);
-	//scene.add(drawCube(1360 ,240, 300, 0, 0, 0, randColor(), 0.3));
-	//renderer.render(scene, camera);
+	scene.add(drawCube(1360 ,240, 300, 0, 0, 0, randColor(), 0.3));
+	renderer.render(scene, camera);
 	var space_element = {
 		empty_space: space1,
 		usability: "usable"
@@ -429,7 +467,7 @@ var eval1 = function(boxes, space) {
 				z_value = space.dim.z - can_box.value;
 				qua_of_boxes = z_value / can_box.new_z;
 			}
-			var min_box = new box(can_box.name, x_value, y_value, z_value, Math.max(Math.floor(can_box.quantity/qua_of_boxes),1), true, false, false, false, false, false);
+			var min_box = new Box(can_box.name, x_value, y_value, z_value, Math.max(Math.floor(can_box.quantity/qua_of_boxes),1), true, false, false, false, false, false);
 			returned_boxes_set.push(min_box);
 		}
 	}
@@ -453,7 +491,7 @@ var eval2 = function(boxes, space) {
 					var i = 1;
 					while (i <= max_box_along_w && exit === 0){
 						if (box_amount/i<=max_box_along_h && box_amount/i == Math.floor(box_amount/i)){
-							var new_box = new box(boxs.name,ory.x,i*ory.y,(box_amount/i)*ory.z,Math.max(Math.floor(boxs.quantity/box_amount),1),true,false,false,false,false,false);
+							var new_box = new Box(boxs.name,ory.x,i*ory.y,(box_amount/i)*ory.z,Math.max(Math.floor(boxs.quantity/box_amount),1),true,false,false,false,false,false);
 							possible_boxes_set.push(new_box);
 							exit = 1;
 						}
@@ -497,7 +535,7 @@ var eval3 = function(boxes, space) {
 					var i = 1;
 					while (i<=max_box_along_l && exit === 0){
 						if (box_amount/i<=max_box_along_h && box_amount/i == Math.floor(box_amount/i)){
-							var new_box = new box(boxs.name,i*ory.x,ory.y,(box_amount/i)*ory.z,Math.max(Math.floor(boxs.quantity/box_amount),1),true,false,false,false,false,false);
+							var new_box = new Box(boxs.name,i*ory.x,ory.y,(box_amount/i)*ory.z,Math.max(Math.floor(boxs.quantity/box_amount),1),true,false,false,false,false,false);
 							possible_boxes_set.push(new_box);
 							exit = 1;
 						}
@@ -541,7 +579,7 @@ var eval4 = function(boxes, space) {
 					var i = 1;
 					while (i<=max_box_along_l && exit === 0){
 						if (box_amount/i<=max_box_along_w && box_amount/i == Math.floor(box_amount/i)){
-							var new_box = new box(boxs.name,i*ory.x,(box_amount/i)*ory.y,ory.z,Math.max(Math.floor(boxs.quantity/box_amount),1),true,false,false,false,false,false);
+							var new_box = new Box(boxs.name,i*ory.x,(box_amount/i)*ory.y,ory.z,Math.max(Math.floor(boxs.quantity/box_amount),1),true,false,false,false,false,false);
 							possible_boxes_set.push(new_box);
 							exit = 1;
 						}

@@ -1,4 +1,4 @@
-var box = function(name, l, w, h, q, xyz, yxz, xzy, zxy, zyx, yzx, color) {
+var Box = function(name, l, w, h, q, xyz, yxz, xzy, zxy, zyx, yzx, color) {
 	this.name = name;
 	this.dim = {
 		x: l,

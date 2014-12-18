@@ -15,8 +15,6 @@ function setScene() {
 	controls.addEventListener( 'change', render );
 	container.appendChild( renderer.domElement );
 	
-	projector = new THREE.Projector();
-	
 	camera.position.x = 680;
 	camera.position.y = 120;
 	camera.position.z = 400;

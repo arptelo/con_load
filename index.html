@@ -16,48 +16,68 @@
 	<body> <!--onLoad="init_box_set();">-->
 		<div class="container">
       		<div class="header">
-	        <nav>
-	          <ul class="nav nav-pills pull-right">
-	            <li role="presentation" class="active"><a href="#">Home</a></li>
-	            <li role="presentation"><a href="#">About</a></li>
-	            <li role="presentation"><a href="#">Contact</a></li>
-	          </ul>
-	        </nav>
+		        <nav>
+		          <ul class="nav nav-pills pull-right">
+		            <li role="presentation" class="active"><a href="#">Home</a></li>
+		            <li role="presentation"><a href="#">About</a></li>
+		            <li role="presentation"><a href="#">Contact</a></li>
+		          </ul>
+		        </nav>
 	        <h3 class="text-muted">Logtimize</h3>
       	</div>
 
       	<div class="jumbotron">
         	<h1>Logtimize</h1>
-        	<p class="lead">Use containers/trucks efficiently with special tools. Optimize the container loading process according to routes, dimensions of boxes, pallettes...etc.</p>
+        	<p class="lead">Use containers/trucks efficiently with optimum loading. Optimize the container loading process according to routes, dimensions of boxes, pallettes...etc.</p>
       	</div>
 		
 		<div class="container">
 			<div class="buttonDiv"><a href="#" class="btn btn-primary" id="add-cargo">Add cargo</a></div>
 		</div>
-		<div><input type="submit" onclick="loadBoxes();" value="Load" /></div>
-		<!-- <div id="write"></div> -->
-		<div id="map-canvas"></div>
-		<div id="container3js"></div>
+		<div class="container">
+			<div class="buttonDiv loadButtonDiv hidden"><a href="#" class="btn btn-primary" id="load-cargo" />Load cargo</a></div>
+			<div id="map-canvas" class="hidden"></div>
+			<div class="canvasAndMap hidden">
+				<div id="container3js"></div>
+			</div>
+		</div>
 
 		<footer class="footer">
 			<p>&copy; Logtimize 2014</p>
       	</footer>
 
-    </div> <!-- /container -->
+	</div> <!-- /container -->
     
-    <div class="checkpointTemplate hide">
-    	<span class="delCheck">x</span>
-    	<div class="checkInput"><span class="inputLabel">Checkpoint Name: </span><input type="text" class="checkName" maxlength="10"/></div>
-    	<div class="checkInput"><span class="inputLabel">Cargo Box Name: </span><input type="text" class="name" maxlength="10"/></div>
-    	<div class="checkInput"><span class="inputLabel">Box Width: </span><input type="text" class="width" maxlength="6"/></div>
-    	<div class="checkInput"><span class="inputLabel">Box Length: </span><input type="text" class="length" maxlength="6"/></div>
-    	<div class="checkInput"><span class="inputLabel">Box Heigth: </span><input type="text" class="height" maxlength="6"/></div>
-    	<div class="checkInput"><span class="inputLabel">Box Quantity: </span><input type="text" class="adet" maxlength="6"/></div>
-    	<div class="checkInput"><span class="inputLabel">ThisSideUp?: </span><input type="checkbox" class="up" value="1" /></div>
-    	<div class="checkInput"><span class="inputLabel">Box Color: </span><input type="color" class="color" value="#FF0000" /></div>
+	<div class="checkpointTemplate panel-group hidden" id="accordion" role="tablist" aria-multiselectable="true">
+		<div class='panel panel-primary'>
+			<div class='panel-heading' role="tab" id=""><a data-toggle="collapse" data-parent="#accordion" href="" aria-expanded="true" aria-controls="" class="expand">Change</a><a href="#" class="delCheck">x</a></div>
+			<div id="" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="">
+				<div class='panel-body'>
+					<div class="container">
+						<div class="row">
+							<div class="checkInput col-md-6"><span class="inputLabel">Checkpoint Name: </span><input type="text" id="" class="checkName" maxlength="10" placeholder="Unloading place..." /></div>
+							<div class="checkInput col-md-6"><span class="inputLabel">Cargo Box Name: </span><input type="text" class="name" maxlength="10"/></div>
+						</div>
+						<div class="row">
+							<div class="checkInput col-md-6"><span class="inputLabel">Box Quantity: </span><input type="text" class="quantity" maxlength="6"/></div>
+							<div class="checkInput col-md-6"><span class="inputLabel">Box Width: </span><input type="text" class="width" maxlength="6"/></div>
+						</div>
+						<div class="row">
+							<div class="checkInput col-md-6"><span class="inputLabel">ThisSideUp?: </span><input type="checkbox" class="up" value="1" /></div>
+							<div class="checkInput col-md-6"><span class="inputLabel">Box Length: </span><input type="text" class="length" maxlength="6"/></div>
+						</div>
+						<div class="row">
+							<div class="checkInput col-md-6"><span class="inputLabel">Box Color: </span><input type="color" class="color" value="#FF0000" /></div>
+							<div class="checkInput col-md-6"><span class="inputLabel">Box Heigth: </span><input type="text" class="height" maxlength="6"/></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
     </div>
     
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r69/three.js"></script>
+	<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places"></script>
 	<script src="orbit_control.js"></script>
 	<script src="three_utilities.js"></script>
 	<script src="objects.js"></script>
