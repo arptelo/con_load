@@ -17,32 +17,29 @@ var Box = function(name, l, w, h, q, xyz, yxz, xzy, zxy, zyx, yzx, color) {
 	this.color = color;
 };
 
-var space = function(x, y, z, l, w, h) {
+var Space = function(x, y, z, l, w, h) {
 	this.origin = { x: x, y: y, z: z};
 	this.dim = { x: l, y: w, z: h};
-	this.check_space_usability = function(box_list){
-	    var is_space_usable = false;
-	    for (var i=0; i<box_list.length; i++){
-    		for (var key in box_list[i].orientation){
-    			if(box_list[i].orientation[key].pos === true && box_list[i].orientation[key].x <= this.dim.x && box_list[i].orientation[key].y <= this.dim.y && box_list[i].orientation[key].z <= this.dim.z){
-    				is_space_usable = true;
-    			}
-    		}
-    	}
-    	if(is_space_usable === true){
-    		return "usable";
-    	} else {
-    		return "unusable";
-    	}
-    }
 };
 
-var spaceelement = function(space, usability) {
+Space.prototype.check_space_usability = function(box_list){
+	var is_space_usable = false;
+	for (var i=0; i<box_list.length; i++){
+		for (var key in box_list[i].orientation){
+			if(box_list[i].orientation[key].pos === true && box_list[i].orientation[key].x <= this.dim.x && box_list[i].orientation[key].y <= this.dim.y && box_list[i].orientation[key].z <= this.dim.z){
+				is_space_usable = true;
+			}
+		}
+	}
+	return (is_space_usable ? "usable" : "unusable");
+};
+
+var Spaceelement = function(space, usability) {
 	this.empty_space = space;
 	this.usability = usability;
 };
 
-var best_ory = function(box, orientation, direction, rest_value, x, y, z, q) {
+var Best_ory = function(box, orientation, direction, rest_value, x, y, z, q) {
 	this.name = box;
 	this.orientation = orientation;
 	this.direction = direction;
@@ -51,4 +48,8 @@ var best_ory = function(box, orientation, direction, rest_value, x, y, z, q) {
 	this.new_y = y;
 	this.new_z = z;
 	this.quantity = q;
+};
+
+var Checkpoint = function(marker) {
+	this.marker = marker;
 };

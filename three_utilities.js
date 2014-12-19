@@ -29,10 +29,6 @@ function setScene() {
 	pointLight.position.set(-700, 0, 0);
 	scene.add(pointLight);
 	renderer.render(scene, camera);
-	/*
-	container.addEventListener( 'mousewheel', mousewheel);
-    container.addEventListener( 'DOMMouseScroll', mousewheel); // firefox
-	*/
 }
 
 function drawCube(w ,d, h, x, z, y, color, opacity, texture){
@@ -53,27 +49,6 @@ function drawCube(w ,d, h, x, z, y, color, opacity, texture){
 	return cube;
 }
 
-/*
-var mousewheel  = function (e) {
-    e.preventDefault();
-    var d = ((typeof e.wheelDelta != "undefined")?(-e.wheelDelta):e.detail);
-    d = 100 * ((d>0)?1:-1);
-    var cPos = camera.position;
-    if (isNaN(cPos.x) || isNaN(cPos.y) || isNaN(cPos.y)) return;
-
-    // Your zomm limitation
-    // For X axe you can add anothers limits for Y / Z axes
-    if ((cPos.x > 1500 && d>0) || (cPos.x < 200 && d<0)){
-        return ;
-    }
-
-    var mb = d>0 ? 1.1 : 0.9;
-    camera.position.x = cPos.x * mb;
-    camera.position.y = cPos.y * mb;
-    camera.position.z = cPos.z * mb;
-    renderer.render( scene, camera );
-};
-*/
 function render() {
 	renderer.render( scene, camera );
 }

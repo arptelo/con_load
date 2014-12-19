@@ -2,6 +2,7 @@ var box_array = [];
 var copy_box_array = [];
 var space_array = [];
 var loaded_boxes = [];
+var checkpoints = [];
 var noCheckpoints = 0;
 var map;
 var mapPin = {
@@ -16,13 +17,17 @@ var mapPin = {
 $(document).ready(function(){
 	setScene();
 	var mapOptions = {
-		center: { lat: 39.13, lng: 35.4},
+		center: {lat: 39.13, lng: 35.4},
 		zoom: 5
-        };
-        map = new google.maps.Map($('#map-canvas')[0], mapOptions);
+	};
+	map = new google.maps.Map($('#map-canvas')[0], mapOptions);
 	$("#add-cargo").click(function(e){
 		e.preventDefault();
-		noCheckpoints++;
+		var marker = new google.maps.Marker({
+			map: map
+      	});
+		checkpoints.push(new Checkpoint(marker));
+		noCheckpoints = checkpoints.length;
 		var $chCon = $(this).closest('.container');
 		$chCon.append($('.checkpointTemplate').html());
 		var $chPanel = $chCon.find('.panel').last();
@@ -44,16 +49,15 @@ $(document).ready(function(){
 				return;
 			}
 			mapPin.strokeColor = $chPanel.find('.color').val();
-			var marker = new google.maps.Marker({
-				map: map,
-				icon: mapPin,
-				title: places[0].name,
-				position: places[0].geometry.location
-      			});
+			checkpoints[noCheckpoints-1].marker.setTitle(places[0].name);
+			checkpoints[noCheckpoints-1].marker.setPosition(places[0].geometry.location);
+			checkpoints[noCheckpoints-1].marker.setIcon(mapPin);
 		});
 		$(".loadButtonDiv").removeClass("hidden");
 		$("#map-canvas").removeClass("hidden");
 		google.maps.event.trigger(map, 'resize');
+		map.setCenter({lat: 39.13, lng: 35.4});
+		map.setZoom(5);
 	});
 	$("#load-cargo").click(function(e){
 		e.preventDefault();
@@ -72,6 +76,22 @@ $(document).ready(function(){
 	});
 	$(".container").on("click", ".expand", function(e){
 		e.preventDefault();			
+	});
+	$(".container").on("change", ".color", function(){
+		mapPin.strokeColor = $(this).val();
+		checkpoints[$(this).closest(".panel").index()-1].marker.setIcon(mapPin);	
+	});
+	$(".panels").on("keyup", ".quantity", function(){
+		$(this).closest(".panel").find(".summaryQuantity").html($(this).val());
+	});
+	$(".panels").on("keyup", ".width", function(){
+		$(this).closest(".panel").find(".summaryWidth").html($(this).val());
+	});
+	$(".panels").on("keyup", ".length", function(){
+		$(this).closest(".panel").find(".summaryLength").html($(this).val());
+	});
+	$(".panels").on("keyup", ".height", function(){
+		$(this).closest(".panel").find(".summaryHeigth").html($(this).val());
 	});
 });
 
@@ -133,7 +153,7 @@ function loadBoxes(){
 	for(var i=0; i<box_array.length; i++){
 		copy_box_array[i] = box_array[i];
 	}
-	var space1 = new space(0, 0, 0, 1360, 240, 300);
+	var space1 = new Space(0, 0, 0, 1360, 240, 300);
 	scene.add(drawCube(1360 ,240, 300, 0, 0, 0, randColor(), 0.3));
 	renderer.render(scene, camera);
 	var space_element = {
@@ -169,19 +189,19 @@ function loadBoxes(){
 			}
 		}
 		if(b.loaded_box.dim.x !== 0 && space_array[0].empty_space.dim.y-b.loaded_box.dim.y !== 0 && space_array[0].empty_space.dim.z !== 0) {
-			var space_side = new space(space_array[0].empty_space.origin.x,space_array[0].empty_space.origin.y+b.loaded_box.dim.y,space_array[0].empty_space.origin.z,b.loaded_box.dim.x,space_array[0].empty_space.dim.y-b.loaded_box.dim.y,space_array[0].empty_space.dim.z);
+			var space_side = new Space(space_array[0].empty_space.origin.x,space_array[0].empty_space.origin.y+b.loaded_box.dim.y,space_array[0].empty_space.origin.z,b.loaded_box.dim.x,space_array[0].empty_space.dim.y-b.loaded_box.dim.y,space_array[0].empty_space.dim.z);
 			usabili = space_side.check_space_usability(box_array);
-			space_array.push(new spaceelement(space_side, usabili));
+			space_array.push(new Spaceelement(space_side, usabili));
 		}
 		if(space_array[0].empty_space.dim.x-b.loaded_box.dim.x !== 0 && space_array[0].empty_space.dim.y !== 0 && space_array[0].empty_space.dim.z !== 0) {
-			var space_front = new space(space_array[0].empty_space.origin.x+b.loaded_box.dim.x,space_array[0].empty_space.origin.y,space_array[0].empty_space.origin.z,space_array[0].empty_space.dim.x-b.loaded_box.dim.x,space_array[0].empty_space.dim.y,space_array[0].empty_space.dim.z);
+			var space_front = new Space(space_array[0].empty_space.origin.x+b.loaded_box.dim.x,space_array[0].empty_space.origin.y,space_array[0].empty_space.origin.z,space_array[0].empty_space.dim.x-b.loaded_box.dim.x,space_array[0].empty_space.dim.y,space_array[0].empty_space.dim.z);
 			usabili = space_front.check_space_usability(box_array);
-			space_array.push(new spaceelement(space_front, usabili));
+			space_array.push(new Spaceelement(space_front, usabili));
 		}
 		if(b.loaded_box.dim.x !== 0 && b.loaded_box.dim.y !== 0 && space_array[0].empty_space.dim.z-b.loaded_box.dim.z !== 0) {
-			var space_overhead = new space(space_array[0].empty_space.origin.x,space_array[0].empty_space.origin.y,space_array[0].empty_space.origin.z+b.loaded_box.dim.z,b.loaded_box.dim.x,b.loaded_box.dim.y,space_array[0].empty_space.dim.z-b.loaded_box.dim.z);
+			var space_overhead = new Space(space_array[0].empty_space.origin.x,space_array[0].empty_space.origin.y,space_array[0].empty_space.origin.z+b.loaded_box.dim.z,b.loaded_box.dim.x,b.loaded_box.dim.y,space_array[0].empty_space.dim.z-b.loaded_box.dim.z);
 			usabili = space_overhead.check_space_usability(box_array);
-			space_array.push(new spaceelement(space_overhead, usabili));
+			space_array.push(new Spaceelement(space_overhead, usabili));
 		}
 //		var dtw=document.getElementById("write");
 //		dtw.innerHTML = dtw.innerHTML + "iter: " + itera + " Silinen:  " + " " + space_array[0].empty_space.origin.x + " " + space_array[0].empty_space.origin.y + " " + space_array[0].empty_space.origin.z + " " + space_array[0].empty_space.dim.x + " " + space_array[0].empty_space.dim.y + " " + space_array[0].empty_space.dim.z + "<br>";
@@ -281,7 +301,7 @@ function merge_spaces(spaces){
 					for(var k=0;k<set_spaces.length;k++){
 						checkusability = set_spaces[k].check_space_usability(box_array);
 //						dtw.innerHTML = dtw.innerHTML  + "iter: " + itera + " Eklenen:  " + " " + set_spaces[k].origin.x + " " + set_spaces[k].origin.y + " " + set_spaces[k].origin.z + " " + set_spaces[k].dim.x + " " + set_spaces[k].dim.y + " " + set_spaces[k].dim.z + "<br>";
-						spaces[spaces.length] = new spaceelement(set_spaces[k], checkusability);
+						spaces[spaces.length] = new Spaceelement(set_spaces[k], checkusability);
 					}
 					l=0;
 					j=0;
@@ -312,7 +332,7 @@ function merge_spaces(spaces){
 					for(k=0;k<set_spaces2.length;k++){
 						checkusability = set_spaces2[k].check_space_usability(box_array);
 //						dtw.innerHTML = dtw.innerHTML + "iter: " + itera  + " Eklenen:  " + " " + set_spaces2[k].origin.x + " " + set_spaces2[k].origin.y + " " + set_spaces2[k].origin.z + " " + set_spaces2[k].dim.x + " " + set_spaces2[k].dim.y + " " + set_spaces2[k].dim.z + "<br>";
-						new_spaces[new_spaces.length] = new spaceelement(set_spaces2[k],checkusability);
+						new_spaces[new_spaces.length] = new Spaceelement(set_spaces2[k],checkusability);
 					}
 					l=0;
 					j=0;
@@ -331,10 +351,10 @@ function merge_spaces1(space1, space2) {
 	var merged_space;
 	if(space1.origin.z==space2.origin.z){
 		if(space1.origin.x+space1.dim.x==space2.origin.x && space1.origin.y==space2.origin.y && space1.dim.y==space2.dim.y){
-			merged_space = new space(space1.origin.x,space1.origin.y,space1.origin.z,space1.dim.x+space2.dim.x,space1.dim.y,space1.dim.z);
+			merged_space = new Space(space1.origin.x,space1.origin.y,space1.origin.z,space1.dim.x+space2.dim.x,space1.dim.y,space1.dim.z);
 			returned_spaces.push(merged_space);
 		} else if(space1.origin.x==space2.origin.x && space1.origin.y+space1.dim.y==space2.origin.y && space1.dim.x==space2.dim.x){
-			merged_space = new space(space1.origin.x,space1.origin.y,space1.origin.z,space1.dim.x,space1.dim.y+space2.dim.y,space1.dim.z);
+			merged_space = new Space(space1.origin.x,space1.origin.y,space1.origin.z,space1.dim.x,space1.dim.y+space2.dim.y,space1.dim.z);
 			returned_spaces.push(merged_space);
 		}
 	}
@@ -349,61 +369,61 @@ function merge_spaces2(space1, space2) {
 	if(space1.origin.z == space2.origin.z) {
 		if(space1.origin.x+space1.dim.x == space2.origin.x) {
 			if(Math.max(space1.origin.y,space2.origin.y) == space1.origin.y && space2.dim.y + space2.origin.y > space1.origin.y) {
-				merged_space1 = new space(space2.origin.x,space2.origin.y,space2.origin.z,space2.dim.x,space1.origin.y-space2.origin.y,space2.dim.z);
+				merged_space1 = new Space(space2.origin.x,space2.origin.y,space2.origin.z,space2.dim.x,space1.origin.y-space2.origin.y,space2.dim.z);
 				returned_spaces.push(merged_space1);
 				if(Math.min(space1.origin.y+space1.dim.y,space2.origin.y+space2.dim.y) == space1.origin.y+space1.dim.y) {
-					merged_space2 = new space(space1.origin.x,space1.origin.y,space1.origin.z,space1.dim.x+space2.dim.x,space1.dim.y,space1.dim.z);
+					merged_space2 = new Space(space1.origin.x,space1.origin.y,space1.origin.z,space1.dim.x+space2.dim.x,space1.dim.y,space1.dim.z);
 					returned_spaces.push(merged_space2);
-					merged_space3 = new space(space2.origin.x,space1.origin.y+space1.dim.y,space1.origin.z,space2.dim.x,(space2.dim.y+space2.origin.y)-(space1.origin.y+space1.dim.y),space1.dim.z);
+					merged_space3 = new Space(space2.origin.x,space1.origin.y+space1.dim.y,space1.origin.z,space2.dim.x,(space2.dim.y+space2.origin.y)-(space1.origin.y+space1.dim.y),space1.dim.z);
 					returned_spaces.push(merged_space3);
 				} else {
-					merged_space2 = new space(space1.origin.x,space1.origin.y,space1.origin.z,space1.dim.x+space2.dim.x,space2.origin.y+space2.dim.y-space1.origin.y,space1.dim.z);
+					merged_space2 = new Space(space1.origin.x,space1.origin.y,space1.origin.z,space1.dim.x+space2.dim.x,space2.origin.y+space2.dim.y-space1.origin.y,space1.dim.z);
 					returned_spaces.push(merged_space2);
-					merged_space3 = new space(space1.origin.x,space2.origin.y+space2.dim.y,space1.origin.z,space1.dim.x,(space1.origin.y+space1.dim.y)-(space2.origin.y+space2.dim.y),space1.dim.z);
+					merged_space3 = new Space(space1.origin.x,space2.origin.y+space2.dim.y,space1.origin.z,space1.dim.x,(space1.origin.y+space1.dim.y)-(space2.origin.y+space2.dim.y),space1.dim.z);
 					returned_spaces.push(merged_space3);
 				}
 			} else if(Math.max(space1.origin.y,space2.origin.y) == space2.origin.y && space1.dim.y + space1.origin.y >= space2.origin.y) {
-				merged_space1 = new space(space1.origin.x,space1.origin.y,space1.origin.z,space1.dim.x,space2.origin.y-space1.origin.y,space1.dim.z);
+				merged_space1 = new Space(space1.origin.x,space1.origin.y,space1.origin.z,space1.dim.x,space2.origin.y-space1.origin.y,space1.dim.z);
 				returned_spaces.push(merged_space1);
 				if(Math.min(space1.origin.y+space1.dim.y,space2.origin.y+space2.dim.y) == space1.origin.y+space1.dim.y) {
-					merged_space2 = new space(space1.origin.x,space2.origin.y,space1.origin.z,space1.dim.x+space2.dim.x,space1.origin.y+space1.dim.y-space2.origin.y,space1.dim.z);
+					merged_space2 = new Space(space1.origin.x,space2.origin.y,space1.origin.z,space1.dim.x+space2.dim.x,space1.origin.y+space1.dim.y-space2.origin.y,space1.dim.z);
 					returned_spaces.push(merged_space2);
-					merged_space3 = new space(space2.origin.x,space1.origin.y+space1.dim.y,space1.origin.z,space2.dim.x,space2.origin.y+space2.dim.y-(space1.origin.y+space1.dim.y),space1.dim.z);
+					merged_space3 = new Space(space2.origin.x,space1.origin.y+space1.dim.y,space1.origin.z,space2.dim.x,space2.origin.y+space2.dim.y-(space1.origin.y+space1.dim.y),space1.dim.z);
 					returned_spaces.push(merged_space3);
 				} else {
-					merged_space2 = new space(space1.origin.x,space2.origin.y,space1.origin.z,space1.dim.x+space2.dim.x,space2.dim.y,space1.dim.z);
+					merged_space2 = new Space(space1.origin.x,space2.origin.y,space1.origin.z,space1.dim.x+space2.dim.x,space2.dim.y,space1.dim.z);
 					returned_spaces.push(merged_space2);
-					merged_space3 = new space(space1.origin.x,space2.origin.y+space2.dim.y,space1.origin.z,space1.dim.x,(space1.origin.y+space1.dim.y)-(space2.origin.y+space2.dim.y),space1.dim.z);
+					merged_space3 = new Space(space1.origin.x,space2.origin.y+space2.dim.y,space1.origin.z,space1.dim.x,(space1.origin.y+space1.dim.y)-(space2.origin.y+space2.dim.y),space1.dim.z);
 					returned_spaces.push(merged_space3);
 				}
 			}
 		} else if(space1.origin.y+space1.dim.y == space2.origin.y) {
 			if(Math.max(space1.origin.x,space2.origin.x) == space1.origin.x && space1.origin.x < space2.origin.x + space2.dim.x) {
-				merged_space1 = new space(space2.origin.x,space2.origin.y,space2.origin.z,space1.origin.x-space2.origin.x,space2.dim.y,space2.dim.z);
+				merged_space1 = new Space(space2.origin.x,space2.origin.y,space2.origin.z,space1.origin.x-space2.origin.x,space2.dim.y,space2.dim.z);
 				returned_spaces.push(merged_space1);
 				if(Math.min(space1.origin.x+space1.dim.x,space2.origin.x+space2.dim.x) == space1.origin.x+space1.dim.x) {
-					merged_space2 = new space(space1.origin.x,space1.origin.y,space1.origin.z,space1.dim.x,space1.dim.y+space2.dim.y,space1.dim.z);
+					merged_space2 = new Space(space1.origin.x,space1.origin.y,space1.origin.z,space1.dim.x,space1.dim.y+space2.dim.y,space1.dim.z);
 					returned_spaces.push(merged_space2);
-					merged_space3 = new space(space1.dim.x+space1.origin.x,space2.origin.y,space1.origin.z,space2.origin.x+space2.dim.x-(space1.dim.x+space1.origin.x),space2.dim.y,space1.dim.z);
+					merged_space3 = new Space(space1.dim.x+space1.origin.x,space2.origin.y,space1.origin.z,space2.origin.x+space2.dim.x-(space1.dim.x+space1.origin.x),space2.dim.y,space1.dim.z);
 					returned_spaces.push(merged_space3);
 				} else {
-					merged_space2 = new space(space1.origin.x,space1.origin.y,space1.origin.z,space2.origin.x+space2.dim.x-space1.origin.x,space1.dim.y+space2.dim.y,space1.dim.z);
+					merged_space2 = new Space(space1.origin.x,space1.origin.y,space1.origin.z,space2.origin.x+space2.dim.x-space1.origin.x,space1.dim.y+space2.dim.y,space1.dim.z);
 					returned_spaces.push(merged_space2);
-					merged_space3 = new space(space2.origin.x+space2.dim.x,space1.origin.y,space1.origin.z,space1.dim.x+space1.origin.x-(space2.dim.x+space2.origin.x),space1.dim.y,space1.dim.z);
+					merged_space3 = new Space(space2.origin.x+space2.dim.x,space1.origin.y,space1.origin.z,space1.dim.x+space1.origin.x-(space2.dim.x+space2.origin.x),space1.dim.y,space1.dim.z);
 					returned_spaces.push(merged_space3);
 				}
 			} else if(Math.max(space1.origin.x,space2.origin.x) == space2.origin.x && space2.origin.x < space1.origin.x + space1.dim.x) {
-				merged_space1 = new space(space1.origin.x,space1.origin.y,space1.origin.z,space2.origin.x-space1.origin.x,space1.dim.y,space1.dim.z);
+				merged_space1 = new Space(space1.origin.x,space1.origin.y,space1.origin.z,space2.origin.x-space1.origin.x,space1.dim.y,space1.dim.z);
 				returned_spaces.push(merged_space1);
 				if(Math.min(space1.origin.x+space1.dim.x,space2.origin.x+space2.dim.x) == space1.origin.x+space1.dim.x) {
-					merged_space2 = new space(space2.origin.x,space1.origin.y,space1.origin.z,space1.dim.x+space1.origin.x-space2.origin.x,space1.dim.y+space2.dim.y,space1.dim.z);
+					merged_space2 = new Space(space2.origin.x,space1.origin.y,space1.origin.z,space1.dim.x+space1.origin.x-space2.origin.x,space1.dim.y+space2.dim.y,space1.dim.z);
 					returned_spaces.push(merged_space2);
-					merged_space3 = new space(space1.origin.x+space1.dim.x,space2.origin.y,space1.origin.z,space2.dim.x+space2.origin.x-(space1.dim.x+space1.origin.x),space2.dim.y,space1.dim.z);
+					merged_space3 = new Space(space1.origin.x+space1.dim.x,space2.origin.y,space1.origin.z,space2.dim.x+space2.origin.x-(space1.dim.x+space1.origin.x),space2.dim.y,space1.dim.z);
 					returned_spaces.push(merged_space3);
 				} else {
-					merged_space2 = new space(space2.origin.x,space1.origin.y,space1.origin.z,space2.dim.x,space1.dim.y+space2.dim.y,space1.dim.z);
+					merged_space2 = new Space(space2.origin.x,space1.origin.y,space1.origin.z,space2.dim.x,space1.dim.y+space2.dim.y,space1.dim.z);
 					returned_spaces.push(merged_space2);
-					merged_space3 = new space(space2.dim.x+space2.origin.x,space1.origin.y,space1.origin.z,space2.dim.x,space1.dim.y+space2.dim.y,space1.dim.z);
+					merged_space3 = new Space(space2.dim.x+space2.origin.x,space1.origin.y,space1.origin.z,space2.dim.x,space1.dim.y+space2.dim.y,space1.dim.z);
 					returned_spaces.push(merged_space3);
 				}
 			}
@@ -428,15 +448,15 @@ var eval1 = function(boxes, space) {
 				var emp_len_z = space.dim.z - Math.min(boxes[i].quantity, Math.floor(space.dim.z/ory.z))*ory.z;
 				min = Math.min(emp_len_x, emp_len_y, emp_len_z);
 				if (min == emp_len_x) {
-					possible_box = new best_ory(boxes[i].name, ory.name, "x", min, ory.x, ory.y, ory.z, boxes[i].quantity);
+					possible_box = new Best_ory(boxes[i].name, ory.name, "x", min, ory.x, ory.y, ory.z, boxes[i].quantity);
 					min_len_of_boxes.push(possible_box);
 				}
 				if (min == emp_len_y) {
-					possible_box = new best_ory(boxes[i].name, ory.name, "y", min, ory.x, ory.y, ory.z, boxes[i].quantity);
+					possible_box = new Best_ory(boxes[i].name, ory.name, "y", min, ory.x, ory.y, ory.z, boxes[i].quantity);
 					min_len_of_boxes.push(possible_box);
 				}
 				if (min == emp_len_z) {
-					possible_box = new best_ory(boxes[i].name, ory.name, "z", min, ory.x, ory.y, ory.z, boxes[i].quantity);
+					possible_box = new Best_ory(boxes[i].name, ory.name, "z", min, ory.x, ory.y, ory.z, boxes[i].quantity);
 					min_len_of_boxes.push(possible_box);
 				}
 			}
