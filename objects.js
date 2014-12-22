@@ -31,12 +31,7 @@ Space.prototype.check_space_usability = function(box_list){
 			}
 		}
 	}
-	return (is_space_usable ? "usable" : "unusable");
-};
-
-var Spaceelement = function(space, usability) {
-	this.empty_space = space;
-	this.usability = usability;
+	return is_space_usable;
 };
 
 var Best_ory = function(box, orientation, direction, rest_value, x, y, z, q) {
@@ -52,4 +47,9 @@ var Best_ory = function(box, orientation, direction, rest_value, x, y, z, q) {
 
 var Checkpoint = function(marker) {
 	this.marker = marker;
+	this.box_array = [];
+};
+
+Checkpoint.prototype.push_box_array = function(box){
+	this.box_array.push(box);
 };

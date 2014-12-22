@@ -31,36 +31,11 @@ body {
   border-top: 1px solid #e5e5e5;
 }
 
-table {
-	margin-left:auto; 
-	margin-right:auto;
-	width:100%;
-	border-collapse:collapse;
-	text-align: center;
-}
-
-td {
-	font-size:0.8em;
-	padding:3px 7px 2px 7px;
-}
-
-th {
-	border-bottom:2px solid black;
-	font-size:0.8em;
-	text-align:center;
-	padding-top:5px;
-	padding-bottom:4px;
-}
-
-.alt td {
-	background-color:#EFEFFF;
-}
-
 #container3js {
 	width: 600px;
-	height: 600px;
+	height: 300px;
 	margin: 20px auto;
-	border: 1px solid gray;
+	border: 1px solid #337AB7;
 }
 
 /* Customize container */
@@ -85,25 +60,30 @@ th {
   font-size: 21px;
 }
 
-/* Supporting marketing content */
-.marketing {
-  margin: 40px 0;
-}
-
-.marketing p + h4 {
-  margin-top: 28px;
-}
-
 /* Checkpoint Box */
 .checkInput {
-  padding: 7px;
   font-size: 0.8em;
-} 
+  padding: 5px;
+  text-align: center;
+  vertical-align: middle;
+}
 
-.inputLabel {
-  font-weight: bold;
-  display: inline-block;
-  width: 110px;
+.checkInput .up {
+  margin: 0 auto;
+}
+
+.checkInput.colors {
+  padding: 10.5px;
+}
+
+.checkName {
+  float: right;
+  border-radius: 10px;
+  color: black;
+  font-size: 0.8em;
+  width: 250px;
+  height: 20px;
+  margin-right: 10px;
 }
 
 .panel a {
@@ -113,6 +93,10 @@ th {
 
 .panel a:hover {
   text-decoration: none;
+}
+
+.panel-body {
+  padding: 0;
 }
 
 .delCheck {
@@ -126,6 +110,10 @@ th {
 .buttonDiv {
   text-align: center;
   margin-bottom: 20px;
+}
+
+.row {
+  margin: 0;
 }
 
 #map-canvas {

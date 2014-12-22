@@ -50,25 +50,18 @@
     
 	<div class="checkpointTemplate panel-group hidden" id="accordion" role="tablist" aria-multiselectable="true">
 		<div class='panel panel-primary'>
-			<div class='panel-heading' role="tab" id=""><a data-toggle="collapse" data-parent="#accordion" href="" aria-expanded="true" aria-controls="" class="expand">Change</a> - <span class="summaryQuantity"></span> boxes (<span class="summaryWidth"></span>x<span class="summaryLength"></span>x<span class="summaryHeigth"></span>) to <span class="summaryDestination"></span><a href="#" class="delCheck">x</a></div>
+			<div class='panel-heading' role="tab" id=""><a data-toggle="collapse" data-parent="#accordion" href="" aria-expanded="true" aria-controls="" class="expand">Change</a> - <span class="summaryQuantity"></span><a href="#" class="delCheck">x</a><input type="text" id="" class="checkName form-control" placeholder="Delivery location..." /></div>
 			<div id="" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="">
 				<div class='panel-body'>
 					<div class="container">
 						<div class="row">
-							<div class="checkInput col-md-6"><span class="inputLabel">Checkpoint Name: </span><input type="text" id="" class="checkName" maxlength="10" placeholder="Unloading place..." /></div>
-							<div class="checkInput col-md-6"><span class="inputLabel">Cargo Box Name: </span><input type="text" class="name" maxlength="10"/></div>
-						</div>
-						<div class="row">
-							<div class="checkInput col-md-6"><span class="inputLabel">Box Quantity: </span><input type="text" class="quantity" maxlength="6"/></div>
-							<div class="checkInput col-md-6"><span class="inputLabel">Box Width: </span><input type="text" class="width" maxlength="6"/></div>
-						</div>
-						<div class="row">
-							<div class="checkInput col-md-6"><span class="inputLabel">ThisSideUp?: </span><input type="checkbox" class="up" value="1" /></div>
-							<div class="checkInput col-md-6"><span class="inputLabel">Box Length: </span><input type="text" class="length" maxlength="6"/></div>
-						</div>
-						<div class="row">
-							<div class="checkInput col-md-6"><span class="inputLabel">Box Color: </span><input type="color" class="color" value="#FF0000" /></div>
-							<div class="checkInput col-md-6"><span class="inputLabel">Box Heigth: </span><input type="text" class="height" maxlength="6"/></div>
+							<div class="checkInput col-md-2"><input type="text" class="name form-control" maxlength="10" placeholder="Box Name" /></div>
+							<div class="checkInput col-md-2"><input type="text" class="quantity form-control" maxlength="6"  placeholder="Quantity" /></div>
+							<div class="checkInput col-md-2"><input type="text" class="width form-control" maxlength="6"  placeholder="Width" /></div>
+							<div class="checkInput col-md-2"><input type="text" class="length form-control" maxlength="6"  placeholder="Length" /></div>
+							<div class="checkInput col-md-2"><input type="text" class="height form-control" maxlength="6"  placeholder="Height" /></div>
+							<div class="checkInput col-md-1">Side Up?<input type="checkbox" class="up checkbox" value="1" /></div>
+							<div class="checkInput col-md-1 colors"><input type="color" class="color" value="#FF0000" /></div>
 						</div>
 					</div>
 				</div>

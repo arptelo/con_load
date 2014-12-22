@@ -6,10 +6,10 @@ var controls;
 
 function setScene() {
 	scene = new THREE.Scene();
-	camera = new THREE.PerspectiveCamera( 45, 600 / 600, 0.1, 5000 );
+	camera = new THREE.PerspectiveCamera( 45, 600/300, 0.1, 5000 );
 	var container = document.getElementById("container3js");
 	renderer = new THREE.WebGLRenderer({alpha: true, antialias: true});
-	renderer.setSize( 600, 600 );
+	renderer.setSize( 600, 300 );
 	controls = new THREE.OrbitControls( camera, container );
 	controls.damping = 0.2;
 	controls.addEventListener( 'change', render );
@@ -23,10 +23,10 @@ function setScene() {
 	var skybox = new THREE.Mesh(skyboxGeometry, skyboxMaterial);
 	scene.add(skybox);
 	var pointLight = new THREE.PointLight(0xffffff);
-	pointLight.position.set(700, 300, 200);
+	pointLight.position.set(700, -600, -700);
 	scene.add(pointLight);
 	pointLight = new THREE.PointLight(0xffffff);
-	pointLight.position.set(-700, 0, 0);
+	pointLight.position.set(-700, 600, 700);
 	scene.add(pointLight);
 	renderer.render(scene, camera);
 }
@@ -52,3 +52,25 @@ function drawCube(w ,d, h, x, z, y, color, opacity, texture){
 function render() {
 	renderer.render( scene, camera );
 }
+
+var drawGrid = function(x1, z1, x2, z2){
+	var minx, maxx, minz, maxz;
+	var step = 20;
+	maxx = Math.max(x1, x2);
+	minx = Math.min(x1, x2);
+	maxz = Math.max(z1, z2);
+	minz = Math.min(z1, z2);
+	var geometry = new THREE.Geometry();
+	for (var i = minx; i <= maxx; i += step) {
+		geometry.vertices.push( new THREE.Vector3( i, 0, z1 ) );
+		geometry.vertices.push( new THREE.Vector3( i, 0, z2 ) );
+	}
+	for (var i = minz; i <= maxz; i += step) {
+		geometry.vertices.push( new THREE.Vector3( x1, 0, i ) );
+		geometry.vertices.push( new THREE.Vector3( x2, 0, i ) );
+	}
+	var material = new THREE.LineBasicMaterial( { color: 0x000000, opacity: 0.2 } );
+	var line = new THREE.Line( geometry, material );
+	line.type = THREE.LinePieces;
+	return line;
+};

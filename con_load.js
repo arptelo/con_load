@@ -23,14 +23,14 @@ $(document).ready(function(){
 	map = new google.maps.Map($('#map-canvas')[0], mapOptions);
 	$("#add-cargo").click(function(e){
 		e.preventDefault();
-		var marker = new google.maps.Marker({
-			map: map
-      	});
+		var marker = new google.maps.Marker({map: map});
 		checkpoints.push(new Checkpoint(marker));
 		noCheckpoints = checkpoints.length;
 		var $chCon = $(this).closest('.container');
 		$chCon.append($('.checkpointTemplate').html());
 		var $chPanel = $chCon.find('.panel').last();
+		$chPanel.addClass("active");
+		$chPanel.attr("id", noCheckpoints);
 		$chPanel.find('.panel-heading').attr("id", "heading" + noCheckpoints);
 		$chPanel.find('.expand').attr({
 			"href": "#collapse" + noCheckpoints,
@@ -61,8 +61,18 @@ $(document).ready(function(){
 	});
 	$("#load-cargo").click(function(e){
 		e.preventDefault();
-		$(".panel").each(function(){
-			createBox($(this).find(".name").val(),$(this).find(".length").val(),$(this).find(".width").val(),$(this).find(".height").val(),$(this).find(".quantity").val(),$(this).find(".thisSideUp").is(":checked"),$(this).find(".color").val());
+		$(".panel.active").each(function(){
+			var panel_id = parseInt($(this).attr("id"), 10);
+			var name = $(this).find(".name").val();
+			var length = parseFloat($(this).find(".length").val());
+			var width = parseFloat($(this).find(".width").val());
+			var height = parseFloat($(this).find(".height").val());
+			var quantity = parseInt($(this).find(".quantity").val(), 10);
+			var up = $(this).find(".up").is(":checked");
+			var color =  $(this).find(".color").val();
+			var box1 = new Box(name, length, width, height, quantity, true, true, !up, !up, !up, !up, color);
+			checkpoints[panel_id-1].push_box_array(box1);
+			box_array.push(box1);
 		});
 		loadBoxes();
 		$(".canvasAndMap").removeClass("hidden");
@@ -75,30 +85,16 @@ $(document).ready(function(){
 		$(this).closest(".panel").remove();
 	});
 	$(".container").on("click", ".expand", function(e){
-		e.preventDefault();			
+		e.preventDefault();		
 	});
 	$(".container").on("change", ".color", function(){
 		mapPin.strokeColor = $(this).val();
 		checkpoints[$(this).closest(".panel").index()-1].marker.setIcon(mapPin);	
 	});
 	$(".panels").on("keyup", ".quantity", function(){
-		$(this).closest(".panel").find(".summaryQuantity").html($(this).val());
-	});
-	$(".panels").on("keyup", ".width", function(){
-		$(this).closest(".panel").find(".summaryWidth").html($(this).val());
-	});
-	$(".panels").on("keyup", ".length", function(){
-		$(this).closest(".panel").find(".summaryLength").html($(this).val());
-	});
-	$(".panels").on("keyup", ".height", function(){
-		$(this).closest(".panel").find(".summaryHeigth").html($(this).val());
+		$(this).closest(".panel").find(".summaryQuantity").html($(this).val() + " boxes");
 	});
 });
-
-var randColor = function(){
-	var col = '0x'+Math.floor(Math.random()*16777215).toString(16);
-	return col;
-};
 
 var init_box_set = function(){
 	var isim = [];
@@ -113,7 +109,7 @@ var init_box_set = function(){
 	boy = [51,43,32,51,41,43];
 	yukseklik = [15,17,30,15,24,17];
 	adet = [47,360,485,69,248,129];
-	for(var j=0;j<6;j++){
+	for(var j=0; j<6; j++){
 		var yeni_kutu_satiri = [isim[j],en[j],boy[j],yukseklik[j],adet[j]];
 		var table = document.getElementById("all_boxes");
 		var row = table.insertRow(table.rows.length);
@@ -132,50 +128,35 @@ var init_box_set = function(){
 			box1 = new Box(isim[j],boy[j],en[j],yukseklik[j],adet[j],true,true,true,true,true,true);
 		}
 		cell = row.insertCell(i+1);
-		var color = "#" + randColor().split('x')[1];
+		var color = "#FF0000";
 		cell.innerHTML = "<input type='color' value='" + color + "'/>";
 		box1.color = color;
 		box_array.push(box1);
 	}
 };
 
-var createBox = function(name, length, width, height, quantity, thisSideUp, color){
-	length = parseFloat(length);
-	width = parseFloat(width);
-	height = parseFloat(height);
-	quantity = parseInt(quantity, 10);
-	var box1 = new Box(name, length, width, height, quantity, true, true, !thisSideUp, !thisSideUp, !thisSideUp, !thisSideUp, color);
-	box_array.push(box1);
-};
-
-function loadBoxes(){
-	var usabili;
+var loadBoxes = function(){
 	for(var i=0; i<box_array.length; i++){
 		copy_box_array[i] = box_array[i];
 	}
-	var space1 = new Space(0, 0, 0, 1360, 240, 300);
-	scene.add(drawCube(1360 ,240, 300, 0, 0, 0, randColor(), 0.3));
-	renderer.render(scene, camera);
-	var space_element = {
-		empty_space: space1,
-		usability: "usable"
-	};
-	space_array.push(space_element);
+	var space_initial = new Space(0, 0, 0, 1360, 240, 300);
+	space_array.push(space_initial);
+	scene.add(drawGrid(0, 0, 1360, 240));
 	var number_of_usable_spaces = 1;
 	while(number_of_usable_spaces !== 0 && box_array.length !== 0){
 		number_of_usable_spaces = 0;
-		var a = eval1(box_array, space_array[0].empty_space);
-		a = eval2(a, space_array[0].empty_space);
-		a = eval3(a, space_array[0].empty_space);
-		a = eval4(a, space_array[0].empty_space);
+		var a = eval1(box_array, space_array[0]);
+		a = eval2(a, space_array[0]);
+		a = eval3(a, space_array[0]);
+		a = eval4(a, space_array[0]);
 		var b = {};
 		b.loaded_box = a[0];
 		b.loading_point = {};
-		b.loading_point.x = space_array[0].empty_space.origin.x;
-		b.loading_point.y = space_array[0].empty_space.origin.y;
-		b.loading_point.z = space_array[0].empty_space.origin.z;
+		b.loading_point.x = space_array[0].origin.x;
+		b.loading_point.y = space_array[0].origin.y;
+		b.loading_point.z = space_array[0].origin.z;
 		loaded_boxes.push(b);
-		for(i=0;i<box_array.length;i++){
+		for(i=0; i<box_array.length; i++){
 			for (var key in box_array[i].orientation){
 				if(b.loaded_box.name == box_array[i].name && b.loaded_box.dim.x % box_array[i].orientation[key].x === 0 && b.loaded_box.dim.y % box_array[i].orientation[key].y === 0 && b.loaded_box.dim.z % box_array[i].orientation[key].z === 0){
 					var box_number = (b.loaded_box.dim.x/box_array[i].orientation[key].x)*(b.loaded_box.dim.y/box_array[i].orientation[key].y)*(b.loaded_box.dim.z/box_array[i].orientation[key].z);
@@ -188,55 +169,46 @@ function loadBoxes(){
 				}
 			}
 		}
-		if(b.loaded_box.dim.x !== 0 && space_array[0].empty_space.dim.y-b.loaded_box.dim.y !== 0 && space_array[0].empty_space.dim.z !== 0) {
-			var space_side = new Space(space_array[0].empty_space.origin.x,space_array[0].empty_space.origin.y+b.loaded_box.dim.y,space_array[0].empty_space.origin.z,b.loaded_box.dim.x,space_array[0].empty_space.dim.y-b.loaded_box.dim.y,space_array[0].empty_space.dim.z);
-			usabili = space_side.check_space_usability(box_array);
-			space_array.push(new Spaceelement(space_side, usabili));
+		if(b.loaded_box.dim.x !== 0 && space_array[0].dim.y-b.loaded_box.dim.y !== 0 && space_array[0].dim.z !== 0) {
+			var space_side = new Space(space_array[0].origin.x,space_array[0].origin.y+b.loaded_box.dim.y,space_array[0].origin.z,b.loaded_box.dim.x,space_array[0].dim.y-b.loaded_box.dim.y,space_array[0].dim.z);
+			space_array.push(space_side);
 		}
-		if(space_array[0].empty_space.dim.x-b.loaded_box.dim.x !== 0 && space_array[0].empty_space.dim.y !== 0 && space_array[0].empty_space.dim.z !== 0) {
-			var space_front = new Space(space_array[0].empty_space.origin.x+b.loaded_box.dim.x,space_array[0].empty_space.origin.y,space_array[0].empty_space.origin.z,space_array[0].empty_space.dim.x-b.loaded_box.dim.x,space_array[0].empty_space.dim.y,space_array[0].empty_space.dim.z);
-			usabili = space_front.check_space_usability(box_array);
-			space_array.push(new Spaceelement(space_front, usabili));
+		if(space_array[0].dim.x-b.loaded_box.dim.x !== 0 && space_array[0].dim.y !== 0 && space_array[0].dim.z !== 0) {
+			var space_front = new Space(space_array[0].origin.x+b.loaded_box.dim.x,space_array[0].origin.y,space_array[0].origin.z,space_array[0].dim.x-b.loaded_box.dim.x,space_array[0].dim.y,space_array[0].dim.z);
+			space_array.push(space_front);
 		}
-		if(b.loaded_box.dim.x !== 0 && b.loaded_box.dim.y !== 0 && space_array[0].empty_space.dim.z-b.loaded_box.dim.z !== 0) {
-			var space_overhead = new Space(space_array[0].empty_space.origin.x,space_array[0].empty_space.origin.y,space_array[0].empty_space.origin.z+b.loaded_box.dim.z,b.loaded_box.dim.x,b.loaded_box.dim.y,space_array[0].empty_space.dim.z-b.loaded_box.dim.z);
-			usabili = space_overhead.check_space_usability(box_array);
-			space_array.push(new Spaceelement(space_overhead, usabili));
+		if(b.loaded_box.dim.x !== 0 && b.loaded_box.dim.y !== 0 && space_array[0].dim.z-b.loaded_box.dim.z !== 0) {
+			var space_overhead = new Space(space_array[0].origin.x,space_array[0].origin.y,space_array[0].origin.z+b.loaded_box.dim.z,b.loaded_box.dim.x,b.loaded_box.dim.y,space_array[0].dim.z-b.loaded_box.dim.z);
+			space_array.push(space_overhead);
 		}
-//		var dtw=document.getElementById("write");
-//		dtw.innerHTML = dtw.innerHTML + "iter: " + itera + " Silinen:  " + " " + space_array[0].empty_space.origin.x + " " + space_array[0].empty_space.origin.y + " " + space_array[0].empty_space.origin.z + " " + space_array[0].empty_space.dim.x + " " + space_array[0].empty_space.dim.y + " " + space_array[0].empty_space.dim.z + "<br>";
-		space_array.splice(0,1);
-		for(var j=0;j<space_array.length;j++) {
-			space_array[j].usability = space_array[j].empty_space.check_space_usability(box_array);
-		}
+		space_array.splice(0, 1);
 		space_array = merge_spaces(space_array);
 		var min_distance_to_origin = 10000;
-		for(i=0;i<space_array.length;i++) {
-			if(space_array[i].usability=="usable" && Math.sqrt(Math.pow(space_array[i].empty_space.origin.x,2)+Math.pow(space_array[i].empty_space.origin.y,2)+Math.pow(space_array[i].empty_space.origin.z,2))<min_distance_to_origin){
-				min_distance_to_origin = Math.sqrt(Math.pow(space_array[i].empty_space.origin.x,2)+Math.pow(space_array[i].empty_space.origin.y,2)+Math.pow(space_array[i].empty_space.origin.z,2));
+		for(i=0; i<space_array.length; i++) {
+			if(space_array[i].check_space_usability(box_array) && Math.sqrt(Math.pow(space_array[i].origin.x,2)+Math.pow(space_array[i].origin.y,2)+Math.pow(space_array[i].origin.z,2))<min_distance_to_origin){
+				min_distance_to_origin = Math.sqrt(Math.pow(space_array[i].origin.x,2)+Math.pow(space_array[i].origin.y,2)+Math.pow(space_array[i].origin.z,2));
 			}
-			if(space_array[i].usability=="usable") {
-				number_of_usable_spaces=number_of_usable_spaces+1;
+			if(space_array[i].check_space_usability(box_array)) {
+				number_of_usable_spaces = number_of_usable_spaces+1;
 			}
 		}
-		for(i=0;i<space_array.length;i++){
-			if(space_array[i].usability=="usable" && Math.sqrt(Math.pow(space_array[i].empty_space.origin.x,2)+Math.pow(space_array[i].empty_space.origin.y,2)+Math.pow(space_array[i].empty_space.origin.z,2))==min_distance_to_origin){
-				var temp = space_array[i]
+		for(i=0; i<space_array.length; i++){
+			if(space_array[i].check_space_usability(box_array) && Math.sqrt(Math.pow(space_array[i].origin.x,2)+Math.pow(space_array[i].origin.y,2)+Math.pow(space_array[i].origin.z,2))==min_distance_to_origin){
+				var temp = space_array[i];
 				space_array[i] = space_array[0];
 				space_array[0] = temp;
 			}
 		}
-//		itera=itera+1;
 	}
 	var empty_volume=0;
 	for(i=0;i<space_array.length;i++){
-		empty_volume = empty_volume + (space_array[i].empty_space.dim.x*space_array[i].empty_space.dim.y*space_array[i].empty_space.dim.z);
+		empty_volume = empty_volume + (space_array[i].dim.x*space_array[i].dim.y*space_array[i].dim.z);
 	}
 	for(i=0;i<box_array.length;i++){
 		
 	}
 	encode(loaded_boxes);
-}
+};
 
 function encode(boxes) {
 	var encoded_box_set = [];
@@ -281,27 +253,22 @@ function encode(boxes) {
 }
 
 function merge_spaces(spaces){
-//	var dtw=document.getElementById("write");
 	var set_spaces;
-	var checkusability;
 	var new_spaces = [];
-	for(var l=0;l<spaces.length;l++){
-		for(var j=0;j<spaces.length;j++){
-			if(l!=j){
-				set_spaces = merge_spaces1(spaces[l].empty_space, spaces[j].empty_space);
+	var i, j, k, l;
+	for(l=0; l<spaces.length; l++){
+		for(j=0; j<spaces.length; j++){
+			if(l != j){
+				set_spaces = merge_spaces1(spaces[l], spaces[j]);
 				if(set_spaces.length>0){
-//					dtw.innerHTML = dtw.innerHTML + "iter: " + itera + " Silinen:  " + " " + spaces[l].empty_space.origin.x + " " + spaces[l].empty_space.origin.y + " " + spaces[l].empty_space.origin.z + " " + spaces[l].empty_space.dim.x + " " + spaces[l].empty_space.dim.y + " " + spaces[l].empty_space.dim.z + "<br>";
-//					dtw.innerHTML = dtw.innerHTML + "iter: " + itera + " Silinen:  " + " " + spaces[j].empty_space.origin.x + " " + spaces[j].empty_space.origin.y + " " + spaces[j].empty_space.origin.z + " " + spaces[j].empty_space.dim.x + " " + spaces[j].empty_space.dim.y + " " + spaces[j].empty_space.dim.z + "<br>";
 					spaces.splice(l,1);
 					if(l<j){
 						spaces.splice(j-1,1);
 					} else {
 						spaces.splice(j,1);
 					}
-					for(var k=0;k<set_spaces.length;k++){
-						checkusability = set_spaces[k].check_space_usability(box_array);
-//						dtw.innerHTML = dtw.innerHTML  + "iter: " + itera + " Eklenen:  " + " " + set_spaces[k].origin.x + " " + set_spaces[k].origin.y + " " + set_spaces[k].origin.z + " " + set_spaces[k].dim.x + " " + set_spaces[k].dim.y + " " + set_spaces[k].dim.z + "<br>";
-						spaces[spaces.length] = new Spaceelement(set_spaces[k], checkusability);
+					for(k=0;k<set_spaces.length;k++){
+						spaces[spaces.length] = set_spaces[k];
 					}
 					l=0;
 					j=0;
@@ -310,19 +277,16 @@ function merge_spaces(spaces){
 		}
 	}
 	var set_spaces2;
-	for(l=0;l<spaces.length;l++){
-		for(j=0;j<spaces.length;j++){
-			if(l!=j && spaces[l].usability=="unusable" && spaces[j].usability=="unusable"){
-				set_spaces2 = merge_spaces2(spaces[l].empty_space, spaces[j].empty_space);
-				for(var iter=0;iter<set_spaces2.length;iter++){
+	for(l=0; l<spaces.length; l++){
+		for(j=0; j<spaces.length; j++){
+			if(l!=j && !spaces[l].check_space_usability(box_array) && !spaces[j].check_space_usability(box_array)){
+				set_spaces2 = merge_spaces2(spaces[l], spaces[j]);
+				for(var iter=0; iter<set_spaces2.length; iter++){
 					if(set_spaces2[iter].dim.x === 0 || set_spaces2[iter].dim.y === 0 || set_spaces2[iter].dim.z === 0){
 						set_spaces2.splice(iter,1);
 					}
 				}
 				if(set_spaces2.length>0){
-//					var dtw=document.getElementById("write");
-//					dtw.innerHTML = dtw.innerHTML + "iter: " + itera  + " Silinen:  " + " " + spaces[l].empty_space.origin.x + " " + spaces[l].empty_space.origin.y + " " + spaces[l].empty_space.origin.z + " " + spaces[l].empty_space.dim.x + " " + spaces[l].empty_space.dim.y + " " + spaces[l].empty_space.dim.z + "<br>";
-//					dtw.innerHTML = dtw.innerHTML + "iter: " + itera  + " Silinen:  " + " " + spaces[j].empty_space.origin.x + " " + spaces[j].empty_space.origin.y + " " + spaces[j].empty_space.origin.z + " " + spaces[j].empty_space.dim.x + " " + spaces[j].empty_space.dim.y + " " + spaces[j].empty_space.dim.z + "<br>";
 					spaces.splice(l,1);
 					if(l<j){
 						spaces.splice(j-1,1);
@@ -330,9 +294,7 @@ function merge_spaces(spaces){
 						spaces.splice(j,1);
 					}
 					for(k=0;k<set_spaces2.length;k++){
-						checkusability = set_spaces2[k].check_space_usability(box_array);
-//						dtw.innerHTML = dtw.innerHTML + "iter: " + itera  + " Eklenen:  " + " " + set_spaces2[k].origin.x + " " + set_spaces2[k].origin.y + " " + set_spaces2[k].origin.z + " " + set_spaces2[k].dim.x + " " + set_spaces2[k].dim.y + " " + set_spaces2[k].dim.z + "<br>";
-						new_spaces[new_spaces.length] = new Spaceelement(set_spaces2[k],checkusability);
+						new_spaces[new_spaces.length] = set_spaces2[k];
 					}
 					l=0;
 					j=0;
@@ -340,7 +302,7 @@ function merge_spaces(spaces){
 			}
 		}
 	}
-	for(var i=0;i<new_spaces.length;i++){
+	for(i=0;i<new_spaces.length;i++){
 		spaces.push(new_spaces[i]);
 	}
 	return spaces;
@@ -349,7 +311,7 @@ function merge_spaces(spaces){
 function merge_spaces1(space1, space2) {
 	var returned_spaces = [];
 	var merged_space;
-	if(space1.origin.z==space2.origin.z){
+	if(space1.origin.z == space2.origin.z){
 		if(space1.origin.x+space1.dim.x==space2.origin.x && space1.origin.y==space2.origin.y && space1.dim.y==space2.dim.y){
 			merged_space = new Space(space1.origin.x,space1.origin.y,space1.origin.z,space1.dim.x+space2.dim.x,space1.dim.y,space1.dim.z);
 			returned_spaces.push(merged_space);
