@@ -13,7 +13,7 @@
 	    	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 	    <![endif]-->
 	</head>
-	<body> <!--onLoad="init_box_set();">-->
+	<body>
 		<div class="container">
       		<div class="header">
 		        <nav>
@@ -29,11 +29,10 @@
       	<div class="jumbotron">
         	<h1>Logtimize</h1>
         	<p class="lead">Use containers/trucks efficiently with optimum loading. Optimize the container loading process according to routes, dimensions of boxes/pallettes...etc.</p>
+      		<a href="#" class="lead" id="add-cargo">Start adding checkpoints</a>
       	</div>
 		
-		<div class="container panels">
-			<div class="buttonDiv"><a href="#" class="btn btn-primary" id="add-cargo">Add cargo</a></div>
-		</div>
+		<div class="container panels"></div>
 		<div class="container">
 			<div class="buttonDiv loadButtonDiv hidden"><a href="#" class="btn btn-primary" id="load-cargo" />Load cargo</a></div>
 			<div id="map-canvas" class="hidden"></div>
@@ -48,27 +47,28 @@
 
 	</div> <!-- /container -->
     
+    <!-- templates -->
 	<div class="checkpointTemplate panel-group hidden" id="accordion" role="tablist" aria-multiselectable="true">
 		<div class='panel panel-primary'>
-			<div class='panel-heading' role="tab" id=""><a data-toggle="collapse" data-parent="#accordion" href="" aria-expanded="true" aria-controls="" class="expand">Change</a> - <span class="summaryQuantity"></span><a href="#" class="delCheck">x</a><input type="text" id="" class="checkName form-control" placeholder="Delivery location..." /></div>
+			<div class='panel-heading' role="tab" id=""><a data-toggle="collapse" data-parent="#accordion" href="" aria-expanded="true" aria-controls="" class="expand">Add cargo</a> - <span class="summaryQuantity"></span><a href="#" class="delCheck">x</a><input type="text" id="" class="checkName form-control" placeholder="Delivery location..." /><input type="color" class="color pin form-control" value="#FF0000" /></div>
 			<div id="" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="">
 				<div class='panel-body'>
-					<div class="container">
-						<div class="row">
-							<div class="checkInput col-md-2"><input type="text" class="name form-control" maxlength="10" placeholder="Box Name" /></div>
-							<div class="checkInput col-md-2"><input type="text" class="quantity form-control" maxlength="6"  placeholder="Quantity" /></div>
-							<div class="checkInput col-md-2"><input type="text" class="width form-control" maxlength="6"  placeholder="Width" /></div>
-							<div class="checkInput col-md-2"><input type="text" class="length form-control" maxlength="6"  placeholder="Length" /></div>
-							<div class="checkInput col-md-2"><input type="text" class="height form-control" maxlength="6"  placeholder="Height" /></div>
-							<div class="checkInput col-md-1">Side Up?<input type="checkbox" class="up checkbox" value="1" /></div>
-							<div class="checkInput col-md-1 colors"><input type="color" class="color" value="#FF0000" /></div>
-						</div>
-					</div>
+					<div class="container"></div>
 				</div>
 			</div>
 		</div>
     </div>
+    <div class="row addCargoTemplate hidden">
+		<div class="checkInput col-md-2"><input type="text" class="name form-control" maxlength="10" placeholder="Box Name" /></div>
+		<div class="checkInput col-md-2"><input type="text" class="quantity form-control" maxlength="6"  placeholder="Quantity" /></div>
+		<div class="checkInput col-md-2"><input type="text" class="width form-control" maxlength="6"  placeholder="Width" /></div>
+		<div class="checkInput col-md-2"><input type="text" class="length form-control" maxlength="6"  placeholder="Length" /></div>
+		<div class="checkInput col-md-2"><input type="text" class="height form-control" maxlength="6"  placeholder="Height" /></div>
+		<div class="checkInput col-md-1">Side Up?<input type="checkbox" class="up checkbox" value="1" /></div>
+		<div class="checkInput col-md-1 colors"><input type="color" class="color form-control" value="#FF0000" /></div>
+	</div>
     
+    <!-- scripts -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r69/three.js"></script>
 	<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places"></script>
 	<script src="orbit_control.js"></script>

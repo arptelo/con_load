@@ -26,7 +26,7 @@ $(document).ready(function(){
 		var marker = new google.maps.Marker({map: map});
 		checkpoints.push(new Checkpoint(marker));
 		noCheckpoints = checkpoints.length;
-		var $chCon = $(this).closest('.container');
+		var $chCon = $('.container.panels');
 		$chCon.append($('.checkpointTemplate').html());
 		var $chPanel = $chCon.find('.panel').last();
 		$chPanel.addClass("active");
@@ -48,7 +48,7 @@ $(document).ready(function(){
 			if (places.length === 0) {
 				return;
 			}
-			mapPin.strokeColor = $chPanel.find('.color').val();
+			mapPin.strokeColor = $chPanel.find('.color.pin').val();
 			checkpoints[noCheckpoints-1].marker.setTitle(places[0].name);
 			checkpoints[noCheckpoints-1].marker.setPosition(places[0].geometry.location);
 			checkpoints[noCheckpoints-1].marker.setIcon(mapPin);
@@ -81,13 +81,14 @@ $(document).ready(function(){
 		e.preventDefault();
 		if($(this).closest('.container').find('.panel').length == 1){
 			$(".loadButtonDiv").addClass("hidden");
+			$("#map-canvas").addClass("hidden");
 		}
 		$(this).closest(".panel").remove();
 	});
 	$(".container").on("click", ".expand", function(e){
 		e.preventDefault();		
 	});
-	$(".container").on("change", ".color", function(){
+	$(".container").on("change", ".color.pin", function(){
 		mapPin.strokeColor = $(this).val();
 		checkpoints[$(this).closest(".panel").index()-1].marker.setIcon(mapPin);	
 	});
@@ -133,6 +134,21 @@ var init_box_set = function(){
 		box1.color = color;
 		box_array.push(box1);
 	}
+};
+
+var ColorLuminance = function(hex, lum) {
+	hex = String(hex).replace(/[^0-9a-f]/gi, '');
+	if (hex.length < 6) {
+		hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+	}
+	lum = lum || 0;
+	var rgb = "#", c, i;
+	for (i = 0; i < 3; i++) {
+		c = parseInt(hex.substr(i*2,2), 16);
+		c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
+		rgb += ("00"+c).substr(c.length);
+	}
+	return rgb;
 };
 
 var loadBoxes = function(){
