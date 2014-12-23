@@ -6,7 +6,10 @@ var checkpoints = [];
 var noCheckpoints = 0;
 var map;
 var mapPin = {
-    path: 'M24,47c0,0-18-9.417-18-28C6,9.059,14.059,1,24,1s18,8.059,18,18  C42,37.583,24,47,24,47z M24,3C15.178,3,8,10.178,8,19c0,14.758,12.462,23.501,16.003,25.687C27.547,42.51,40,33.805,40,19  C40,10.178,32.822,3,24,3z M24,28c-4.971,0-9-4.029-9-9s4.029-9,9-9s9,4.029,9,9S28.971,28,24,28z M24,12c-3.866,0-7,3.134-7,7  s3.134,7,7,7s7-3.134,7-7S27.866,12,24,12z',
+    path: "M24,47c0,0-18-9.417-18-28C6,9.059,14.059,1,24,1s18,8.059,18,18  " + 
+    	"C42,37.583,24,47,24,47z M24,3C15.178,3,8,10.178,8,19c0,14.758,12.462,23.501,16.003,25.687C27.547,42.51,40,33.805,40,19  " + 
+    	"C40,10.178,32.822,3,24,3z M24,28c-4.971,0-9-4.029-9-9s4.029-9,9-9s9,4.029,9,9S28.971,28,24,28z " + 
+    	"M24,12c-3.866,0-7,3.134-7,7  s3.134,7,7,7s7-3.134,7-7S27.866,12,24,12z",
     fillOpacity: 0.8,
     scale: 0.5,
     strokeWeight: 2,
@@ -43,16 +46,18 @@ $(document).ready(function(){
 		$chPanel.find('.checkName').attr("id","checkName" + noCheckpoints);
 		var input = $('#checkName' + noCheckpoints)[0];
 		var searchBox = new google.maps.places.SearchBox(input);
-		google.maps.event.addListener(searchBox, 'places_changed', function() {
-			var places = searchBox.getPlaces();
-			if (places.length === 0) {
-				return;
-			}
-			mapPin.strokeColor = $chPanel.find('.color.pin').val();
-			checkpoints[noCheckpoints-1].marker.setTitle(places[0].name);
-			checkpoints[noCheckpoints-1].marker.setPosition(places[0].geometry.location);
-			checkpoints[noCheckpoints-1].marker.setIcon(mapPin);
-		});
+		google.maps.event.addListener(searchBox, 'places_changed', (function(noCheckpoints) {
+			return function(){
+				var places = searchBox.getPlaces();
+				if (places.length === 0) {
+					return;
+				}
+				mapPin.strokeColor = $chPanel.find('.color.pin').val();
+				checkpoints[noCheckpoints-1].marker.setTitle(places[0].name);
+				checkpoints[noCheckpoints-1].marker.setPosition(places[0].geometry.location);
+				checkpoints[noCheckpoints-1].marker.setIcon(mapPin);
+			};
+		})(noCheckpoints));
 		$(".loadButtonDiv").removeClass("hidden");
 		$("#map-canvas").removeClass("hidden");
 		google.maps.event.trigger(map, 'resize');
@@ -63,16 +68,18 @@ $(document).ready(function(){
 		e.preventDefault();
 		$(".panel.active").each(function(){
 			var panel_id = parseInt($(this).attr("id"), 10);
-			var name = $(this).find(".name").val();
-			var length = parseFloat($(this).find(".length").val());
-			var width = parseFloat($(this).find(".width").val());
-			var height = parseFloat($(this).find(".height").val());
-			var quantity = parseInt($(this).find(".quantity").val(), 10);
-			var up = $(this).find(".up").is(":checked");
-			var color =  $(this).find(".color").val();
-			var box1 = new Box(name, length, width, height, quantity, true, true, !up, !up, !up, !up, color);
-			checkpoints[panel_id-1].push_box_array(box1);
-			box_array.push(box1);
+			$(this).find(".row").each(function(){
+				var name = $(this).find(".name").val();
+				var length = parseFloat($(this).find(".length").val());
+				var width = parseFloat($(this).find(".width").val());
+				var height = parseFloat($(this).find(".height").val());
+				var quantity = parseInt($(this).find(".quantity").val(), 10);
+				var up = $(this).find(".up").is(":checked");
+				var color =  $(this).find(".color").val();
+				var box1 = new Box(name, length, width, height, quantity, true, true, !up, !up, !up, !up, color);
+				checkpoints[panel_id-1].push_box_array(box1);
+				box_array.push(box1);
+			});
 		});
 		loadBoxes();
 		$(".canvasAndMap").removeClass("hidden");
@@ -85,12 +92,28 @@ $(document).ready(function(){
 		}
 		$(this).closest(".panel").remove();
 	});
-	$(".container").on("click", ".expand", function(e){
+	$(".container").on("click", ".delBox", function(e){
+		e.preventDefault();
+		$(this).closest(".row").remove();
+	});
+	$(".panels").on("click", ".add-box", function(e){
+		e.preventDefault();
+		var $chCon = $(this).closest(".panel").find(".container");
+		$chCon.append($('.addCargoTemplate').html());
+		var noOfRows = $(this).closest(".panel").find(".row").length;
+		var i = 1;
+		$(this).closest(".panel").find(".row").each(function(){
+			var newColorValue = ColorLuminance($(this).closest(".panel").find(".panel-heading").find(".color.pin").val(), -i/(noOfRows+2));
+			$(this).find(".color").val(newColorValue);
+			i++;
+		});
+	});
+	$(".panels").on("click", ".expand", function(e){
 		e.preventDefault();		
 	});
-	$(".container").on("change", ".color.pin", function(){
+	$(".panels").on("change", ".color.pin", function(){
 		mapPin.strokeColor = $(this).val();
-		checkpoints[$(this).closest(".panel").index()-1].marker.setIcon(mapPin);	
+		checkpoints[$(this).closest(".panel").index()].marker.setIcon(mapPin);	
 	});
 	$(".panels").on("keyup", ".quantity", function(){
 		$(this).closest(".panel").find(".summaryQuantity").html($(this).val() + " boxes");

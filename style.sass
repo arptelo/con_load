@@ -11,15 +11,14 @@ body
   padding-left: 15px
 
 /* Custom page header */
+/* Make the masthead heading the same height as the navigation */
 .header
   border-bottom: 1px solid #e5e5e5
-
-/* Make the masthead heading the same height as the navigation */
-.header h3
-  padding-bottom: 19px
-  margin-top: 0
-  margin-bottom: 0
-  line-height: 40px
+  h3
+    padding-bottom: 19px
+    margin-top: 0
+    margin-bottom: 0
+    line-height: 40px
 
 /* Custom page footer */
 .footer
@@ -39,10 +38,9 @@ body
 .jumbotron
   text-align: center
   border-bottom: 1px solid #e5e5e5
-
-.jumbotron .btn
-  padding: 14px 24px
-  font-size: 21px
+  .btn
+    padding: 14px 24px
+    font-size: 21px
 
 /* Checkpoint Box */
 .checkInput
@@ -50,9 +48,8 @@ body
   padding: 5px
   text-align: center
   vertical-align: middle
-
-.checkInput .up
-  margin: 0 auto
+  .up
+    margin: 0 auto
 
 .checkName
   float: right
@@ -77,18 +74,22 @@ body
   margin: 20px auto
   border: 1px solid #337AB7
   
-.panel a
-  color: white
-  text-decoration: none
-
-.panel a:hover
-  text-decoration: none
-  
-.panel-body
-  padding: 0
-
-.delCheck
-  float: right
+.panel
+  a
+    text-decoration: none
+    &:hover
+      text-decoration: none
+  .delCheck
+    float: right
+  .panel-heading a
+    color: white  
+  .panel-body
+    padding: 0
+    .delBox
+      color: black
+      font-size: 14px
+    .delRow
+      padding: 12px
 
 .container
   padding: 0
@@ -99,6 +100,9 @@ body
 
 .row
   margin: 0
+  
+.form-control
+  font-size: 0.9em
 
 #map-canvas
   width: 100%
@@ -107,6 +111,9 @@ body
 
 #add-cargo
   text-decoration: none
+  
+.glyphicon-plus-sign
+  margin-right: 10px
 
 /* Responsive: Portrait tablets and up */
 @media screen and (min-width: 768px)
