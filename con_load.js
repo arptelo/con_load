@@ -3,7 +3,6 @@ var copy_box_array = [];
 var space_array = [];
 var loaded_boxes = [];
 var checkpoints = [];
-var noCheckpoints = 0;
 var map;
 var mapPin = {
     path: "M24,47c0,0-18-9.417-18-28C6,9.059,14.059,1,24,1s18,8.059,18,18  " + 
@@ -28,7 +27,7 @@ $(document).ready(function(){
 		e.preventDefault();
 		var marker = new google.maps.Marker({map: map});
 		checkpoints.push(new Checkpoint(marker));
-		noCheckpoints = checkpoints.length;
+		var noCheckpoints = checkpoints.length;
 		var $chCon = $('.container.panels');
 		$chCon.append($('.checkpointTemplate').html());
 		var $chPanel = $chCon.find('.panel').last();
@@ -43,6 +42,13 @@ $(document).ready(function(){
 			"id": "collapse" + noCheckpoints,
 			"aria-labelledby": "heading" + noCheckpoints
 		});
+		if(noCheckpoints == 1){
+			$chPanel.find(".add-box").addClass("hidden");
+			$chPanel.find(".expand").addClass("hidden");
+			$chPanel.find(".delCheck").addClass("hidden");
+			$chPanel.find(".checkName").attr("placeholder", "Departure location...");
+			$chPanel.find(".panel-heading").append("<label class='return'><input type='checkbox' checked class='return-check' /> Return here</label>");
+		}
 		$chPanel.find('.checkName').attr("id","checkName" + noCheckpoints);
 		var input = $('#checkName' + noCheckpoints)[0];
 		var searchBox = new google.maps.places.SearchBox(input);
@@ -86,10 +92,27 @@ $(document).ready(function(){
 	});
 	$(".container").on("click", ".delCheck", function(e){
 		e.preventDefault();
-		if($(this).closest('.container').find('.panel').length == 1){
+		var noCheckpoints = checkpoints.length;
+		var panelId = parseInt($(this).closest(".panel").attr("id"), 10);
+		if(noCheckpoints == 1){
 			$(".loadButtonDiv").addClass("hidden");
 			$("#map-canvas").addClass("hidden");
 		}
+		for(var i=panelId+1, j=i-1; i<=noCheckpoints; i++){
+			var $panel = $(this).closest(".panels").find("#" + i);
+			$panel.attr("id", j);
+			$panel.find(".panel-heading").attr("id", "heading" + j);
+			$panel.find('.expand').attr({
+				"href": "#collapse" + j,
+				"aria-controls": "collapse" + j
+			});
+			$panel.find('.panel-collapse').attr({
+				"id": "collapse" + j,
+				"aria-labelledby": "heading" + j
+			});
+			$panel.find('.checkName').attr("id", "checkName" + j);
+		}
+		checkpoints.splice(panelId-1,1);
 		$(this).closest(".panel").remove();
 	});
 	$(".container").on("click", ".delBox", function(e){
