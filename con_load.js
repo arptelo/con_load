@@ -1,28 +1,33 @@
-var box_array = [];
-var copy_box_array = [];
-var space_array = [];
-var loaded_boxes = [];
-var checkpoints = [];
-var map;
-var mapPin = {
-    path: "M24,47c0,0-18-9.417-18-28C6,9.059,14.059,1,24,1s18,8.059,18,18  " + 
-    	"C42,37.583,24,47,24,47z M24,3C15.178,3,8,10.178,8,19c0,14.758,12.462,23.501,16.003,25.687C27.547,42.51,40,33.805,40,19  " + 
-    	"C40,10.178,32.822,3,24,3z M24,28c-4.971,0-9-4.029-9-9s4.029-9,9-9s9,4.029,9,9S28.971,28,24,28z " + 
-    	"M24,12c-3.866,0-7,3.134-7,7  s3.134,7,7,7s7-3.134,7-7S27.866,12,24,12z",
-    fillOpacity: 0.8,
-    scale: 0.5,
-    strokeWeight: 2,
-    anchor: {x:24, y:48}
-};
-//var itera = 0;
+var box_array = [],
+	callbackResults = [],
+	checkpoints = [],
+    copy_box_array = [],
+    loaded_boxes = [],
+    space_array = [],
+    map,
+    mapOptions = {
+		center: {lat: 39.13, lng: 35.4},
+		zoom: 5
+	},
+	mapPin = {
+		path: "M24,47c0,0-18-9.417-18-28C6,9.059,14.059,1,24,1s18,8.059,18,18 C42,37.583,24,47,24,47z " +
+			"M24,3C15.178,3,8,10.178,8,19c0,14.758,12.462,23.501,16.003,25.687C27.547,42.51,40,33.805,40,19  " + 
+			"C40,10.178,32.822,3,24,3z M24,28c-4.971,0-9-4.029-9-9s4.029-9,9-9s9,4.029,9,9S28.971,28,24,28z " + 
+			"M24,12c-3.866,0-7,3.134-7,7  s3.134,7,7,7s7-3.134,7-7S27.866,12,24,12z",
+		fillOpacity: 0.8,
+		scale: 0.5,
+		strokeWeight: 2,
+		anchor: {x:24, y:48}
+	},
+	noOfReturnedCallbacks = 0,
+	directionsDisplay,
+	directionsService = new google.maps.DirectionsService();
 
 $(document).ready(function(){
 	setScene();
-	var mapOptions = {
-		center: {lat: 39.13, lng: 35.4},
-		zoom: 5
-	};
 	map = new google.maps.Map($('#map-canvas')[0], mapOptions);
+	directionsDisplay = new google.maps.DirectionsRenderer({suppressMarkers: true});
+	directionsDisplay.setMap(map);
 	$("#add-cargo").click(function(e){
 		e.preventDefault();
 		var marker = new google.maps.Marker({map: map});
@@ -141,7 +146,98 @@ $(document).ready(function(){
 	$(".panels").on("keyup", ".quantity", function(){
 		$(this).closest(".panel").find(".summaryQuantity").html($(this).val() + " boxes");
 	});
+	$("#opt-route").click(function(e){
+		e.preventDefault();
+		var x = checkpoints.length,
+			waypts = [];
+		if(x > 1){
+			for(var i=1; i<x; i++){
+				waypts.push({
+					location: checkpoints[i].marker.getPosition(),
+          			stopover: true
+          		});
+			}
+			if($(".return-check").is(":checked") === true){
+				calcRoute(checkpoints[0].marker.getPosition(), waypts, -1);
+			} else {
+				var wayptsOriginal = waypts.slice();
+				for(i=1; i<x; i++){
+					waypts = wayptsOriginal.slice();
+					waypts.splice(i-1,1);
+					calcRoute(checkpoints[i].marker.getPosition(), waypts, i-1);
+				}
+			}
+		}
+	});
 });
+
+var calcRoute = function(end, waypoints, order){
+	var start = checkpoints[0].marker.getPosition(),
+	request = {
+		origin: start,
+		waypoints: waypoints,
+		destination: end,
+		optimizeWaypoints: true,
+		travelMode: google.maps.TravelMode.DRIVING
+	};
+	directionsService.route(request, function(result, status) {
+		if (status == google.maps.DirectionsStatus.OK) {
+			if(order === -1){
+				directionsDisplay.setDirections(result);
+			} else {
+				callbackResults[order] = {"response": result, "distance": 0};
+			}
+		} else {
+			if(order !== -1){
+				callbackResults[order] = {"response": "Error", "distance": 1000000};
+			}
+		}
+		noOfReturnedCallbacks++;
+		if(noOfReturnedCallbacks == checkpoints.length-1){
+			noOfReturnedCallbacks = 0;
+			findShortestRoute(order);
+		}
+	});
+};
+
+var findShortestRoute = function(){
+	var x = checkpoints.length-1, i, j;
+	for(i=0; i<x; i++){
+		if(callbackResults[i].response !== "Error"){
+			var noOfLegs = callbackResults[i].response.routes[0].legs.length;
+			for(j=0; j<noOfLegs; j++){
+				callbackResults[i].distance += callbackResults[i].response.routes[0].legs[j].distance.value/1000;
+			}
+		}
+	}
+	var minDistance = 99999;
+	for(i=0; i<x; i++){
+		minDistance = Math.min(minDistance, callbackResults[i].distance);
+	}
+	for(i=0; i<x; i++){
+		if(minDistance == callbackResults[i].distance){
+			var response = callbackResults[i].response;
+			var orderWp = response.routes[0].waypoint_order;
+			directionsDisplay.setDirections(response);
+			for(j=0; j<orderWp.length; j++){
+				if(orderWp[j] >= i){
+					orderWp[j]++;
+				}
+			}
+			orderWp.push(i);
+			sortPanels(orderWp);
+			break;
+		}
+	}
+};
+
+var sortPanels = function(queue){
+	var checkpointsCopy = checkpoints.slice();
+	for(var i=0, x=queue.length; i<x; i++){
+		$("#" + (queue[i]+2)).appendTo($(".panels"));
+		checkpoints[i+1] = checkpointsCopy[queue[i]+1];
+	}
+};
 
 var init_box_set = function(){
 	var isim = [];
@@ -198,9 +294,7 @@ var ColorLuminance = function(hex, lum) {
 };
 
 var loadBoxes = function(){
-	for(var i=0; i<box_array.length; i++){
-		copy_box_array[i] = box_array[i];
-	}
+	copy_box_array = box_array.slice();
 	var space_initial = new Space(0, 0, 0, 1360, 240, 300);
 	space_array.push(space_initial);
 	scene.add(drawGrid(0, 0, 1360, 240));
