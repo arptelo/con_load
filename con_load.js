@@ -4,6 +4,9 @@ var box_array = [],
     copy_box_array = [],
     loaded_boxes = [],
     space_array = [],
+    trucks_array = [
+    	{"name": "TIR", "length": 1360, "width": 240, "height": 300},
+    	{"name": "Truck", "length": 700, "width": 240, "height": 260}],
     map,
     mapOptions = {
 		center: {lat: 39.13, lng: 35.4},
@@ -53,6 +56,14 @@ $(document).ready(function(){
 			$chPanel.find(".delCheck").addClass("hidden");
 			$chPanel.find(".checkName").attr("placeholder", "Departure location...");
 			$chPanel.find(".panel-heading").append("<label class='return'><input type='checkbox' checked class='return-check' /> Return here</label>");
+			for(var i=0, x=trucks_array.length; i<x; i++){
+				$chPanel.find(".panel-body").find(".container").append("<div class='radio'>" +
+					"<label>" +
+						"<input type='radio' name='optionsRadios' id='optionsRadios" + (i+1) + "' value='" + i + "' " + (i===0 ? "checked": "") + ">" + 
+						trucks_array[i].name + " ( " + trucks_array[i].length + " x " + trucks_array[i].width + " x " + trucks_array[i].height + " )" +
+					"</label>" +
+				"</div>");
+			}
 		}
 		$chPanel.find('.checkName').attr("id","checkName" + noCheckpoints);
 		var input = $('#checkName' + noCheckpoints)[0];
@@ -92,6 +103,9 @@ $(document).ready(function(){
 				box_array.push(box1);
 			});
 		});
+		var truckID = parseInt($("input[name=optionsRadios]:checked").val(), 10);
+		space_array.push(new Space(0, 0, 0, trucks_array[truckID].length, trucks_array[truckID].width, trucks_array[truckID].height));
+		scene.add(drawGrid(0, 0, trucks_array[truckID].length, trucks_array[truckID].width));
 		loadBoxes();
 		$(".canvasAndMap").removeClass("hidden");
 	});
@@ -131,7 +145,7 @@ $(document).ready(function(){
 		var noOfRows = $(this).closest(".panel").find(".row").length;
 		var i = 1;
 		$(this).closest(".panel").find(".row").each(function(){
-			var newColorValue = ColorLuminance($(this).closest(".panel").find(".panel-heading").find(".color.pin").val(), -i/(noOfRows+2));
+			var newColorValue = colorLuminance($(this).closest(".panel").find(".panel-heading").find(".color.pin").val(), -i/(noOfRows+2));
 			$(this).find(".color").val(newColorValue);
 			i++;
 		});
@@ -184,6 +198,7 @@ var calcRoute = function(end, waypoints, order){
 		if (status == google.maps.DirectionsStatus.OK) {
 			if(order === -1){
 				directionsDisplay.setDirections(result);
+				sortPanels(result.routes[0].waypoint_order);
 			} else {
 				callbackResults[order] = {"response": result, "distance": 0};
 			}
@@ -195,7 +210,7 @@ var calcRoute = function(end, waypoints, order){
 		noOfReturnedCallbacks++;
 		if(noOfReturnedCallbacks == checkpoints.length-1){
 			noOfReturnedCallbacks = 0;
-			findShortestRoute(order);
+			findShortestRoute();
 		}
 	});
 };
@@ -239,46 +254,15 @@ var sortPanels = function(queue){
 	}
 };
 
-var init_box_set = function(){
-	var isim = [];
-	var en = [];
-	var boy = [];
-	var yukseklik = [];
-	var adet = [];
-	var dik = document.getElementById("dik");
-	var box1;
-	isim = ["a","b","c","d","e","f"];
-	en = [26,31,22,26,21,31];
-	boy = [51,43,32,51,41,43];
-	yukseklik = [15,17,30,15,24,17];
-	adet = [47,360,485,69,248,129];
-	for(var j=0; j<6; j++){
-		var yeni_kutu_satiri = [isim[j],en[j],boy[j],yukseklik[j],adet[j]];
-		var table = document.getElementById("all_boxes");
-		var row = table.insertRow(table.rows.length);
-		var cell;
-		for(var i=0;i<5;i++){
-			cell = row.insertCell(i);
-			cell.innerHTML = yeni_kutu_satiri[i];
-		}
-		if(dik.checked === true){
-			cell = row.insertCell(i);
-			cell.innerHTML = "Yes";
-			box1 = new Box(isim[j],boy[j],en[j],yukseklik[j],adet[j],true,true,false,false,false,false);
-		} else {
-			cell = row.insertCell(i);
-			cell.innerHTML = "No";
-			box1 = new Box(isim[j],boy[j],en[j],yukseklik[j],adet[j],true,true,true,true,true,true);
-		}
-		cell = row.insertCell(i+1);
-		var color = "#FF0000";
-		cell.innerHTML = "<input type='color' value='" + color + "'/>";
-		box1.color = color;
-		box_array.push(box1);
-	}
+var init_box_set = {
+	name: ["a","b","c","d","e","f"],
+	length: [26,31,22,26,21,31],
+	width: [51,43,32,51,41,43],
+	height: [15,17,30,15,24,17],
+	quantity: [47,360,485,69,248,129]
 };
 
-var ColorLuminance = function(hex, lum) {
+var colorLuminance = function(hex, lum) {
 	hex = String(hex).replace(/[^0-9a-f]/gi, '');
 	if (hex.length < 6) {
 		hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
@@ -294,10 +278,8 @@ var ColorLuminance = function(hex, lum) {
 };
 
 var loadBoxes = function(){
+	var i;
 	copy_box_array = box_array.slice();
-	var space_initial = new Space(0, 0, 0, 1360, 240, 300);
-	space_array.push(space_initial);
-	scene.add(drawGrid(0, 0, 1360, 240));
 	var number_of_usable_spaces = 1;
 	while(number_of_usable_spaces !== 0 && box_array.length !== 0){
 		number_of_usable_spaces = 0;
@@ -359,9 +341,6 @@ var loadBoxes = function(){
 	var empty_volume=0;
 	for(i=0;i<space_array.length;i++){
 		empty_volume = empty_volume + (space_array[i].dim.x*space_array[i].dim.y*space_array[i].dim.z);
-	}
-	for(i=0;i<box_array.length;i++){
-		
 	}
 	encode(loaded_boxes);
 };

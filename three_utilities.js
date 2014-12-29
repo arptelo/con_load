@@ -1,6 +1,5 @@
 var scene;
 var camera;
-var projector;
 var renderer;
 var controls;
 
