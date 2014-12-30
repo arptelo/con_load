@@ -2,6 +2,7 @@ var box_array = [],
 	callbackResults = [],
 	checkpoints = [],
     copy_box_array = [],
+    cubes = [],
     loaded_boxes = [],
     space_array = [],
     trucks_array = [
@@ -23,6 +24,7 @@ var box_array = [],
 		anchor: {x:24, y:48}
 	},
 	noOfReturnedCallbacks = 0,
+	pointer = -1,
 	directionsDisplay,
 	directionsService = new google.maps.DirectionsService();
 
@@ -171,7 +173,7 @@ $(document).ready(function(){
           			stopover: true
           		});
 			}
-			if($(".return-check").is(":checked") === true){
+			if($(".return-check").is(":checked")){
 				calcRoute(checkpoints[0].marker.getPosition(), waypts, -1);
 			} else {
 				var wayptsOriginal = waypts.slice();
@@ -181,6 +183,19 @@ $(document).ready(function(){
 					calcRoute(checkpoints[i].marker.getPosition(), waypts, i-1);
 				}
 			}
+		}
+	});
+	$(".animate").click(function(e){
+		e.preventDefault();
+		var step = parseInt($(this).data("step"), 10);
+		if(step === -1 && pointer>-1){
+			scene.remove(cubes[pointer]);
+			pointer--;
+			render();
+		} else if(step === 1 && pointer < cubes.length-1) {
+			pointer++;
+			scene.add(cubes[pointer]);
+			render();
 		}
 	});
 });
@@ -278,24 +293,28 @@ var colorLuminance = function(hex, lum) {
 };
 
 var loadBoxes = function(){
-	var i;
+	var a, b, i, x, key,
+		number_of_usable_spaces = 1;
 	copy_box_array = box_array.slice();
-	var number_of_usable_spaces = 1;
 	while(number_of_usable_spaces !== 0 && box_array.length !== 0){
 		number_of_usable_spaces = 0;
-		var a = eval1(box_array, space_array[0]);
+		a = eval1(box_array, space_array[0]);
 		a = eval2(a, space_array[0]);
 		a = eval3(a, space_array[0]);
 		a = eval4(a, space_array[0]);
-		var b = {};
-		b.loaded_box = a[0];
-		b.loading_point = {};
-		b.loading_point.x = space_array[0].origin.x;
-		b.loading_point.y = space_array[0].origin.y;
-		b.loading_point.z = space_array[0].origin.z;
+		b = {
+			"loaded_box": a[0],
+			"loading_point": {
+				"x": space_array[0].origin.x,
+				"y": space_array[0].origin.y,
+				"z": space_array[0].origin.z
+			}
+		};
 		loaded_boxes.push(b);
+		
+		// Update box array
 		for(i=0; i<box_array.length; i++){
-			for (var key in box_array[i].orientation){
+			for (key in box_array[i].orientation){
 				if(b.loaded_box.name == box_array[i].name && b.loaded_box.dim.x % box_array[i].orientation[key].x === 0 && b.loaded_box.dim.y % box_array[i].orientation[key].y === 0 && b.loaded_box.dim.z % box_array[i].orientation[key].z === 0){
 					var box_number = (b.loaded_box.dim.x/box_array[i].orientation[key].x)*(b.loaded_box.dim.y/box_array[i].orientation[key].y)*(b.loaded_box.dim.z/box_array[i].orientation[key].z);
 					if(box_array[i].quantity - box_number === 0){
@@ -307,48 +326,49 @@ var loadBoxes = function(){
 				}
 			}
 		}
-		if(b.loaded_box.dim.x !== 0 && space_array[0].dim.y-b.loaded_box.dim.y !== 0 && space_array[0].dim.z !== 0) {
+		
+		// Update space array
+		if(b.loaded_box.dim.x!==0 && space_array[0].dim.y-b.loaded_box.dim.y!==0 && space_array[0].dim.z!==0) {
 			var space_side = new Space(space_array[0].origin.x,space_array[0].origin.y+b.loaded_box.dim.y,space_array[0].origin.z,b.loaded_box.dim.x,space_array[0].dim.y-b.loaded_box.dim.y,space_array[0].dim.z);
 			space_array.push(space_side);
 		}
-		if(space_array[0].dim.x-b.loaded_box.dim.x !== 0 && space_array[0].dim.y !== 0 && space_array[0].dim.z !== 0) {
+		if(space_array[0].dim.x-b.loaded_box.dim.x!==0 && space_array[0].dim.y!==0 && space_array[0].dim.z!==0) {
 			var space_front = new Space(space_array[0].origin.x+b.loaded_box.dim.x,space_array[0].origin.y,space_array[0].origin.z,space_array[0].dim.x-b.loaded_box.dim.x,space_array[0].dim.y,space_array[0].dim.z);
 			space_array.push(space_front);
 		}
-		if(b.loaded_box.dim.x !== 0 && b.loaded_box.dim.y !== 0 && space_array[0].dim.z-b.loaded_box.dim.z !== 0) {
+		if(b.loaded_box.dim.x!==0 && b.loaded_box.dim.y!==0 && space_array[0].dim.z-b.loaded_box.dim.z!==0) {
 			var space_overhead = new Space(space_array[0].origin.x,space_array[0].origin.y,space_array[0].origin.z+b.loaded_box.dim.z,b.loaded_box.dim.x,b.loaded_box.dim.y,space_array[0].dim.z-b.loaded_box.dim.z);
 			space_array.push(space_overhead);
 		}
 		space_array.splice(0, 1);
 		space_array = merge_spaces(space_array);
 		var min_distance_to_origin = 10000;
-		for(i=0; i<space_array.length; i++) {
-			if(space_array[i].check_space_usability(box_array) && Math.sqrt(Math.pow(space_array[i].origin.x,2)+Math.pow(space_array[i].origin.y,2)+Math.pow(space_array[i].origin.z,2))<min_distance_to_origin){
-				min_distance_to_origin = Math.sqrt(Math.pow(space_array[i].origin.x,2)+Math.pow(space_array[i].origin.y,2)+Math.pow(space_array[i].origin.z,2));
+		for(i=0, x=space_array.length; i<x; i++) {
+			if(space_array[i].isUsable(box_array)){
+				min_distance_to_origin = Math.min(Math.sqrt(Math.pow(space_array[i].origin.x,2)+Math.pow(space_array[i].origin.y,2)+Math.pow(space_array[i].origin.z,2)), min_distance_to_origin);
 			}
-			if(space_array[i].check_space_usability(box_array)) {
+			if(space_array[i].isUsable(box_array)) {
 				number_of_usable_spaces = number_of_usable_spaces+1;
 			}
 		}
-		for(i=0; i<space_array.length; i++){
-			if(space_array[i].check_space_usability(box_array) && Math.sqrt(Math.pow(space_array[i].origin.x,2)+Math.pow(space_array[i].origin.y,2)+Math.pow(space_array[i].origin.z,2))==min_distance_to_origin){
+		for(i=0, x=space_array.length; i<x; i++){
+			if(space_array[i].isUsable(box_array) && Math.sqrt(Math.pow(space_array[i].origin.x,2)+Math.pow(space_array[i].origin.y,2)+Math.pow(space_array[i].origin.z,2))==min_distance_to_origin){
 				var temp = space_array[i];
 				space_array[i] = space_array[0];
 				space_array[0] = temp;
 			}
 		}
 	}
-	var empty_volume=0;
+	var empty_volume = 0;
 	for(i=0;i<space_array.length;i++){
 		empty_volume = empty_volume + (space_array[i].dim.x*space_array[i].dim.y*space_array[i].dim.z);
 	}
 	encode(loaded_boxes);
 };
 
-function encode(boxes) {
-	var encoded_box_set = [];
-	var i;
-	for(var j=0; j<boxes.length; j++) {
+var encode = function(boxes) {
+	var encoded_box_set = [], i, j, x, l, w, h;
+	for(j=0; j<boxes.length; j++) {
 		for(i=0; i<copy_box_array.length; i++) {
 			if(boxes[j].loaded_box.name == copy_box_array[i].name) {
 				for (var key in copy_box_array[i].orientation){
@@ -357,18 +377,19 @@ function encode(boxes) {
 						var how_many_through_y = boxes[j].loaded_box.dim.y/copy_box_array[i].orientation[key].y;
 						var how_many_through_z = boxes[j].loaded_box.dim.z/copy_box_array[i].orientation[key].z;
 						var encoded_box_element;
-						for(var l=0;l<how_many_through_x;l++){
-							for(var w=0;w<how_many_through_y;w++){
-								for(var h=0;h<how_many_through_z;h++){
-									encoded_box_element = {};
-									encoded_box_element.x = boxes[j].loading_point.x+l*copy_box_array[i].orientation[key].x;
-									encoded_box_element.y = boxes[j].loading_point.y+w*copy_box_array[i].orientation[key].y;
-									encoded_box_element.z = boxes[j].loading_point.z+h*copy_box_array[i].orientation[key].z;
-									encoded_box_element.length = copy_box_array[i].orientation[key].x;
-									encoded_box_element.width  = copy_box_array[i].orientation[key].y;
-									encoded_box_element.heigth = copy_box_array[i].orientation[key].z;
-									encoded_box_element.name   = copy_box_array[i].name;
-									encoded_box_element.color   = copy_box_array[i].color;
+						for(l=0;l<how_many_through_x;l++){
+							for(w=0;w<how_many_through_y;w++){
+								for(h=0;h<how_many_through_z;h++){
+									encoded_box_element = {
+										"x": boxes[j].loading_point.x+l*copy_box_array[i].orientation[key].x,
+										"y": boxes[j].loading_point.y+w*copy_box_array[i].orientation[key].y,
+										"z": boxes[j].loading_point.z+h*copy_box_array[i].orientation[key].z,
+										"length": copy_box_array[i].orientation[key].x,
+										"width": copy_box_array[i].orientation[key].y,
+										"height": copy_box_array[i].orientation[key].z,
+										"name": copy_box_array[i].name,
+										"color": copy_box_array[i].color
+									};
 									encoded_box_set.push(encoded_box_element);
 								}
 							}
@@ -379,18 +400,19 @@ function encode(boxes) {
 			}
 		}
 	}
-	for(i=0; i<encoded_box_set.length; i++) {
-		//$("#write").html($("#write").html() + "<br>l:" + encoded_box_set[i].length + " w:" + encoded_box_set[i].width + " h:" +  encoded_box_set[i].heigth + " x:" +  encoded_box_set[i].x + " y:" + encoded_box_set[i].y + " z:" + encoded_box_set[i].z);
-		scene.add(drawCube(encoded_box_set[i].length, encoded_box_set[i].width, encoded_box_set[i].heigth, encoded_box_set[i].x, encoded_box_set[i].y, encoded_box_set[i].z, encoded_box_set[i].color, 1));
+	for(i=0,x=encoded_box_set.length; i<x; i++) {
+		cubes.push(drawCube(encoded_box_set[i].length, encoded_box_set[i].width, encoded_box_set[i].height, encoded_box_set[i].x, encoded_box_set[i].y, encoded_box_set[i].z, encoded_box_set[i].color, 1));
+		scene.add(cubes[cubes.length-1]);
+		pointer++;
 	}
 	camera.lookAt(new THREE.Vector3( 0, 0, 0 ));
-	renderer.render(scene, camera);
-}
+	render();
+};
 
 function merge_spaces(spaces){
-	var set_spaces;
-	var new_spaces = [];
-	var i, j, k, l;
+	var set_spaces,
+		new_spaces = [],
+		i, j, k, l;
 	for(l=0; l<spaces.length; l++){
 		for(j=0; j<spaces.length; j++){
 			if(l != j){
@@ -414,7 +436,7 @@ function merge_spaces(spaces){
 	var set_spaces2;
 	for(l=0; l<spaces.length; l++){
 		for(j=0; j<spaces.length; j++){
-			if(l!=j && !spaces[l].check_space_usability(box_array) && !spaces[j].check_space_usability(box_array)){
+			if(l!=j && !spaces[l].isUsable(box_array) && !spaces[j].isUsable(box_array)){
 				set_spaces2 = merge_spaces2(spaces[l], spaces[j]);
 				for(var iter=0; iter<set_spaces2.length; iter++){
 					if(set_spaces2[iter].dim.x === 0 || set_spaces2[iter].dim.y === 0 || set_spaces2[iter].dim.z === 0){
@@ -530,40 +552,34 @@ function merge_spaces2(space1, space2) {
 }
 
 var eval1 = function(boxes, space) {
-	var returned_boxes_set = [];
-	var min_len_of_boxes = [];
-	var possible_box;
-	var x_value, y_value, z_value;
-	var qua_of_boxes;
-	var min;
-	for (var i=0; i<boxes.length; i++) {
-		for (var key in boxes[i].orientation) {
+	var returned_boxes_set = [],
+		min_len_of_boxes = [],
+		x_value, y_value, z_value,
+		qua_of_boxes,
+		min, i, key;
+	for (i=0; i<boxes.length; i++) {
+		for (key in boxes[i].orientation) {
 			var ory = boxes[i].orientation[key];
-			if (ory.pos === true && space.dim.x >= ory.x && space.dim.y >= ory.y && space.dim.z >= ory.z) {
+			if (ory.pos && space.dim.x>=ory.x && space.dim.y>=ory.y && space.dim.z>=ory.z) {
 				var emp_len_x = space.dim.x - Math.min(boxes[i].quantity, Math.floor(space.dim.x/ory.x))*ory.x;
 				var emp_len_y = space.dim.y - Math.min(boxes[i].quantity, Math.floor(space.dim.y/ory.y))*ory.y;
 				var emp_len_z = space.dim.z - Math.min(boxes[i].quantity, Math.floor(space.dim.z/ory.z))*ory.z;
 				min = Math.min(emp_len_x, emp_len_y, emp_len_z);
 				if (min == emp_len_x) {
-					possible_box = new Best_ory(boxes[i].name, ory.name, "x", min, ory.x, ory.y, ory.z, boxes[i].quantity);
-					min_len_of_boxes.push(possible_box);
+					min_len_of_boxes.push(new Best_ory(boxes[i].name, ory.name, "x", min, ory.x, ory.y, ory.z, boxes[i].quantity));
 				}
 				if (min == emp_len_y) {
-					possible_box = new Best_ory(boxes[i].name, ory.name, "y", min, ory.x, ory.y, ory.z, boxes[i].quantity);
-					min_len_of_boxes.push(possible_box);
+					min_len_of_boxes.push(new Best_ory(boxes[i].name, ory.name, "y", min, ory.x, ory.y, ory.z, boxes[i].quantity));
 				}
 				if (min == emp_len_z) {
-					possible_box = new Best_ory(boxes[i].name, ory.name, "z", min, ory.x, ory.y, ory.z, boxes[i].quantity);
-					min_len_of_boxes.push(possible_box);
+					min_len_of_boxes.push(new Best_ory(boxes[i].name, ory.name, "z", min, ory.x, ory.y, ory.z, boxes[i].quantity));
 				}
 			}
 		}
 	}
 	min = 1000000;
 	for (i=0; i<min_len_of_boxes.length; i++) {
-		if (min_len_of_boxes[i].value < min) {
-			min = min_len_of_boxes[i].value;
-		}
+		min = Math.min(min_len_of_boxes[i].value, min);
 	}
 	for (i=0; i<min_len_of_boxes.length; i++) {
 		var can_box = min_len_of_boxes[i];
@@ -592,23 +608,24 @@ var eval1 = function(boxes, space) {
 };
 
 var eval2 = function(boxes, space) {
-	var returned_boxes_set = [];
-	var possible_boxes_set = [];
-	var boxs;
-	for (var j=0;j<boxes.length;j++){
+	var returned_boxes_set = [],
+		possible_boxes_set = [],
+		boxs, j, key, ory, box_amount, exit,
+		max_box_along_w, max_box_along_h;
+	for (j=0;j<boxes.length;j++){
 		boxs = boxes[j];
-		for (var key in boxes[j].orientation){
-			var ory=boxes[j].orientation[key];
-			if (ory.pos === true){
-				var max_box_along_w = Math.floor(space.dim.y/ory.y);
-				var max_box_along_h = Math.floor(space.dim.z/ory.z);
-				var box_amount = boxs.quantity;
-				var exit = 0;
+		for (key in boxes[j].orientation){
+			ory = boxes[j].orientation[key];
+			if (ory.pos){
+				max_box_along_w = Math.floor(space.dim.y/ory.y);
+				max_box_along_h = Math.floor(space.dim.z/ory.z);
+				box_amount = boxs.quantity;
+				exit = 0;
 				while (box_amount >= 1 && exit === 0){
 					var i = 1;
 					while (i <= max_box_along_w && exit === 0){
 						if (box_amount/i<=max_box_along_h && box_amount/i == Math.floor(box_amount/i)){
-							var new_box = new Box(boxs.name,ory.x,i*ory.y,(box_amount/i)*ory.z,Math.max(Math.floor(boxs.quantity/box_amount),1),true,false,false,false,false,false);
+							var new_box = new Box(boxs.name, ory.x, i*ory.y, (box_amount/i)*ory.z, Math.max(Math.floor(boxs.quantity/box_amount),1), true, false, false, false, false, false);
 							possible_boxes_set.push(new_box);
 							exit = 1;
 						}
@@ -643,7 +660,7 @@ var eval3 = function(boxes, space) {
 		boxs = boxes[j];
 		for (var key in boxes[j].orientation){
 			var ory=boxes[j].orientation[key];
-			if (ory.pos === true){
+			if (ory.pos){
 				var max_box_along_l = Math.floor(space.dim.x/ory.x);
 				var max_box_along_h = Math.floor(space.dim.z/ory.z);
 				var box_amount = boxs.quantity;
@@ -687,7 +704,7 @@ var eval4 = function(boxes, space) {
 		boxs = boxes[j];
 		for (var key in boxes[j].orientation){
 			var ory=boxes[j].orientation[key];
-			if (ory.pos === true){
+			if (ory.pos){
 				var max_box_along_l = Math.floor(space.dim.x/ory.x);
 				var max_box_along_w = Math.floor(space.dim.y/ory.y);
 				var box_amount = boxs.quantity;

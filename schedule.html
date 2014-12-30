@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html style="height:100%">
+<head>
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+	<meta http-equiv="content-type" content="text/html; charset=iso-8859-9"/>
+	<title>RotA - Komple Araç Planlama</title>
+	<link href="http://code.google.com/apis/maps/documentation/javascript/examples/default.css" rel="stylesheet" type="text/css" />
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+	<script type="text/javascript" src="json/omsan.json"></script>
+	<script type="text/javascript" src="json/arac.txt"></script> 
+	<script type="text/javascript" src="http://www.google.com/jsapi"></script>
+	<script type="text/javascript" src="http://maps.google.com/maps/api/js?libraries=geometry&sensor=false"></script>
+	<script type="text/javascript" src="js/sch.js"></script>
+</head>
+<body onload="initialize();" style="background-color:#FFFFFF; font-family:Verdana; font-size:0.7em; height:100%; margin:0" >
+	<div id="baslik" style="position:absolute; width:100%; height:95px" >
+		<font style="font-family:Trebuchet MS, Helvetica, sans-serif; font-size:2.5em; position:absolute; left:5%; width:90%; top:10px; bottom:10px; color:#000033" >
+			<img src="img/baslik.jpg" alt="Routing Of Trucks Aplication" style="border-width:0px; width:100%" ></img>
+		</font>
+<!--		<a href="index.html" style="position:absolute; height:100%; right:5%; top:15px" ><img src="img/tırro.jpg" alt="Routing Of Trucks Aplication" style="border-width:0px; height:100%" ></img></a>     -->
+	</div>
+	<div id="map_canvas" style="width:64%; height:600px; left:5%; top:95px; border:1px solid black" ></div>
+	<div id="pano" style="position:absolute; width:25%; height:295px; left:70%; top:95px; border:1px solid black; background-color:#EEEEEE" ></div>
+	<div id="elevation_chart" style="position:absolute; width:25%; height:295px; left:70%; top:400px; border:1px solid black; background-color:#EEEEEE" ><font face="Verdana" size="1" color="#000000" style="position:absolute; left:12%; right:10%; top:40%">Lütfen planlama yapıldıktan sonra rota yüksekliğini görmek için ilgili rotanın müşteri ya da araç simgesini tıklayınız.</font></div>
+	<div id="dıs_cerceve" style="position:absolute; width:90%; left:5%; top:700px">
+		<div id="alt1" style="width:100%" >
+			<table id="aractablo">
+				<tr><th colspan=12>ARAÇLAR</th><th style="text-align:right"><a href="javascript:delete_row()" ><img src="img/arac_sil.JPG" alt="Araç Sil" style="border-width:0px; height:20px" ></img></a></th></tr>
+				<tr><th>No</th><th>Araç Plakası</th><th>Operasyon</th><th>Yarı römork plaka</th><th>Yandan</th><th>Üstten</th><th>Çatı Yüks.</th><th>Sürücü</th><th>ADR</th><th>Transit</th><th>Dolu mu?</th><th>İhr.Müşteri</th><th>Boş.Rand.(a-g-yyyy s:d)</th></tr>
+			</table><br>
+		</div>
+		<div id="alt2" style="width:100%" >
+			<table id="musteritablo">
+				<tr><th colspan=10>MÜŞTERİLER</th><th style="text-align:right"><a href="javascript:custdelete_row()" ><img src="img/customer_delete.PNG" alt="Müşteri Sil" style="border-width:0px; height:20px" ></img></a></th></tr>
+				<tr><th>No</th><th>Müşteri</th><th style="width:60px">Yandan</th><th style="width:60px">Üstten</th><th style="width:60px">Çatı Yüks.</th><th style="width:60px">Kara</th><th style="width:60px">ADR</th><th>Yükleme Tarihi (a-g-yyyy s:d)</th><th>Taşeron?</th><th>Taşeron ID</th><th>Taşeron Maliyet</th></tr>
+			</table>
+		</div><br>
+		<div id="mesafe_tabl" style="width:100%">
+			<table id="mal_tablo" border=1 class="center"></table><br>
+			<table id="mal_tablo_km" class="center" border=1 style="position:relative"></table><br>
+			<table id="mal_tablo_ilk" class="center" border=1 style="position:relative"></table>    
+		</div>
+		<div>
+			<table class="logo"><tr><td>RotA &copy; 2011</td></tr></table>
+		</div>
+	</div>
+	<div id="bos_nokt_kutusu">
+		<table id="giz_table" class="giz">
+			<tr><td>Lütfen Boşaltma Noktalarını Giriniz:</td><td><select id="bos_nokt_ekle"></select></td></tr>
+			<tr><td colspan=2><input id="yeni_bos_ekle_dugm" type="button" value="Konum Ekle" onClick="bos_nokta_ekle();"></td></tr>
+		</table>
+	</div>
+</body>
+</html>

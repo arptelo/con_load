@@ -22,7 +22,7 @@ var Space = function(x, y, z, l, w, h) {
 	this.dim = { x: l, y: w, z: h};
 };
 
-Space.prototype.check_space_usability = function(box_list){
+Space.prototype.isUsable = function(box_list){
 	var is_space_usable = false;
 	for (var i=0; i<box_list.length; i++){
 		for (var key in box_list[i].orientation){

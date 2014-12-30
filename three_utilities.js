@@ -3,7 +3,7 @@ var camera;
 var renderer;
 var controls;
 
-function setScene() {
+var setScene = function() {
 	scene = new THREE.Scene();
 	camera = new THREE.PerspectiveCamera( 45, 600/300, 0.1, 5000 );
 	var container = document.getElementById("container3js");
@@ -30,7 +30,7 @@ function setScene() {
 	renderer.render(scene, camera);
 }
 
-function drawCube(w ,d, h, x, z, y, color, opacity, texture){
+var drawCube = function(w ,d, h, x, z, y, color, opacity, texture){
 	texture = texture || "noTexture";
 	var geometry = new THREE.BoxGeometry(w, h, d);
 	for ( var i = 0; i < geometry.faces.length; i ++ ) {
@@ -46,11 +46,11 @@ function drawCube(w ,d, h, x, z, y, color, opacity, texture){
 	cube.matrixAutoUpdate = false;
 	cube.updateMatrix();
 	return cube;
-}
+};
 
-function render() {
+var render = function() {
 	renderer.render( scene, camera );
-}
+};
 
 var drawGrid = function(x1, z1, x2, z2){
 	var minx, maxx, minz, maxz;
