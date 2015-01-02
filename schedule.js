@@ -36,11 +36,11 @@ var aktif_gizli_div_satiri,
 	varis_saati_array = [],
 	x;
 
-google.load("visualization", "1", {
-	packages: ["columnchart"]
+$(document).ready(function(){
+	initialize();
 });
 
-function AddControl(controlDiv, map) {
+var AddControl = function(controlDiv, map) {
 	controlDiv.style.padding = '5px';
 		
 	var addUI = document.createElement('DIV'); 
@@ -49,7 +49,7 @@ function AddControl(controlDiv, map) {
 	addUI.style.border = '1px solid #98bf21';
 	addUI.style.cursor = 'pointer';
 	addUI.style.textAlign = 'center';
-	addUI.title = 'Araçları otomatik eklemek için tıklayınız';
+	addUI.title = 'Click to add all vehicles';
 	controlDiv.appendChild(addUI);
 
 	var addText = document.createElement('DIV');
@@ -58,7 +58,7 @@ function AddControl(controlDiv, map) {
 	addText.style.color = 'black';
 	addText.style.paddingLeft = '4px';
 	addText.style.paddingRight = '4px';
-	addText.innerHTML = '<b>Otomatik Araç Ekle</b>';
+	addText.innerHTML = '<b>Add all vehicles</b>';
 	addUI.appendChild(addText);
 
 	google.maps.event.addDomListener(addUI, 'click', function() {
@@ -67,9 +67,9 @@ function AddControl(controlDiv, map) {
 		addText.style.color = 'white';
 		oto_addrow();
 	});
-}
+};
 
-function HomeControl(controlDiv, map, x_value) {
+var HomeControl = function(controlDiv, map, x_value) {
 	x = x_value;
 	controlDiv.style.padding = '5px';
 	
@@ -79,7 +79,7 @@ function HomeControl(controlDiv, map, x_value) {
 	goHomeUI.style.border = '1px solid #ff1100';
 	goHomeUI.style.cursor = 'pointer';
 	goHomeUI.style.textAlign = 'center';
-	goHomeUI.title = 'Araç eklemek için tıklayınız';
+	goHomeUI.title = 'Click to add vehicle';
 	controlDiv.appendChild(goHomeUI);
 		 
 	var goHomeText = document.createElement('DIV');
@@ -88,7 +88,7 @@ function HomeControl(controlDiv, map, x_value) {
 	goHomeText.style.color = 'white';
 	goHomeText.style.paddingLeft = '4px';
 	goHomeText.style.paddingRight = '4px';
-	goHomeText.innerHTML = '<b>Araç Ekle</b>';
+	goHomeText.innerHTML = '<b>Add vehicle</b>';
 	goHomeUI.appendChild(goHomeText);
 	  
 	var setHomeUI = document.createElement('DIV');
@@ -97,7 +97,7 @@ function HomeControl(controlDiv, map, x_value) {
 	setHomeUI.style.border = '1px solid #98bf21';
 	setHomeUI.style.cursor = 'pointer';
 	setHomeUI.style.textAlign = 'center';
-	setHomeUI.title = 'Müşteri eklemek için tıklayınız';
+	setHomeUI.title = 'Click to add customer';
 	controlDiv.appendChild(setHomeUI);
 
 	var setHomeText = document.createElement('DIV');
@@ -105,7 +105,7 @@ function HomeControl(controlDiv, map, x_value) {
 	setHomeText.style.fontSize = '12px';
 	setHomeText.style.paddingLeft = '4px';
 	setHomeText.style.paddingRight = '4px';
-	setHomeText.innerHTML = '<b>Müşteri Ekle</b>';
+	setHomeText.innerHTML = '<b>Add customer</b>';
 	setHomeUI.appendChild(setHomeText);
 
 	var hesaplaUI = document.createElement('DIV'); 
@@ -114,7 +114,7 @@ function HomeControl(controlDiv, map, x_value) {
 	hesaplaUI.style.border = '1px solid #98bf21';
 	hesaplaUI.style.cursor = 'pointer';
 	hesaplaUI.style.textAlign = 'center';
-	hesaplaUI.title = 'Planlama için tıklayınız';
+	hesaplaUI.title = 'Start scheduling';
 	controlDiv.appendChild(hesaplaUI);
 	 
 	hesaplaText = document.createElement('DIV');
@@ -122,7 +122,7 @@ function HomeControl(controlDiv, map, x_value) {
 	hesaplaText.style.fontSize = '12px';
 	hesaplaText.style.paddingLeft = '4px';
 	hesaplaText.style.paddingRight = '4px';
-	hesaplaText.innerHTML = '<b>HESAPLA</b>';
+	hesaplaText.innerHTML = '<b>SCHEDULE</b>';
 	hesaplaUI.appendChild(hesaplaText);
 
 	google.maps.event.addDomListener(goHomeUI, 'click', function() {
@@ -165,21 +165,21 @@ function HomeControl(controlDiv, map, x_value) {
 			hesaplaText.innerHTML = 'Rota oluşturuluyor(%0)';
 			calcRoute(0,0);
 		} else {
-			alert("Lütfen araç ve(ya) müşteri ekleyiniz.");
+			alert("Please add vehicle and(or) customer");
 		}
 	});
-}
+};
 
 var initialize = function() {
 	directionsDisplay = new google.maps.DirectionsRenderer();
-	var center = new google.maps.LatLng(48.85605278, 2.297894444);
-	var myOptions = {                                                                       
-		zoom      				: 6,
+	var center = new google.maps.LatLng(48.85605278, 12.297894444);
+	var myOptions = {                                                                      
+		zoom      				: 4,
 		mapTypeId 				: google.maps.MapTypeId.TERRAIN,
 		center  				: center,
-		streetViewControl		: false
-//		mapTypeControlOptions	: {mapTypeIds:[google.maps.MapTypeId.TERRAIN,'usroadatlas']}
-	}
+		streetViewControl		: false,
+		mapTypeControlOptions	: {mapTypeIds:[google.maps.MapTypeId.TERRAIN,'usroadatlas']}
+	};
 	var roadAtlasStyles = [{
 		featureType: "road",       
 		elementType: "all",   
@@ -201,41 +201,35 @@ var initialize = function() {
 		elementType: "all",   
 		stylers: [{hue:"#ccccff"},{saturation:30}]
 	}];
-	map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
-//	var styledMapOptions = {      
-//		name: "Ayrıntı"   
-//	}    
-//	var usRoadMapType = new google.maps.StyledMapType(roadAtlasStyles, styledMapOptions);       
-//	map.mapTypes.set('usroadatlas', usRoadMapType);   
-//	map.setMapTypeId('usroadatlas');
+	map = new google.maps.Map($('#map-canvas')[0], myOptions);
+	var styledMapOptions = {      
+		name: "Detail"   
+	};
+	var usRoadMapType = new google.maps.StyledMapType(roadAtlasStyles, styledMapOptions);       
+	map.mapTypes.set('usroadatlas', usRoadMapType);   
+	map.setMapTypeId('usroadatlas');
 	google.maps.event.addListener(map, 'click', function(event) {isaretekle(event.latLng);});
 	directionsDisplay.setMap(map);
 	panoramaOptions = {
        	position: center,
 		pov		: {
-   			heading : -45,
-   			pitch   : 18,
-   			zoom    : 1
+			heading : -45,
+			pitch   : 18,
+			zoom    : 1
 		}
 	};
-	panorama = new  google.maps.StreetViewPanorama(document.getElementById("pano"),panoramaOptions);
-    map.setStreetView(panorama);
-	elevator = new google.maps.ElevationService();
 	var homeControlDiv = document.createElement('DIV');   
 	var homeControl = new HomeControl(homeControlDiv, map, 1);    
-	homeControlDiv.index = 1;   
+	homeControlDiv.index = 1;
 	map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(homeControlDiv); 
 	var addControlDiv = document.createElement('DIV');   
 	var addControl = new AddControl(addControlDiv, map);   
 	addControlDiv.index = 2;   
 	map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(addControlDiv);
 	var bosalt_nok = document.getElementById("bos_nokt_ekle");
-	for (i=0;i<json.customers.length;i++) {
-		bosalt_nok.options[i+1] = new Option(json.customers[i].İsim, i);
-	}
 };
 
-function renderDirections(result){
+var renderDirections = function(result){
 	renk = "#000000".replace(/0/g,function(){return (~~(Math.random()*16)).toString(16);});
 	var polopt = { strokeColor:renk , strokeOpacity:1.0, strokeWeight:5 };
 	var rendererOptions = {
@@ -244,23 +238,23 @@ function renderDirections(result){
 	};
     var directionsRenderer = new google.maps.DirectionsRenderer(rendererOptions);
     directionsRenderer.setDirections(result);
-}
+};
 
-function check_routable(mark){
-	var dest_test_for_added = new google.maps.LatLng(46.20279,5.21924599999999)
+var check_routable = function(mark){
+	var dest_test_for_added = new google.maps.LatLng(46.20279, 5.21924599999999)
 	var request = {
-		origin      :mark,      
+		origin      :mark,
 		destination :dest_test_for_added,
-		travelMode  :google.maps.DirectionsTravelMode.DRIVING   
+		travelMode  :google.maps.DirectionsTravelMode.DRIVING
 	};
 	directionsService.route(request, function(result, status) {
-		if (status != google.maps.DirectionsStatus.OK) {
-			alert("Eklediğiniz bölge için rota oluşturulamaz. Lütfen bu işareti silip tekrar deneyiniz!");
+		if (status !== google.maps.DirectionsStatus.OK) {
+			alert("Cannot build route. Please delete the marker and try again!");
 		}
 	});
-}
+};
   
-function isaretekle(location) {
+var isaretekle = function(location) {
 	marker = new google.maps.Marker({
 		position : location,
 		map		 : map,
@@ -269,7 +263,6 @@ function isaretekle(location) {
 	check_routable(marker.position);
 	google.maps.event.addListener(marker, 'click', function(event) {
 		drawPath(event.latLng);
-		sv.getPanoramaByLocation(event.latLng, 1000, processSVData);
 		check_routable(event.latLng);
 	});
 	google.maps.event.addListener(marker, 'dragend', function(event) {
@@ -297,9 +290,9 @@ function isaretekle(location) {
 		gumrukdizi.push(marker_custom);
 		custaddrow();
 	}
-}
+};
 
-function delivery_marker_goster(i){
+var delivery_marker_goster = function(i){
 	var bosaltma_musteri = "ihrcustomer" + i;
 	bosaltma_musteri = document.getElementById(bosaltma_musteri);
 	var del_true = "dolu" + i;
@@ -314,10 +307,10 @@ function delivery_marker_goster(i){
 		bosaltma_musteri.selectedIndex = 0;
 		bosaltma_musteri.disabled = true;
 	}
-}
+};
 
-function oto_addrow(){
-	for(p=0;p<vehicle_position.trucks.length;p++){
+var oto_addrow = function(){
+	for(var p=0; p<vehicle_position.trucks.length; p++){
 		var loc_loc = new google.maps.LatLng(vehicle_position.trucks[p].Last_Lat, vehicle_position.trucks[p].Last_Lng);
 		marker = new google.maps.Marker({
 			position	: loc_loc,
@@ -382,24 +375,24 @@ function oto_addrow(){
 			sl_truck.value = eval(termin_tarihi.getMonth()+1) + "-" + termin_tarihi.getDate() + "-" + termin_tarihi.getFullYear() + " " + termin_tarihi.getHours() + ":" + termin_tarihi.getMinutes();
 		}
 	}
-}
+};
 
-function processSVData(data, status){   
+var processSVData = function(data, status){   
 	if (status == google.maps.StreetViewStatus.OK) {   
 		panorama.setPosition(data.location.latLng);              
 		panorama.setVisible(true);   
 	} else {
 		panorama.setVisible(false);
 	}
-}
+};
 
-function bos_nokta_sil(ind){
+var bos_nokta_sil = function(ind){
 	bosaltma_noktalar[aktif_gizli_div_satiri].splice(ind,1);
 	bosaltma_noktalari(aktif_gizli_div_satiri+1);
 	bosaltma_noktalari(aktif_gizli_div_satiri+1);
-}
+};
 
-function bos_nokta_ekle(){
+var bos_nokta_ekle = function(){
 	var gizli_div_table = document.getElementById("giz_table");
 	var row_number = gizli_div_table.rows.length;
 	if(row_number-2<=5){
@@ -412,9 +405,9 @@ function bos_nokta_ekle(){
 		var yeni_bos_konum = new google.maps.LatLng(json.customers[yeni_bos_nokt.options[yeni_bos_nokt.selectedIndex].value].lat,json.customers[yeni_bos_nokt.options[yeni_bos_nokt.selectedIndex].value].lng);
 		bosaltma_noktalar[aktif_gizli_div_satiri][bosaltma_noktalar[aktif_gizli_div_satiri].length]=new bosa_konu(yeni_bos_nokt.options[yeni_bos_nokt.selectedIndex].text,yeni_bos_konum);
 	} else {
-		alert("En fazla 5 ara boşaltma noktası ekleyebilirsiniz!");
+		alert("At most 5 unloading places!");
 	}
-}
+};
 
 function bosa_konu(isim,konum){
 	this.isim  = isim;
@@ -456,9 +449,9 @@ function bosaltma_noktalari(i){
 	}
 }
 
-function calcRoute(i,j) {
-	hesaplaText.innerHTML = 'Rota oluşturuluyor(%' + Math.round(eval(((i*aracdizi.length+j)/(aracdizi.length*musteridizi.length))*100)) + ')';
-	if(i==0 && j==0){
+var calcRoute = function(i,j) {
+	hesaplaText.innerHTML = 'Working on route(%' + Math.round(eval(((i*aracdizi.length+j)/(aracdizi.length*musteridizi.length))*100)) + ')';
+	if(i===0 && j===0){
 		date = new Date();
 	}
 	var dist_after_empty = 0;
@@ -466,12 +459,12 @@ function calcRoute(i,j) {
 	var end = musteridizi[i].position;
 	var gum = gumrukdizi[i].position;
 	var waypts = [];
-	var selid = "dolu" + eval(j+1);
+	var selid = "dolu" + (j+1);
 	selid = document.getElementById(selid);
-	for(p=0;p<bosaltma_noktalar[j].length;p++){
+	for(var p=0;p<bosaltma_noktalar[j].length;p++){
 		waypts.push({location:bosaltma_noktalar[j][p].konum, stopover:false});
 	}
-	if(selid.checked == true) {
+	if(selid.checked) {
 		var ihr = delivery_dizi[j].position;
 		waypts.push({location:ihr, stopover:true});
 	} else {
@@ -479,13 +472,13 @@ function calcRoute(i,j) {
 	}
 	waypts.push({location:end, stopover:true});
 	waypts.push({location:gum, stopover:false});
-	var kapi = "transit" + eval(j+1);
+	var kapi = "transit" + (j+1);
 	var karse = document.getElementById(kapi);
 	var cells = document.getElementById('aractablo').rows[j+2].getElementsByTagName('td');
 	var bitis = new google.maps.LatLng(47.76830278, 12.94341111);
 	if(cells[2].innerHTML == "Kara" || cells[2].innerHTML == "Oms.Romanya") {
 		bitis = new google.maps.LatLng(48.40568611, 13.42816111);
-	} else if(karse.checked == true){
+	} else if(karse.checked){
 		bitis = new google.maps.LatLng(45.13928889, 6.690794444);
 	}
 	var request = {                                                              
@@ -495,8 +488,8 @@ function calcRoute(i,j) {
 		travelMode  :google.maps.DirectionsTravelMode.DRIVING   
 	};
 	directionsService.route(request, function(result, status) {
-		if (status == google.maps.DirectionsStatus.OK) {
-			for(k=1;k<result.routes[0].legs.length;k++){
+		if (status === google.maps.DirectionsStatus.OK) {
+			for(var k=1; k<result.routes[0].legs.length; k++){
 				dist_after_empty = dist_after_empty + (result.routes[0].legs[k].distance.value/1000);
 			}
 			km.push(dist_after_empty);
@@ -514,7 +507,7 @@ function calcRoute(i,j) {
 			}
 		}                                                                    
 	});
-}
+};
 
 function dom_event(e){
 	var secilen, i;
@@ -566,9 +559,6 @@ function addRow() {
 	cell2.align = "center";
 	var selid = "truck" + aracdizi.length;
 	var arse = document.getElementById(selid);
-	for (i=0;i<json.trucks.length;i++) {
-		arse.options[i] = new Option (json.trucks[i].Plaka, i);
-	}
 	var dom_dom = "truck" + aracdizi.length;
 	dom_dom = document.getElementById(dom_dom);
 	google.maps.event.addDomListener(dom_dom, 'mouseover', dom_event);
@@ -606,9 +596,6 @@ function addRow() {
 	var hucre4 = "";
 	var hucre5 = "";
 	var hucre6 = "";
-	hucre4 = json.trailers[0].Yandan_Perdeli;
-	hucre5 = json.trailers[0].Çatısı_Açılan;
-	hucre6 = json.trailers[0].Çatısı_Yükselen;
 	var cell5 = row.insertCell(4);
 	var cell6 = row.insertCell(5);
 	var cell7 = row.insertCell(6);             
@@ -636,12 +623,8 @@ function addRow() {
 	cell8.align = "center";
 	var custselid = "driver" + aracdizi.length;
 	var carse = document.getElementById(custselid);
-	for (i=0;i<json.drivers.length;i++) {
-		carse.options[i] = new Option (json.drivers[i].İsim, i);
-	}
 		
 	var hucre9 = "";
-	hucre9 = json.drivers[carse.options[carse.selectedIndex].value].ADR;
 	var cell9 = row.insertCell(8);             
 	cell9.innerHTML = "<input type='checkbox' id='adr" + aracdizi.length + "'>";
 	var adr = "adr" + aracdizi.length;
@@ -664,10 +647,6 @@ function addRow() {
 	cell12.align = "center";
 	var ihrselid = "ihrcustomer" + aracdizi.length;
 	var ihrarse = document.getElementById(ihrselid);
-	for (i=0;i<json.customers.length;i++) {
-		var ihrkonum = new google.maps.LatLng(json.customers[i].lat,json.customers[i].lng);
-		ihrarse.options[i+1] = new Option(json.customers[i].İsim, i);
-	}
 
 	var cell13 = row.insertCell(12);
 	cell13.innerHTML = "<input type='text' id='bdate"+aracdizi.length+"' style='font-size:10px; text-align:center;' />";
@@ -729,58 +708,6 @@ function tabloguncelle(selectedselect,satir) {
 	delivery_dizi[satir-1].setTitle(hucre33 + "/" + hucre333 + " boşaltma noktası");
 }
 
-function yrtabloguncelle(selectedselect,satir) {
-	var hucre4 = json.trailers[selectedselect.options[selectedselect.selectedIndex].value].Yandan_Perdeli;
-	var hucre5 = json.trailers[selectedselect.options[selectedselect.selectedIndex].value].Çatısı_Açılan;
-	var hucre6 = json.trailers[selectedselect.options[selectedselect.selectedIndex].value].Çatısı_Yükselen;
-	var arac_ozellik = "yandan" + satir;
-	arac_ozellik = document.getElementById(arac_ozellik);
-	if(hucre4 == "true"){
-		arac_ozellik.checked = true;
-	} else {
-		arac_ozellik.checked = false;
-	}
-	arac_ozellik = "ustten" + satir;
-	arac_ozellik = document.getElementById(arac_ozellik);
-	if(hucre5 == "true"){
-		arac_ozellik.checked = true;
-	} else {
-		arac_ozellik.checked = false;
-	}
-	arac_ozellik = "catiyukselen" + satir;
-	arac_ozellik = document.getElementById(arac_ozellik);
-	if(hucre6 == "true"){
-		arac_ozellik.checked = true;
-	} else {
-		arac_ozellik.checked = false;
-	}
-	hucre4 = json.trailers[selectedselect.options[selectedselect.selectedIndex].value].Plaka;
-	hucre5 = "truck" + satir;
-	hucre5 = document.getElementById(hucre5);
-	hucre5 = json.trucks[hucre5.options[hucre5.selectedIndex].value].Plaka;
-	aracdizi[satir-1].setTitle(hucre5 + "/" + hucre4);
-	delivery_dizi[satir-1].setTitle(hucre5 + "/" + hucre4 + " boşaltma noktası");
-}
-	
-function surucuguncelle(selectedselect,satir) {
-	var adr = "adr" + satir;
-	adr = document.getElementById(adr);
-	var hucre9 = json.drivers[selectedselect.options[selectedselect.selectedIndex].value].ADR;
-	if(hucre9 == "true"){
-		adr.checked = true;
-	} else {
-		adr.checked = false;
-	}
-}
-	
-function delivery_marker_guncelle(i) {
-	var delivery_konum = "ihrcustomer" + i;
-	delivery_konum = document.getElementById(delivery_konum);
-	delivery_konum = delivery_konum.options[delivery_konum.selectedIndex].value;
-	delivery_konum = new google.maps.LatLng(json.customers[delivery_konum].lat, json.customers[delivery_konum].lng);
-	delivery_dizi[i-1].setPosition(delivery_konum);
-}
-
 function custdelete_row(){
 	var table = document.getElementById("musteritablo");
 	var rowCount = table.rows.length;
@@ -815,9 +742,6 @@ function custaddrow() {
 	cell2.align = "center";
 	var selid = "customer" + musteridizi.length;
 	var arse = document.getElementById(selid);
-	for (i=0;i<json.customers.length;i++) {
-		arse.options[i] = new Option(json.customers[i].İsim, i);
-	}
 	musteridizi[rowCount-2].title = arse.options[0].text;
 		
 	var cell3 = row.insertCell(2);
@@ -833,9 +757,6 @@ function custaddrow() {
 		
 	var cell8 = row.insertCell(7);
 	cell8.align = "center";
-	date.setHours(json.customers[0].Yükleme_Saati.Saat);
-	date.setMinutes(json.customers[0].Yükleme_Saati.Dakika);
-	cell8.innerHTML = "<input type='text' id='ydate"+musteridizi.length+"' style='font-size:10px; text-align:center; width:145px' value='" + eval(date.getMonth()+1) + "-" + date.getDate() + "-" + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes() + "' />";
 		
 	var cell8 = row.insertCell(8);
 	cell8.align = "center";
@@ -860,40 +781,16 @@ function custtabloguncelle(selectedselect,satir) {
 	}
 	talep_edilen = "ustten_talep" + satir;
 	talep_edilen = document.getElementById(talep_edilen);
-	if(json.customers[selectedselect.options[selectedselect.selectedIndex].value].Çatısı_Açılan_Talep == "true"){
-		talep_edilen.checked = true;
-	} else {
-		talep_edilen.checked = false;
-	}
 	talep_edilen = "cati_yukselen_talep" + satir;
 	talep_edilen = document.getElementById(talep_edilen);
-	if(json.customers[selectedselect.options[selectedselect.selectedIndex].value].Çatısı_Yükselen_Talep == "true"){
-		talep_edilen.checked = true;
-	} else {
-		talep_edilen.checked = false;
-	}
 	talep_edilen = "kara_talep" + satir;
 	talep_edilen = document.getElementById(talep_edilen);
-	if(json.customers[selectedselect.options[selectedselect.selectedIndex].value].Hat_Talep == "land"){
-		talep_edilen.checked = true;
-	} else {
-		talep_edilen.checked = false;
-	}
 	talep_edilen = "adr_talep" + eval(satir);
 	talep_edilen = document.getElementById(talep_edilen);
-	if(json.customers[selectedselect.options[selectedselect.selectedIndex].value].ADR_Talep=="true"){
-		talep_edilen.checked = true;
-	} else {
-		talep_edilen.checked = false;
-	}
-	var hucre33 = json.customers[selectedselect.options[selectedselect.selectedIndex].value].İsim;
-	var konum = new google.maps.LatLng(json.customers[selectedselect.options[selectedselect.selectedIndex].value].lat,json.customers[selectedselect.options[selectedselect.selectedIndex].value].lng);
-	var gumkonum = new google.maps.LatLng(json.customers[selectedselect.options[selectedselect.selectedIndex].value].custlat,json.customers[selectedselect.options[selectedselect.selectedIndex].value].custlng);
+
 	musteridizi[satir-1].setTitle(hucre33);
 	gumrukdizi[satir-1].setPosition(gumkonum);
 	musteridizi[satir-1].setPosition(konum);
-	date.setHours(json.customers[selectedselect.options[selectedselect.selectedIndex].value].Yükleme_Saati.Saat);
-	date.setMinutes(json.customers[selectedselect.options[selectedselect.selectedIndex].value].Yükleme_Saati.Dakika);
 	hucre33 = "ydate" + satir;
 	hucre33 = document.getElementById(hucre33);
 	hucre33.value = eval(date.getMonth()+1) + "-" + date.getDate() + "-" + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes();
@@ -936,18 +833,18 @@ function maliyet_hesapla() {
 	var service_time;
 	var taseron_id;
 	var taseron_id2;
-	var taseron_varmı;
+	var taseron_varmi;
 	var taseronlar = [];
 	var tasidtekrar;
 	var yuk_gunu;
 	var zero_found;
 	for(i=0;i<musteridizi.length;i++){
 		tasidtekrar = 0;
-		taseron_varmı = "tasols"+eval(i+1);
+		taseron_varmi = "tasols"+eval(i+1);
 		taseron_id = "tasid"+eval(i+1);
-		taseron_varmı = document.getElementById(taseron_varmı);
+		taseron_varmi = document.getElementById(taseron_varmi);
 		taseron_id = document.getElementById(taseron_id);
-		if(taseron_varmı.checked == true){
+		if(taseron_varmi.checked == true){
 			for(j=0;j<i;j++){	
 				taseron_id2 = "tasid"+eval(j+1);
 				taseron_id2 = document.getElementById(taseron_id2);
@@ -975,9 +872,11 @@ function maliyet_hesapla() {
 		musteri_ismi = document.getElementById(musteri_ismi);
 		navlun = document.getElementById(navlun);
 		taseron_id = document.getElementById(taseron_id);
+		/*
 		bos_mus_mal = json.customers[musteri_ismi.options[musteri_ismi.selectedIndex].value].Araç_Verememe_Maliyeti;
 		earliest_loading_hour = json.customers[musteri_ismi.options[musteri_ismi.selectedIndex].value].En_Erken_Yükleme_Saati;
 		latest_loading_hour = json.customers[musteri_ismi.options[musteri_ismi.selectedIndex].value].En_Gec_Yükleme_Saati;
+		*/
 		for(j=0;j<aracdizi.length;j++){
 			bosaltma_musteri_ismi = "ihrcustomer" + eval(j+1);
 			var arac_ozellik = document.getElementById("transmod" + eval(j+1)).selectedIndex;
@@ -988,7 +887,9 @@ function maliyet_hesapla() {
 			var romork_catiyukselen = "catiyukselen" + eval(j+1);
 			var romork_cati_yukselen_talep = "cati_yukselen_talep" + eval(i+1);
 			var kara_talep = "kara_talep" + eval(i+1);
+			/*
 			var ortalama_hiz = json.drivers[document.getElementById("driver" + eval(j+1)).options[document.getElementById("driver" + eval(j+1)).selectedIndex].value].Ortalama_Hız;
+			*/
 			romork_yandan = document.getElementById(romork_yandan);
 			romork_yandan_talep = document.getElementById(romork_yandan_talep);
 			romork_ustten = document.getElementById(romork_ustten);
@@ -1015,7 +916,9 @@ function maliyet_hesapla() {
 					var bosaltmaya_varis_saati = new Date();
 					if(dolu_mu.checked == true){
 						bosaltma_musteri_ismi = document.getElementById(bosaltma_musteri_ismi);
+						/*
 						service_time = json.customers[bosaltma_musteri_ismi.options[bosaltma_musteri_ismi.selectedIndex].value].Servis_Süresi;
+						*/
 						kac_saatte = Math.floor(bos_mus_km[i*aracdizi.length + j]/(ortalama_hiz/60));
 						kac_saatte = Math.floor(kac_saatte/(9*60))*20*60 + (kac_saatte - Math.floor(kac_saatte/(9*60))*9*60);
 						bosaltmaya_varis_saati.setMinutes(bosaltmaya_varis_saati.getMinutes() + kac_saatte);
@@ -1084,7 +987,9 @@ function maliyet_hesapla() {
 					varis_olasilik_tablo.push(1);
 					varis_saati_array.push("Önemsiz");
 				}
+				/*
 				gec_varis_maliyeti = json.customers[musteri_ismi.options[musteri_ismi.selectedIndex].value].Geç_Kalma_Maliyeti;
+				*/
 				if(arac_ozellik ==1) {
 					maliyet_tablo[i][j] = 2733.8896 + km[c]*0.44214 + kac_saatte * gec_varis_maliyeti;
 				} else if(arac_ozellik == 2) {
@@ -1195,9 +1100,9 @@ function maliyet_hesapla() {
 				taboo[i][j]=0;
 			}
 		}
-		var atandı = 1;
-		while(atandı == 1){
-			atandı = 0;
+		var atandi = 1;
+		while(atandi == 1){
+			atandi = 0;
 			for(i=0;i<mal_tabl_boyutu;i++){
 				atama = 0;
 				sifir_sayisi = 0;
@@ -1234,7 +1139,7 @@ function maliyet_hesapla() {
 									atananrow.push(i);
 									atanancolumn.push(j);
 									taboo[i][j]=1;
-									atandı = 1;
+									atandi = 1;
 								}
 							}
 						}
@@ -1277,17 +1182,17 @@ function maliyet_hesapla() {
 									atananrow.push(j);
 									atanancolumn.push(i);
 									taboo[j][1]=1;
-									atandı = 1;
+									atandi = 1;
 								}
 							}
 						}
 					}
 				}
 			}
-			if(atandı == 0){
+			if(atandi == 0){
 				for(i=0;i<mal_tabl_boyutu;i++){
 					j=0;
-					while(j<mal_tabl_boyutu && atandı == 0){
+					while(j<mal_tabl_boyutu && atandi == 0){
 						atama = 0;
 						if(maliyet_tablo[i][j] == 0){
 							for(k=0;k<atananrow.length;k++){
@@ -1304,7 +1209,7 @@ function maliyet_hesapla() {
 								atananrow.push(i);
 								atanancolumn.push(j);
 								taboo[i][j]=1;
-								atandı = 1;
+								atandi = 1;
 							}
 						}
 						j = j+1;
@@ -1640,46 +1545,46 @@ function ozet_tablo_yazdir() {
 }
 	
 function drawPath(posit) {
-	var arac_dizisıra = 100000;
-	var musteri_dizisıra = 100000;
+	var arac_dizisira = 100000;
+	var musteri_dizisira = 100000;
 	var degisim = 0;
 	for(i=0;i<aracdizi.length;i++){
 		if(aracdizi[i].position == posit){
-			arac_dizisıra = i;
+			arac_dizisira = i;
 		}
 	}
 	for(i=0;i<musteridizi.length;i++){
 		if(musteridizi[i].position == posit){
-			musteri_dizisıra = i;
+			musteri_dizisira = i;
 		}
 	}
-	if(arac_dizisıra != 100000){
+	if(arac_dizisira != 100000){
 		for(i=0;i<atanancolumn.length;i++){
-			if(atanancolumn[i] == arac_dizisıra && atananrow[i] < musteridizi.length){
-				arac_dizisıra = i;
+			if(atanancolumn[i] == arac_dizisira && atananrow[i] < musteridizi.length){
+				arac_dizisira = i;
 				degisim = 1;
 			}
 		}
 		if(degisim == 0){
-			arac_dizisıra = 100000;
+			arac_dizisira = 100000;
 		}
 	}
 	degisim = 0;
-	if(musteri_dizisıra != 100000){
+	if(musteri_dizisira != 100000){
 		for(i=0;i<atananrow.length;i++){
-			if(atananrow[i] == musteri_dizisıra && atanancolumn[i] < aracdizi.length){
-				musteri_dizisıra = i;
+			if(atananrow[i] == musteri_dizisira && atanancolumn[i] < aracdizi.length){
+				musteri_dizisira = i;
 				degisim = 1;
 			}
 		}
 		if(degisim == 0){
-			musteri_dizisıra = 100000;
+			musteri_dizisira = 100000;
 		}
 	}
-	if(arac_dizisıra < 100000){
-		i = arac_dizisıra;
-	} else if(musteri_dizisıra < 100000){
-		i = musteri_dizisıra;
+	if(arac_dizisira < 100000){
+		i = arac_dizisira;
+	} else if(musteri_dizisira < 100000){
+		i = musteri_dizisira;
 	} else {
 		i = 100000;
 	}

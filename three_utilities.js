@@ -28,7 +28,7 @@ var setScene = function() {
 	pointLight.position.set(-700, 600, 700);
 	scene.add(pointLight);
 	renderer.render(scene, camera);
-}
+};
 
 var drawCube = function(w ,d, h, x, z, y, color, opacity, texture){
 	texture = texture || "noTexture";

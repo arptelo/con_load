@@ -3,7 +3,7 @@
 	<head>
 		<title>Container loading problem</title>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
-		<link rel="stylesheet" type="text/css" href="style.css">
+		<link rel="stylesheet" type="text/css" href="stylesheets/style.css">
 		<!-- <link rel="import" href="components/polymer/polymer.html"> -->
 		<script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
@@ -41,10 +41,16 @@
 				<div id="map-canvas" class="hidden"></div>
 				<div class="canvasAndMap hidden">
 					<div class="buttonsDiv">
-						<a href="#" class="animate" data-step="-1"><span class="glyphicon glyphicon-chevron-left"></span></a>
-						<a href="#" class="animate" data-step="1"><span class="glyphicon glyphicon-chevron-right"></span></a>
+						<a href="#" class="animate" data-step="-1000"><span class="glyphicon glyphicon-fast-backward"></span></a>
+						<a href="#" class="animate" data-step="-999"><span class="glyphicon glyphicon-backward"></span></a>
+						<a href="#" class="animate" data-step="-1"><span class="glyphicon glyphicon-step-backward"></span></a>
+						<a href="#" class="animate" data-step="11"><span class="glyphicon glyphicon-play"></span></a>
+						<a href="#" class="animate" data-step="0"><span class="glyphicon glyphicon-pause"></span></a>
+						<a href="#" class="animate" data-step="1"><span class="glyphicon glyphicon-step-forward"></span></a>
+						<a href="#" class="animate" data-step="999"><span class="glyphicon glyphicon-forward"></span></a>
+						<a href="#" class="animate" data-step="1000"><span class="glyphicon glyphicon-fast-forward"></span></a>
 					</div>
-					<div id="container3js"></div>	
+					<div id="container3js"></div>
 				</div>
 			</div>
 
@@ -87,7 +93,7 @@
     
 		<!-- scripts -->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r69/three.js"></script>
-		<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places"></script>
+		<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places"></script>
 		<script src="orbit_control.js"></script>
 		<script src="three_utilities.js"></script>
 		<script src="objects.js"></script>

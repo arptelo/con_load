@@ -1,4 +1,5 @@
-var box_array = [],
+var animationBreaks = [],
+	box_array = [],
 	callbackResults = [],
 	checkpoints = [],
     copy_box_array = [],
@@ -187,16 +188,43 @@ $(document).ready(function(){
 	});
 	$(".animate").click(function(e){
 		e.preventDefault();
-		var step = parseInt($(this).data("step"), 10);
+		var step = parseInt($(this).data("step"), 10), i, x;
 		if(step === -1 && pointer>-1){
 			scene.remove(cubes[pointer]);
 			pointer--;
-			render();
-		} else if(step === 1 && pointer < cubes.length-1) {
+		} else if(step===1 && pointer < cubes.length-1) {
 			pointer++;
 			scene.add(cubes[pointer]);
-			render();
+		} else if(step===-999){
+			i=0;
+			while(i<animationBreaks.length && animationBreaks[i]<pointer){
+				i++;
+			}
+			for(x=pointer; x>=animationBreaks[i-1]; x--){
+				scene.remove(cubes[x]);
+				pointer--;
+			}
+		} else if(step===999){
+			i=animationBreaks.length-1;
+			while(i>=0 && animationBreaks[i]>pointer){
+				i--;
+			}
+			for(x=pointer; x<animationBreaks[i+1]; x++){
+				pointer++;
+				scene.add(cubes[x]);
+			}
+		} else if(step===-1000){
+			for(i=pointer; i>=0; i--){
+				scene.remove(cubes[pointer]);
+				pointer--;
+			}
+		} else if(step===1000){
+			for(i=pointer; i<cubes.length-1; i++){
+				pointer++;
+				scene.add(cubes[pointer]);
+			}
 		}
+		render();
 	});
 });
 
@@ -400,10 +428,17 @@ var encode = function(boxes) {
 			}
 		}
 	}
+	animationBreaks.push(0);
 	for(i=0,x=encoded_box_set.length; i<x; i++) {
 		cubes.push(drawCube(encoded_box_set[i].length, encoded_box_set[i].width, encoded_box_set[i].height, encoded_box_set[i].x, encoded_box_set[i].y, encoded_box_set[i].z, encoded_box_set[i].color, 1));
 		scene.add(cubes[cubes.length-1]);
+		if(i>0 && encoded_box_set[i].name!==encoded_box_set[i-1].name){
+			animationBreaks.push(i);
+		}
 		pointer++;
+	}
+	if(animationBreaks[animationBreaks.length-1] !== x-1){
+		animationBreaks.push(x-1);
 	}
 	camera.lookAt(new THREE.Vector3( 0, 0, 0 ));
 	render();
