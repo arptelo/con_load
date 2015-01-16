@@ -1,6 +1,6 @@
 var aktif_gizli_div_satiri,
-	aracdizi = [],
-	aradurakdizi = [],
+	customers = [],
+	vehicles = [],
 	atanancolumn = [],
 	atananrow = [],
 	bos_km = [],
@@ -9,242 +9,46 @@ var aktif_gizli_div_satiri,
 	chart,
 	date,
 	delivery_dizi = [],
-	directionsDisplay,
+	directionsDisplay= new google.maps.DirectionsRenderer(),
 	directionsService = new google.maps.DirectionsService(),
-	elevator,
 	gumrukdizi = [],
 	hesaplaText,
 	km = [],
 	map,
-	musteridizi = [],
 	overview_path_array = [],
-	panorama,
-	panoramaOptions,
+	pinType = 1,
 	renk,
-	resim_arac = 'img/truck.png',
-	resim_custom = 'img/custom.png',
-	resim_delivery = new google.maps.MarkerImage('img/delivery.png',
-		new google.maps.Size(21, 34),
-		new google.maps.Point(0,0),
-		new google.maps.Point(21, 34)
-	),
-	resim_gum = 'img/omsan.png',
-	resim_must = 'img/customer.png',
-	sv = new google.maps.StreetViewService(),
 	taseron_sayisi = 0,
 	varis_olasilik_tablo = [],
-	varis_saati_array = [],
-	x;
+	varis_saati_array = [];
 
 $(document).ready(function(){
 	initialize();
+	$(".mainContent").on("click", ".delBox", function(e){
+		e.preventDefault();
+		$(this).closest(".panel").remove();
+	});
 });
-
-var AddControl = function(controlDiv, map) {
-	controlDiv.style.padding = '5px';
-		
-	var addUI = document.createElement('DIV'); 
-	addUI.style.width = '150px';
-	addUI.style.backgroundColor = '#EAF2D3';
-	addUI.style.border = '1px solid #98bf21';
-	addUI.style.cursor = 'pointer';
-	addUI.style.textAlign = 'center';
-	addUI.title = 'Click to add all vehicles';
-	controlDiv.appendChild(addUI);
-
-	var addText = document.createElement('DIV');
-	addText.style.fontFamily = 'Arial,sans-serif';
-	addText.style.fontSize = '12px';
-	addText.style.color = 'black';
-	addText.style.paddingLeft = '4px';
-	addText.style.paddingRight = '4px';
-	addText.innerHTML = '<b>Add all vehicles</b>';
-	addUI.appendChild(addText);
-
-	google.maps.event.addDomListener(addUI, 'click', function() {
-		addUI.style.backgroundColor = '#ff6600';
-		addUI.style.border = '1px solid #ff1100';
-		addText.style.color = 'white';
-		oto_addrow();
-	});
-};
-
-var HomeControl = function(controlDiv, map, x_value) {
-	x = x_value;
-	controlDiv.style.padding = '5px';
-	
-	var goHomeUI = document.createElement('DIV'); 
-	goHomeUI.style.width = '150px';
-	goHomeUI.style.backgroundColor = '#ff6600';
-	goHomeUI.style.border = '1px solid #ff1100';
-	goHomeUI.style.cursor = 'pointer';
-	goHomeUI.style.textAlign = 'center';
-	goHomeUI.title = 'Click to add vehicle';
-	controlDiv.appendChild(goHomeUI);
-		 
-	var goHomeText = document.createElement('DIV');
-	goHomeText.style.fontFamily = 'Arial,sans-serif';
-	goHomeText.style.fontSize = '12px';
-	goHomeText.style.color = 'white';
-	goHomeText.style.paddingLeft = '4px';
-	goHomeText.style.paddingRight = '4px';
-	goHomeText.innerHTML = '<b>Add vehicle</b>';
-	goHomeUI.appendChild(goHomeText);
-	  
-	var setHomeUI = document.createElement('DIV');
-	setHomeUI.style.width = '150px';
-	setHomeUI.style.backgroundColor = '#EAF2D3';
-	setHomeUI.style.border = '1px solid #98bf21';
-	setHomeUI.style.cursor = 'pointer';
-	setHomeUI.style.textAlign = 'center';
-	setHomeUI.title = 'Click to add customer';
-	controlDiv.appendChild(setHomeUI);
-
-	var setHomeText = document.createElement('DIV');
-	setHomeText.style.fontFamily = 'Arial,sans-serif';
-	setHomeText.style.fontSize = '12px';
-	setHomeText.style.paddingLeft = '4px';
-	setHomeText.style.paddingRight = '4px';
-	setHomeText.innerHTML = '<b>Add customer</b>';
-	setHomeUI.appendChild(setHomeText);
-
-	var hesaplaUI = document.createElement('DIV'); 
-	hesaplaUI.style.width = '150px';
-	hesaplaUI.style.backgroundColor = '#EAF2D3';
-	hesaplaUI.style.border = '1px solid #98bf21';
-	hesaplaUI.style.cursor = 'pointer';
-	hesaplaUI.style.textAlign = 'center';
-	hesaplaUI.title = 'Start scheduling';
-	controlDiv.appendChild(hesaplaUI);
-	 
-	hesaplaText = document.createElement('DIV');
-	hesaplaText.style.fontFamily = 'Arial,sans-serif';
-	hesaplaText.style.fontSize = '12px';
-	hesaplaText.style.paddingLeft = '4px';
-	hesaplaText.style.paddingRight = '4px';
-	hesaplaText.innerHTML = '<b>SCHEDULE</b>';
-	hesaplaUI.appendChild(hesaplaText);
-
-	google.maps.event.addDomListener(goHomeUI, 'click', function() {
-		hesaplaUI.style.backgroundColor = '#EAF2D3';
-		hesaplaUI.style.border = '1px solid #98bf21';
-		hesaplaText.style.color = 'black';
-		setHomeUI.style.backgroundColor = '#EAF2D3';
-		setHomeUI.style.border = '1px solid #98bf21';
-		setHomeText.style.color = 'black';
-		goHomeUI.style.backgroundColor = '#ff6600';
-		goHomeUI.style.border = '1px solid #ff1100';
-		goHomeText.style.color = 'white';
-		x = 1;
-	});
-		
-	google.maps.event.addDomListener(setHomeUI, 'click', function() {
-		hesaplaUI.style.backgroundColor = '#EAF2D3';
-		hesaplaUI.style.border = '1px solid #98bf21';
-		hesaplaText.style.color = 'black';
-		setHomeUI.style.backgroundColor = '#ff6600';
-		setHomeUI.style.border = '1px solid #ff1100';
-		setHomeText.style.color = 'white';
-		goHomeUI.style.backgroundColor = '#EAF2D3';
-		goHomeUI.style.border = '1px solid #98bf21';
-		goHomeText.style.color = 'black';
-		x = 0;
-	});
-
-	google.maps.event.addDomListener(hesaplaUI, 'click', function() {
-		if(aracdizi.length!=0 && musteridizi.length!=0){
-			hesaplaUI.style.backgroundColor = '#ff6600';
-			hesaplaUI.style.border = '1px solid #ff1100';
-			hesaplaText.style.color = 'white';
-			setHomeUI.style.backgroundColor = '#EAF2D3';
-			setHomeUI.style.border = '1px solid #98bf21';
-			setHomeText.style.color = 'black';
-			goHomeUI.style.backgroundColor = '#EAF2D3';
-			goHomeUI.style.border = '1px solid #98bf21';
-			goHomeText.style.color = 'black';
-			hesaplaText.innerHTML = 'Rota oluşturuluyor(%0)';
-			calcRoute(0,0);
-		} else {
-			alert("Please add vehicle and(or) customer");
-		}
-	});
-};
-
-var initialize = function() {
-	directionsDisplay = new google.maps.DirectionsRenderer();
-	var center = new google.maps.LatLng(48.85605278, 12.297894444);
-	var myOptions = {                                                                      
-		zoom      				: 4,
-		mapTypeId 				: google.maps.MapTypeId.TERRAIN,
-		center  				: center,
-		streetViewControl		: false,
-		mapTypeControlOptions	: {mapTypeIds:[google.maps.MapTypeId.TERRAIN,'usroadatlas']}
-	};
-	var roadAtlasStyles = [{
-		featureType: "road",       
-		elementType: "all",   
-		stylers: [{visibility:"off"}]
-	},{
-		featureType: "poi",       
-		elementType: "all",   
-		stylers: [{visibility:"off"}]
-	},{
-		featureType: "landscape",       
-		elementType: "all",   
-		stylers: [{visibility:"off"}]
-	},{
-		featureType: "administrative.locality",       
-		elementType: "all",   
-		stylers: [{hue:"#ff0000"},{saturation:100}]
-	},{
-		featureType: "administrative.country",       
-		elementType: "all",   
-		stylers: [{hue:"#ccccff"},{saturation:30}]
-	}];
-	map = new google.maps.Map($('#map-canvas')[0], myOptions);
-	var styledMapOptions = {      
-		name: "Detail"   
-	};
-	var usRoadMapType = new google.maps.StyledMapType(roadAtlasStyles, styledMapOptions);       
-	map.mapTypes.set('usroadatlas', usRoadMapType);   
-	map.setMapTypeId('usroadatlas');
-	google.maps.event.addListener(map, 'click', function(event) {isaretekle(event.latLng);});
-	directionsDisplay.setMap(map);
-	panoramaOptions = {
-       	position: center,
-		pov		: {
-			heading : -45,
-			pitch   : 18,
-			zoom    : 1
-		}
-	};
-	var homeControlDiv = document.createElement('DIV');   
-	var homeControl = new HomeControl(homeControlDiv, map, 1);    
-	homeControlDiv.index = 1;
-	map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(homeControlDiv); 
-	var addControlDiv = document.createElement('DIV');   
-	var addControl = new AddControl(addControlDiv, map);   
-	addControlDiv.index = 2;   
-	map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(addControlDiv);
-	var bosalt_nok = document.getElementById("bos_nokt_ekle");
-};
 
 var renderDirections = function(result){
 	renk = "#000000".replace(/0/g,function(){return (~~(Math.random()*16)).toString(16);});
-	var polopt = { strokeColor:renk , strokeOpacity:1.0, strokeWeight:5 };
 	var rendererOptions = {
-		map             : map,
-		polylineOptions : polopt
+		map: map,
+		polylineOptions : {
+			strokeColor: renk,
+			strokeOpacity: 1.0,
+			strokeWeight: 5
+		}
 	};
     var directionsRenderer = new google.maps.DirectionsRenderer(rendererOptions);
     directionsRenderer.setDirections(result);
 };
 
-var check_routable = function(mark){
-	var dest_test_for_added = new google.maps.LatLng(46.20279, 5.21924599999999)
+var check_routable = function(location){
+	var testDestination= new google.maps.LatLng(46.20279, 5.21924599999999);
 	var request = {
-		origin      :mark,
-		destination :dest_test_for_added,
+		origin      :location,
+		destination :testDestination,
 		travelMode  :google.maps.DirectionsTravelMode.DRIVING
 	};
 	directionsService.route(request, function(result, status) {
@@ -255,7 +59,7 @@ var check_routable = function(mark){
 };
   
 var isaretekle = function(location) {
-	marker = new google.maps.Marker({
+	var marker = new google.maps.Marker({
 		position : location,
 		map		 : map,
 		draggable: true
@@ -268,153 +72,30 @@ var isaretekle = function(location) {
 	google.maps.event.addListener(marker, 'dragend', function(event) {
 		check_routable(event.latLng);
 	});
-	if(x == 1){
-		var marker_delivery = new google.maps.Marker({
-			position : location,
-			icon     : resim_delivery,
-			draggable: true
-		});
-//		marker.icon = image;
-		aracdizi.push(marker);
-		delivery_dizi.push(marker_delivery);
+	if(pinType){
+		vehicles.push(new Vehicle(marker));
 		addRow();
 	} else {
-		var marker_custom = new google.maps.Marker({
-			position : location,
-			icon     : resim_custom,
-			draggable: true,
-			map      : map
-		});
-		marker.icon = resim_must;
-		musteridizi.push(marker);
-		gumrukdizi.push(marker_custom);
-		custaddrow();
+		customers.push(marker);
 	}
 };
 
-var delivery_marker_goster = function(i){
-	var bosaltma_musteri = "ihrcustomer" + i;
-	bosaltma_musteri = document.getElementById(bosaltma_musteri);
-	var del_true = "dolu" + i;
-	del_true = document.getElementById(del_true);
-	if(del_true.checked == true){
-		delivery_dizi[i-1].setMap(map);
-		delivery_dizi[i-1].title = document.getElementById("truck" + i).options[document.getElementById("truck" + i).selectedIndex].text + "/" + document.getElementById("trailer" + i).options[document.getElementById("trailer" + i).selectedIndex].text + " boşaltma noktası";
-		bosaltma_musteri.selectedIndex = 1;
-		bosaltma_musteri.disabled = false;
-	} else {
-		delivery_dizi[i-1].setMap();
-		bosaltma_musteri.selectedIndex = 0;
-		bosaltma_musteri.disabled = true;
-	}
+var initialize = function() {
+	var center = new google.maps.LatLng(48.85605278, 12.297894444);
+	var options = {                                                                      
+		zoom: 4,
+		center: center,
+		streetViewControl: false
+	};
+	map = new google.maps.Map($('#map-canvas')[0], options);
+	google.maps.event.addListener(map, 'click', function(event){
+		isaretekle(event.latLng);
+	});
+	directionsDisplay.setMap(map);
 };
 
-var oto_addrow = function(){
-	for(var p=0; p<vehicle_position.trucks.length; p++){
-		var loc_loc = new google.maps.LatLng(vehicle_position.trucks[p].Last_Lat, vehicle_position.trucks[p].Last_Lng);
-		marker = new google.maps.Marker({
-			position	: loc_loc,
-			map			: map,
-			draggable	: true
-		});
-		google.maps.event.addListener(marker, 'click', function(event) {
-			drawPath(event.latLng);
-			sv.getPanoramaByLocation(event.latLng, 1000, processSVData);
-		});
-		aracdizi.push(marker);
-		loc_loc = new google.maps.LatLng(vehicle_position.trucks[p].Lat, vehicle_position.trucks[p].Lng);
-		marker_delivery = new google.maps.Marker({
-			position	: loc_loc,
-			icon		: resim_delivery,
-			map			: map,
-			draggable	: true
-		});
-		delivery_dizi.push(marker_delivery);
-		addRow();
-		var sl_truck = "truck" + eval(p+1);
-		sl_truck = document.getElementById(sl_truck);
-		sl_truck.selectedIndex = vehicle_position.trucks[p].Truck;
-		tabloguncelle(sl_truck,aracdizi.length);
-		marker_delivery.setTitle(sl_truck.options[sl_truck.selectedIndex].text);
-		sl_truck = "trailer" + eval(p+1);
-		sl_truck = document.getElementById(sl_truck);
-		sl_truck.selectedIndex = vehicle_position.trucks[p].Trailer;
-		yrtabloguncelle(sl_truck,aracdizi.length);
-		marker_delivery.setTitle(json.trucks[vehicle_position.trucks[p].Truck].Plaka + "/" + sl_truck.options[sl_truck.selectedIndex].text + " boşaltma noktası");
-		sl_truck = "driver" + eval(p+1);
-		sl_truck = document.getElementById(sl_truck);
-		sl_truck.selectedIndex = vehicle_position.trucks[p].Driver;
-		surucuguncelle(sl_truck,aracdizi.length);
-		sl_truck = "transit" + eval(p+1);
-		sl_truck = document.getElementById(sl_truck);
-		if(vehicle_position.trucks[p].Transit == true){
-			sl_truck.checked = true;
-		}
-		sl_truck = "dolu" + eval(p+1);
-		sl_truck = document.getElementById(sl_truck);
-		sl_truck.checked = true;
-		sl_truck = "ihrcustomer" + eval(p+1);
-		sl_truck = document.getElementById(sl_truck);
-		sl_truck.disabled = false;
-		sl_truck.selectedIndex = vehicle_position.trucks[p].Ihracat_Musteri;
-		sl_truck = "bdate" + eval(p+1);
-		sl_truck = document.getElementById(sl_truck);
-		if(vehicle_position.trucks[p].Last_Lat==vehicle_position.trucks[p].Lat && vehicle_position.trucks[p].Last_Lng==vehicle_position.trucks[p].Last_Lng){
-			sl_truck.value = "Tarih girilmeli";
-		}
-		if(vehicle_position.trucks[p].Bosaltma_Tarihi == "GRUPAJ!"){
-			sl_truck.value = vehicle_position.trucks[p].Bosaltma_Tarihi;
-		}else if(vehicle_position.trucks[p].Bosaltma_Tarihi != ""){
-			sl_truck.value = vehicle_position.trucks[p].Bosaltma_Tarihi;
-			document.getElementById("dolu" + eval(p+1)).checked = false;
-			delivery_dizi[p].setMap();
-			document.getElementById("ihrcustomer" + eval(p+1)).selectedIndex = 0;
-			document.getElementById("ihrcustomer" + eval(p+1)).disabled = true;
-		} else if(vehicle_position.trucks[p].Termin != "0"){
-			var termin_tarihi = new Date(vehicle_position.trucks[p].Termin);
-			sl_truck.value = eval(termin_tarihi.getMonth()+1) + "-" + termin_tarihi.getDate() + "-" + termin_tarihi.getFullYear() + " " + termin_tarihi.getHours() + ":" + termin_tarihi.getMinutes();
-		}
-	}
-};
-
-var processSVData = function(data, status){   
-	if (status == google.maps.StreetViewStatus.OK) {   
-		panorama.setPosition(data.location.latLng);              
-		panorama.setVisible(true);   
-	} else {
-		panorama.setVisible(false);
-	}
-};
-
-var bos_nokta_sil = function(ind){
-	bosaltma_noktalar[aktif_gizli_div_satiri].splice(ind,1);
-	bosaltma_noktalari(aktif_gizli_div_satiri+1);
-	bosaltma_noktalari(aktif_gizli_div_satiri+1);
-};
-
-var bos_nokta_ekle = function(){
-	var gizli_div_table = document.getElementById("giz_table");
-	var row_number = gizli_div_table.rows.length;
-	if(row_number-2<=5){
-		var row_inserted = gizli_div_table.insertRow(row_number);
-		var cell_inserted = row_inserted.insertCell(0);
-		var yeni_bos_nokt = document.getElementById("bos_nokt_ekle");
-		cell_inserted.innerHTML = row_number-2 + ". boşaltma noktası: " + yeni_bos_nokt.options[yeni_bos_nokt.selectedIndex].text;
-		cell_inserted = row_inserted.insertCell(1);
-		cell_inserted.innerHTML = "<a href='javascript:bos_nokta_sil(" + eval(row_number-3) + ")'>Sil</a>";
-		var yeni_bos_konum = new google.maps.LatLng(json.customers[yeni_bos_nokt.options[yeni_bos_nokt.selectedIndex].value].lat,json.customers[yeni_bos_nokt.options[yeni_bos_nokt.selectedIndex].value].lng);
-		bosaltma_noktalar[aktif_gizli_div_satiri][bosaltma_noktalar[aktif_gizli_div_satiri].length]=new bosa_konu(yeni_bos_nokt.options[yeni_bos_nokt.selectedIndex].text,yeni_bos_konum);
-	} else {
-		alert("At most 5 unloading places!");
-	}
-};
-
-function bosa_konu(isim,konum){
-	this.isim  = isim;
-	this.konum = konum;
-}
-
-function bosaltma_noktalari(i){
+var bosaltma_noktalari = function(i){
+	var j;
 	aktif_gizli_div_satiri = i-1;
 	var delivery_konum = "ihrcustomer" + i;
 	delivery_konum = document.getElementById(delivery_konum);
@@ -426,37 +107,37 @@ function bosaltma_noktalari(i){
 	var row_inserted = gizli_div_table.insertRow(row_number);
 	var cell_inserted = row_inserted.insertCell(0);
 	var duugme = document.getElementById("yeni_bos_ekle_dugm");
-	if(delivery_konum.selectedIndex==0){
+	if(delivery_konum.selectedIndex === 0){
 		duugme.disabled=true;
 	} else {
 		duugme.disabled=false;
 	}
 	cell_inserted.innerHTML = "Son boşaltma noktası: " + delivery_konum.options[delivery_konum.selectedIndex].text;
 	cell_inserted.colSpan = 2;
-	for(j=0;j<bosaltma_noktalar[i-1].length;j++){
+	for(j=0; j<bosaltma_noktalar[i-1].length; j++){
 		row_inserted = gizli_div_table.insertRow(row_number+j+1);
 		cell_inserted = row_inserted.insertCell(0);
 		cell_inserted.innerHTML = row_number+j-1 + ". boşaltma noktası: " + bosaltma_noktalar[i-1][j].isim;
 		cell_inserted = row_inserted.insertCell(1);
-		cell_inserted.innerHTML = "<a href='javascript:bos_nokta_sil(" + eval(row_number+j-2) + ")'>Sil</a>";
+		cell_inserted.innerHTML = "<a href='javascript:bos_nokta_sil(" + (row_number+j-2) + ")'>Sil</a>";
 	}
 	var gizli_div = document.getElementById('bos_nokt_kutusu');
 	if(gizli_div.style.display == 'none'){
 		gizli_div.style.display = 'block';
-		gizli_div.style.top = eval(763+(i-1)*26) + "px";
+		gizli_div.style.top = (763+(i-1)*26) + "px";
 	} else {
 		gizli_div.style.display = 'none';
 	}
-}
+};
 
 var calcRoute = function(i,j) {
-	hesaplaText.innerHTML = 'Working on route(%' + Math.round(eval(((i*aracdizi.length+j)/(aracdizi.length*musteridizi.length))*100)) + ')';
-	if(i===0 && j===0){
+	hesaplaText.innerHTML = 'Working on route(%' + Math.round((((i*vehicles.length+j)/(vehicles.length*customers.length))*100)) + ')';
+	if(!i && !j){
 		date = new Date();
 	}
 	var dist_after_empty = 0;
-	var start = aracdizi[j].position;
-	var end = musteridizi[i].position;
+	var start = vehicles[j].position;
+	var end = customers[i].position;
 	var gum = gumrukdizi[i].position;
 	var waypts = [];
 	var selid = "dolu" + (j+1);
@@ -495,8 +176,8 @@ var calcRoute = function(i,j) {
 			km.push(dist_after_empty);
 			bos_km.push(result.routes[0].legs[1].distance.value/1000);
 			bos_mus_km.push(result.routes[0].legs[0].distance.value/1000);
-			if(km.length < musteridizi.length*aracdizi.length){
-				if(j < (aracdizi.length-1)){
+			if(km.length < customers.length*vehicles.length){
+				if(j < (vehicles.length-1)){
 					calcRoute(i,j+1);
 				} else {
 					calcRoute(i+1,0);
@@ -509,365 +190,69 @@ var calcRoute = function(i,j) {
 	});
 };
 
-function dom_event(e){
-	var secilen, i;
-	var dom_element = e.target;
-	for(i=0;i<aracdizi.length;i++){
-		aracdizi[i].setAnimation(null);
-		delivery_dizi[i].setAnimation(null);
-		if(dom_element.id == "truck" + (i+1)){
-			secilen = i;
-		}
-	}
-	aracdizi[secilen].setAnimation(google.maps.Animation.BOUNCE);
-	delivery_dizi[secilen].setAnimation(google.maps.Animation.BOUNCE);
-	var t=setTimeout("stop_animation(" + secilen + ")",5000);
-}
-
-function stop_animation(hh){
-	aracdizi[hh].setAnimation(null);
-	delivery_dizi[hh].setAnimation(null);
-}
-
-function delete_row(){
-	var table = document.getElementById("aractablo");
-	var rowCount = table.rows.length;
-	if(rowCount > 2){
-		table.deleteRow(rowCount-1);
-		aracdizi[aracdizi.length-1].setMap(null);
-		delivery_dizi[delivery_dizi.length-1].setMap(null);
-		aracdizi.splice(aracdizi.length-1,1);
-		delivery_dizi.splice(delivery_dizi.length-1,1);
-		bosaltma_noktalar.splice(bosaltma_noktalar.length-1,1);
-	}
-}
-
-function addRow() {
-	var table = document.getElementById("aractablo");
-	var rowCount = table.rows.length;
-	var row = table.insertRow(rowCount);
-	if(rowCount>2 && rowCount%2 == 1){
-		row.className = "alt";
-	}
+var addRow = function() {
+	$("#vehicles").append($(".addVehicleTemplate").html());
+};
 	
-	var cell1 = row.insertCell(0);
-	cell1.innerHTML = aracdizi.length;
-	cell1.align = "center";
-	
-	var cell2 = row.insertCell(1);
-	cell2.innerHTML = "<select id='truck"+aracdizi.length+"' onchange='tabloguncelle(truck" + aracdizi.length + "," + aracdizi.length + ");'></select>"; 
-	cell2.align = "center";
-	var selid = "truck" + aracdizi.length;
-	var arse = document.getElementById(selid);
-	var dom_dom = "truck" + aracdizi.length;
-	dom_dom = document.getElementById(dom_dom);
-	google.maps.event.addDomListener(dom_dom, 'mouseover', dom_event);
-	
-	var hucre3 = "";
-	hucre3 = json.trucks[0].Hat;
-	var cell3 = row.insertCell(2);            
-	cell3.innerHTML = "<select id='transmod"+aracdizi.length+"'><option value='Diğer'>Lütfen Seçiniz</option><option value='Kara'>Kara</option><option value='Oms.Romanya'>Oms.Romanya</option><option value='RoRo'>RoRo</option><option value='Toulon'>Toulon</option><option value='Petko'>Petko</option></select>";
-	cell3.align = "center";
-	var transmod_select = document.getElementById("transmod"+aracdizi.length);
-	switch(hucre3){
-		case "Kara":
-			transmod_select.selectedIndex = 1;
-			break;
-		case "Oms.Romanya":
-			transmod_select.selectedIndex = 2;
-			break;
-		case "RoRo":
-			transmod_select.selectedIndex = 3;
-			break;
-		default:
-			transmod_select.selectedIndex = 0;
-	}
-	
-	var cell4 = row.insertCell(3);
-	cell4.innerHTML = "<select id='trailer"+aracdizi.length+"' onchange='yrtabloguncelle(trailer" + aracdizi.length + "," + aracdizi.length + ");'></select>"; 
-	cell4.align = "center";
-	var yrselid = "trailer" + aracdizi.length;
-	var yrarse = document.getElementById(yrselid);
-	for (i=0;i<json.trailers.length;i++) {
-		yrarse.options[i] = new Option (json.trailers[i].Plaka, i);
-	}
-	aracdizi[rowCount-2].title = arse.options[arse.selectedIndex].text + "/" + yrarse.options[yrarse.selectedIndex].text;
-
-	var hucre4 = "";
-	var hucre5 = "";
-	var hucre6 = "";
-	var cell5 = row.insertCell(4);
-	var cell6 = row.insertCell(5);
-	var cell7 = row.insertCell(6);             
-	cell5.innerHTML = "<input type='checkbox' id='yandan" + aracdizi.length + "'>";
-	cell6.innerHTML = "<input type='checkbox' id='ustten" + aracdizi.length + "'>";
-	cell7.innerHTML = "<input type='checkbox' id='catiyukselen" + aracdizi.length + "'>";
-	var check_arac_ozellik = "yandan" + aracdizi.length;
-	check_arac_ozellik = document.getElementById(check_arac_ozellik);
-	if(hucre4=="true"){
-		check_arac_ozellik.checked = true;
-	}
-	check_arac_ozellik = "ustten" + aracdizi.length;
-	check_arac_ozellik = document.getElementById(check_arac_ozellik);
-	if(hucre5=="true"){
-		check_arac_ozellik.checked = true;
-	}
-	check_arac_ozellik = "catiyukselen" + aracdizi.length;
-	check_arac_ozellik = document.getElementById(check_arac_ozellik);
-	if(hucre6=="true"){
-		check_arac_ozellik.checked = true;
-	}
-		
-	var cell8 = row.insertCell(7)
-	cell8.innerHTML = "<select id='driver"+aracdizi.length+"' onchange='surucuguncelle(driver" + aracdizi.length + "," + aracdizi.length + ");'></select>"; 
-	cell8.align = "center";
-	var custselid = "driver" + aracdizi.length;
-	var carse = document.getElementById(custselid);
-		
-	var hucre9 = "";
-	var cell9 = row.insertCell(8);             
-	cell9.innerHTML = "<input type='checkbox' id='adr" + aracdizi.length + "'>";
-	var adr = "adr" + aracdizi.length;
-	adr = document.getElementById(adr);
-	if(hucre9 == "true"){	
-		adr.checked = true;
-	}
-	cell9.align = "center";
-	
-	var cell10 = row.insertCell(9);
-	cell10.innerHTML = "<input type='checkbox' id='transit" + aracdizi.length + "'>";
-	cell10.align = "center";
-		
-	var cell11 = row.insertCell(10);
-	cell11.innerHTML = "<input type='checkbox' id='dolu"+aracdizi.length+"' onclick='delivery_marker_goster(" + aracdizi.length + ");'>";
-	cell11.align = "center";
-		
-	var cell12 = row.insertCell(11);
-	cell12.innerHTML = "<select id='ihrcustomer"+aracdizi.length+"' onchange='delivery_marker_guncelle(" + aracdizi.length + ");'><option value='-1'>Boş</option></select><a href='javascript:bosaltma_noktalari(" + aracdizi.length + ")'>+</a>"; 
-	cell12.align = "center";
-	var ihrselid = "ihrcustomer" + aracdizi.length;
-	var ihrarse = document.getElementById(ihrselid);
-
-	var cell13 = row.insertCell(12);
-	cell13.innerHTML = "<input type='text' id='bdate"+aracdizi.length+"' style='font-size:10px; text-align:center;' />";
-	cell13.align = "center";
-	cell13 = "ihrcustomer" + aracdizi.length;
-	cell13 = document.getElementById(cell13);
-	cell13.disabled = true;
-	bosaltma_noktalar[rowCount-2] = new Array();
-}
-
-function tabloguncelle(selectedselect,satir) {
-	var cells = document.getElementById('aractablo').rows[satir+1].getElementsByTagName('td');
-	var hucre3 = "";
-	var hucre33 = "";
-	var hucre333 = "";
-	hucre3 = json.trucks[selectedselect.options[selectedselect.selectedIndex].value].Hat;
-	hucre33 = json.trucks[selectedselect.options[selectedselect.selectedIndex].value].Plaka;
-	var adr = "adr" + satir;
-	adr = document.getElementById(adr);
-	if(selectedselect.options[selectedselect.selectedIndex].text == "PIMK"){
-		var transit_select = "transit" + satir;
-		transit_select = document.getElementById(transit_select);
-		var driver_select = "driver" + satir;
-		var driver_select_kutu = document.getElementById(driver_select);
-		transit_select.checked = true;
-		driver_select_kutu.selectedIndex = 1;
-		adr.checked = false;
-	}
-	selectedselect = selectedselect.options[selectedselect.selectedIndex].text;
-	if(selectedselect.substring(0,2) == "AG"){
-		var driver_select = "driver" + satir;
-		driver_select = document.getElementById(driver_select);
-		driver_select.selectedIndex = 2;
-		driver_select = "truck" + satir;
-		driver_select = document.getElementById(driver_select);
-		var transit_select = "trailer" + satir;
-		transit_select = document.getElementById(transit_select);
-		transit_select.selectedIndex = eval(driver_select.selectedIndex + 59);
-		adr.checked = false;
-	}
-	var transmod_select = document.getElementById("transmod"+satir);
-	switch(hucre3){
-		case "Kara":
-			transmod_select.selectedIndex = 1;
-			break;
-		case "Oms.Romanya":
-			transmod_select.selectedIndex = 2;
-			break;
-		case "RoRo":
-			transmod_select.selectedIndex = 3;
-			break;
-		default:
-			transmod_select.selectedIndex = 0;
-	}
-	hucre333 = "trailer" + satir;
-	hucre333 = document.getElementById(hucre333);
-	hucre333 = json.trailers[hucre333.options[hucre333.selectedIndex].value].Plaka;
-	aracdizi[satir-1].setTitle(hucre33 + "/" + hucre333);
-	delivery_dizi[satir-1].setTitle(hucre33 + "/" + hucre333 + " boşaltma noktası");
-}
-
-function custdelete_row(){
-	var table = document.getElementById("musteritablo");
-	var rowCount = table.rows.length;
-	if(rowCount > 2){
-		table.deleteRow(rowCount-1);
-		musteridizi[musteridizi.length-1].setMap(null);
-		gumrukdizi[gumrukdizi.length-1].setMap(null);
-		musteridizi.splice(musteridizi.length-1,1);
-		gumrukdizi.splice(gumrukdizi.length-1,1);
-	}
-}
-
-function custaddrow() {
-	date = new Date();
-	if(date.getDay() == 5){
-		date.setDate(date.getDate() + 3);
-	} else {
-		date.setDate(date.getDate() + 1);
-	}
-	var table = document.getElementById("musteritablo");
-	var rowCount = table.rows.length;
-	var row = table.insertRow(rowCount);
-	if(rowCount>2 && rowCount%2 == 1){
-		row.className = "alt";
-	}
-	var cell1 = row.insertCell(0);
-	cell1.innerHTML = musteridizi.length;
-	cell1.align = "center";
-		
-	var cell2 = row.insertCell(1);
-	cell2.innerHTML = "<select id='customer"+musteridizi.length+"' onchange='custtabloguncelle(customer" + musteridizi.length + "," + musteridizi.length + ");'></select>"; 
-	cell2.align = "center";
-	var selid = "customer" + musteridizi.length;
-	var arse = document.getElementById(selid);
-	musteridizi[rowCount-2].title = arse.options[0].text;
-		
-	var cell3 = row.insertCell(2);
-	var cell4 = row.insertCell(3);
-	var cell5 = row.insertCell(4);
-	var cell6 = row.insertCell(5);
-	var cell7 = row.insertCell(6);
-	cell3.innerHTML ="<input type='checkbox' id='yandan_talep" + musteridizi.length + "'>";
-	cell4.innerHTML ="<input type='checkbox' id='ustten_talep" + musteridizi.length + "'>";
-	cell5.innerHTML ="<input type='checkbox' id='cati_yukselen_talep" + musteridizi.length + "'>";
-	cell6.innerHTML ="<input type='checkbox' id='kara_talep" + musteridizi.length + "'>";
-	cell7.innerHTML = "<input type='checkbox' id='adr_talep" + musteridizi.length + "'>";
-		
-	var cell8 = row.insertCell(7);
-	cell8.align = "center";
-		
-	var cell8 = row.insertCell(8);
-	cell8.align = "center";
-	cell8.innerHTML = "<input type='checkbox' id='tasols"+musteridizi.length+"' onclick='custtablotaseronguncelle(tasols" + musteridizi.length + "," + musteridizi.length + ");'>";
-		
-	var cell9 = row.insertCell(9);
-	cell9.align = "center";
-	cell9.innerHTML = "<input type='text' disabled='true' id='tasid"+musteridizi.length+"' size=10 style='text-align:center' />";
-
-	var cell10 = row.insertCell(10);
-	cell10.align = "center";
-	cell10.innerHTML = "<input type='text' disabled='true' id='navlun"+musteridizi.length+"' size=5 style='text-align:right' />euro";
-}
-
-function custtabloguncelle(selectedselect,satir) {
-	var talep_edilen = "yandan_talep" + satir;
-	talep_edilen = document.getElementById(talep_edilen);
-	if(json.customers[selectedselect.options[selectedselect.selectedIndex].value].Yandan_Perdeli_Talep == "true"){
-		talep_edilen.checked = true;
-	} else {
-		talep_edilen.checked = false;
-	}
-	talep_edilen = "ustten_talep" + satir;
-	talep_edilen = document.getElementById(talep_edilen);
-	talep_edilen = "cati_yukselen_talep" + satir;
-	talep_edilen = document.getElementById(talep_edilen);
-	talep_edilen = "kara_talep" + satir;
-	talep_edilen = document.getElementById(talep_edilen);
-	talep_edilen = "adr_talep" + eval(satir);
-	talep_edilen = document.getElementById(talep_edilen);
-
-	musteridizi[satir-1].setTitle(hucre33);
-	gumrukdizi[satir-1].setPosition(gumkonum);
-	musteridizi[satir-1].setPosition(konum);
-	hucre33 = "ydate" + satir;
-	hucre33 = document.getElementById(hucre33);
-	hucre33.value = eval(date.getMonth()+1) + "-" + date.getDate() + "-" + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes();
-}
-
-function custtablotaseronguncelle(selectedselect,satir) {
-	var id_kutusu = "tasid" + satir;
-	var navlun_kutusu = "navlun" + satir;
-	var cells = document.getElementById(id_kutusu);
-	var cells2 = document.getElementById(navlun_kutusu);
-	if(selectedselect.checked == true){
-		cells.disabled = false;
-		cells2.disabled = false;
-	} else {
-		cells.disabled = true;
-		cells2.disabled = true;
-	}
-}
-	
-function maliyet_hesapla() {
+var maliyet_hesapla = function() {
 	hesaplaText.innerHTML = 'Maliyetler hesaplanıyor';
-	var bos_gunu;
-	var bos_mus_mal;
-	var bosaltma_musteri_ismi;
-	var c = 0;
-	var dolu_mu;
-	var earliest_loading_hour;
-	var en_erken_yukleme_saati;
-	var en_gec_yukleme_saati;
-	var gec_varis_maliyeti;
-	var iyimser_varis_saati = new Date();
-	var kac_saatte;
-	var kotu_olasilik;
-	var kotumser_var_saa = new Date();
-	var latest_loading_hour;
-	var mal_tabl_boyutu;
-	var musteri_ismi;
-	var navlun;
-	var p_iyi_olasilik;
-	var service_time;
-	var taseron_id;
-	var taseron_id2;
-	var taseron_varmi;
-	var taseronlar = [];
-	var tasidtekrar;
-	var yuk_gunu;
-	var zero_found;
-	for(i=0;i<musteridizi.length;i++){
+	var bos_gunu,
+		bos_mus_mal,
+		bosaltma_musteri_ismi,
+		c = 0,
+		dolu_mu,
+		earliest_loading_hour,
+		en_erken_yukleme_saati,
+		en_gec_yukleme_saati,
+		gec_varis_maliyeti,
+		iyimser_varis_saati = new Date(),
+		kac_saatte,
+		kotu_olasilik,
+		kotumser_var_saa = new Date(),
+		latest_loading_hour,
+		mal_tabl_boyutu,
+		musteri_ismi,
+		navlun,
+		p_iyi_olasilik,
+		service_time,
+		taseron_id,
+		taseron_id2,
+		taseron_varmi,
+		taseronlar = [],
+		tasidtekrar,
+		yuk_gunu,
+		zero_found,
+		i, j, length;
+	for(i=0,length=customers.length; i<length; i++){
 		tasidtekrar = 0;
-		taseron_varmi = "tasols"+eval(i+1);
-		taseron_id = "tasid"+eval(i+1);
+		taseron_varmi = "tasols" + (i+1);
+		taseron_id = "tasid" + (i+1);
 		taseron_varmi = document.getElementById(taseron_varmi);
 		taseron_id = document.getElementById(taseron_id);
-		if(taseron_varmi.checked == true){
-			for(j=0;j<i;j++){	
-				taseron_id2 = "tasid"+eval(j+1);
+		if(taseron_varmi.checked){
+			for(j=0; j<i; j++){	
+				taseron_id2 = "tasid"+ (j+1);
 				taseron_id2 = document.getElementById(taseron_id2);
-				if(taseron_id.value == taseron_id2.value && taseron_id.value != ""){
+				if(taseron_id.value === taseron_id2.value && taseron_id.value !== ""){
 					tasidtekrar = 1;
 				}
 			}
-			if(tasidtekrar == 0 && taseron_id.value != ""){
+			if(tasidtekrar === 0 && taseron_id.value !== ""){
 				taseron_sayisi = taseron_sayisi + 1;
-				taseronlar[taseron_sayisi-1] = (taseron_id.value);
+				taseronlar[taseron_sayisi-1] = taseron_id.value;
 			}
 		}
 	}
-	mal_tabl_boyutu = Math.max((aracdizi.length + taseron_sayisi),musteridizi.length);
+	mal_tabl_boyutu = Math.max((vehicles.length + taseron_sayisi),customers.length);
 	c = 0;
 	var maliyet_tablo = new Array(mal_tabl_boyutu);
 	var taboo = new Array(mal_tabl_boyutu);
-	for(i=0;i<musteridizi.length;i++){
+	for(i=0,length=customers.length; i<length; i++){
 		maliyet_tablo[i] = new Array(mal_tabl_boyutu);
-		musteri_ismi = "customer" + eval(i+1);
-		navlun = "navlun"+eval(i+1);
-		taseron_id = "tasid"+eval(i+1);
-		var adr_talep = "adr_talep"+eval(i+1);
+		musteri_ismi = "customer" + (i+1);
+		navlun = "navlun" + (i+1);
+		taseron_id = "tasid" + (i+1);
+		var adr_talep = "adr_talep" + (i+1);
 		adr_talep = document.getElementById(adr_talep);
 		musteri_ismi = document.getElementById(musteri_ismi);
 		navlun = document.getElementById(navlun);
@@ -877,7 +262,7 @@ function maliyet_hesapla() {
 		earliest_loading_hour = json.customers[musteri_ismi.options[musteri_ismi.selectedIndex].value].En_Erken_Yükleme_Saati;
 		latest_loading_hour = json.customers[musteri_ismi.options[musteri_ismi.selectedIndex].value].En_Gec_Yükleme_Saati;
 		*/
-		for(j=0;j<aracdizi.length;j++){
+		for(j=0; j<vehicles.length; j++){
 			bosaltma_musteri_ismi = "ihrcustomer" + eval(j+1);
 			var arac_ozellik = document.getElementById("transmod" + eval(j+1)).selectedIndex;
 			var romork_yandan = "yandan" + eval(j+1);
@@ -919,7 +304,7 @@ function maliyet_hesapla() {
 						/*
 						service_time = json.customers[bosaltma_musteri_ismi.options[bosaltma_musteri_ismi.selectedIndex].value].Servis_Süresi;
 						*/
-						kac_saatte = Math.floor(bos_mus_km[i*aracdizi.length + j]/(ortalama_hiz/60));
+						kac_saatte = Math.floor(bos_mus_km[i*vehicles.length + j]/(ortalama_hiz/60));
 						kac_saatte = Math.floor(kac_saatte/(9*60))*20*60 + (kac_saatte - Math.floor(kac_saatte/(9*60))*9*60);
 						bosaltmaya_varis_saati.setMinutes(bosaltmaya_varis_saati.getMinutes() + kac_saatte);
 						if(bosaltmaya_varis_saati.getHours() < earliest_loading_hour){
@@ -937,7 +322,7 @@ function maliyet_hesapla() {
 							bosaltmaya_varis_saati = new Date(Math.max(termin.getTime(),bosaltmaya_varis_saati.getTime()));
 						}
 					}
-					kac_saatte = Math.floor(bos_km[i*aracdizi.length + j]/(ortalama_hiz/60));
+					kac_saatte = Math.floor(bos_km[i*vehicles.length + j]/(ortalama_hiz/60));
 // Sürüş süresini dikkate alarak kaç saatte'yi güncelle---------------------------------------------------------------------------------------------------
 					if(kac_saatte > (18*60)){
 						kac_saatte = 10000;
@@ -1010,24 +395,24 @@ function maliyet_hesapla() {
 			}
 			c = c + 1;
 		}
-		for(j=aracdizi.length;j<(aracdizi.length + taseron_sayisi);j++){
+		for(j=vehicles.length;j<(vehicles.length + taseron_sayisi);j++){
 			if(taseron_id.value == "" && navlun.value != ""){
 				alert("Lütfen taşeronu niteleyecek (plaka...vs.) bir değer giriniz!");
 				hesaplaText.innerHTML = 'HESAPLA';
 				return;
-			} else if(taseronlar[j-aracdizi.length] == taseron_id.value){
+			} else if(taseronlar[j-vehicles.length] == taseron_id.value){
 				maliyet_tablo[i][j] = navlun.value;
 			} else {
 				maliyet_tablo[i][j] = 100000;
 			}
 		}
-		for(j=(aracdizi.length + taseron_sayisi);j<mal_tabl_boyutu;j++){
+		for(j=(vehicles.length + taseron_sayisi);j<mal_tabl_boyutu;j++){
 			maliyet_tablo[i][j] = bos_mus_mal;
 		}
 	}
-	for(i=musteridizi.length;i<mal_tabl_boyutu;i++){
+	for(i=customers.length;i<mal_tabl_boyutu;i++){
 		maliyet_tablo[i] = new Array(mal_tabl_boyutu);
-		for(j=0;j<aracdizi.length;j++){
+		for(j=0;j<vehicles.length;j++){
 			dolu_mu = "dolu"+eval(j+1);
 			dolu_mu = document.getElementById(dolu_mu);
 			if(dolu_mu.checked == true){
@@ -1049,7 +434,7 @@ function maliyet_hesapla() {
 				}
 			}
 		}
-		for(j=aracdizi.length;j<mal_tabl_boyutu;j++){
+		for(j=vehicles.length;j<mal_tabl_boyutu;j++){
 			maliyet_tablo[i][j] = 0;
 		}
 	}
@@ -1349,22 +734,22 @@ function maliyet_hesapla() {
 	}
 	c=0;
 	table = document.getElementById("mal_tablo_km");
-	for(i=0;i<musteridizi.length;i++){
+	for(i=0;i<customers.length;i++){
 		var rowCount = table.rows.length;
 		var row = table.insertRow(rowCount);
-		for(j=0;j<aracdizi.length;j++){
+		for(j=0;j<vehicles.length;j++){
 			var cell = row.insertCell(j);
 			cell.innerHTML = km[c];
 			cell.align = "center";
 			c=c+1;
 		}
 	}
-}
+};
 
-function calcFinalRoute(i) {
-	if(atananrow[i] < musteridizi.length && atanancolumn[i] < aracdizi.length) {
-		var start = aracdizi[atanancolumn[i]].position;
-		var end = musteridizi[atananrow[i]].position;
+var calcFinalRoute = function(i) {
+	if(atananrow[i] < customers.length && atanancolumn[i] < vehicles.length) {
+		var start = vehicles[atanancolumn[i]].position;
+		var end = customers[atananrow[i]].position;
 		var waypts = [];
 		var selid = "dolu" + eval(atanancolumn[i]+1);
 		var arse = document.getElementById(selid);
@@ -1401,9 +786,9 @@ function calcFinalRoute(i) {
 			ozet_tablo_yazdir();
 		}
 	}
-}
+};
 
-function ozet_tablo_yazdir() {
+var ozet_tablo_yazdir = function() {
 	var mu_ta_ce;
 	var ar_ta_ce;
 	var sondate = new Date();
@@ -1446,10 +831,10 @@ function ozet_tablo_yazdir() {
 	for(l=0;l<atananrow.length;l++){
 		mu_ta_ce = "customer" + eval(atananrow[l]+1);
 		ar_ta_ce = "truck" + eval(atanancolumn[l]+1);
-		if(atananrow[l] < musteridizi.length){
+		if(atananrow[l] < customers.length){
 			mu_ta_ce = document.getElementById(mu_ta_ce);
 		}
-		if(atanancolumn[l] < aracdizi.length){
+		if(atanancolumn[l] < vehicles.length){
 			ar_ta_ce = document.getElementById(ar_ta_ce);
 			arac_table = document.getElementById("aractablo").rows[atanancolumn[l]+2].getElementsByTagName('td');
 		}
@@ -1459,16 +844,16 @@ function ozet_tablo_yazdir() {
 		cell.innerHTML = rowCount-1;
 		cell.align = "center";
 		cell = row.insertCell(1);
-		if(atananrow[l] < musteridizi.length){
+		if(atananrow[l] < customers.length){
 			cell.innerHTML = eval(atananrow[l]+1) + ". " + mu_ta_ce.options[mu_ta_ce.selectedIndex].text;
 		} else {
 			cell.innerHTML = "Planlanmayan araç";
 		}
 		cell.align = "center";
 		cell = row.insertCell(2);
-		if(atanancolumn[l] < aracdizi.length){
+		if(atanancolumn[l] < vehicles.length){
 			cell.innerHTML = eval(atanancolumn[l]+1) + ". " + ar_ta_ce.options[ar_ta_ce.selectedIndex].text;
-		} else if(atanancolumn[l] < (aracdizi.length+taseron_sayisi)){
+		} else if(atanancolumn[l] < (vehicles.length+taseron_sayisi)){
 			cell.innerHTML = "Taşeron araç";
 		} else {
 			cell.innerHTML = "Karşılanamayan talep";
@@ -1479,20 +864,20 @@ function ozet_tablo_yazdir() {
 		cell3 = row.insertCell(5);
 		cell4 = row.insertCell(6);
 		cell5 = row.insertCell(7);
-		if(atanancolumn[l] < aracdizi.length && atananrow[l] < musteridizi.length){
+		if(atanancolumn[l] < vehicles.length && atananrow[l] < customers.length){
 			if(arac_table[2].innerHTML == "Kara" || arac_table[2].innerHTML=="Oms.Romanya"){
-				cell.innerHTML = Math.round(km[atananrow[l] * aracdizi.length + atanancolumn[l]]+2119);
+				cell.innerHTML = Math.round(km[atananrow[l] * vehicles.length + atanancolumn[l]]+2119);
 			} else {
-				cell.innerHTML = Math.round(km[atananrow[l] * aracdizi.length + atanancolumn[l]]+380);
+				cell.innerHTML = Math.round(km[atananrow[l] * vehicles.length + atanancolumn[l]]+380);
 			}
-			cell2.innerHTML = Math.round(bos_km[atananrow[l] * aracdizi.length + atanancolumn[l]]);
-			cell3.innerHTML = "%" + Math.round(varis_olasilik_tablo[atananrow[l] * aracdizi.length + atanancolumn[l]]*100);
-			cell4.innerHTML = varis_saati_array[atananrow[l] * aracdizi.length + atanancolumn[l]].toLocaleString();
+			cell2.innerHTML = Math.round(bos_km[atananrow[l] * vehicles.length + atanancolumn[l]]);
+			cell3.innerHTML = "%" + Math.round(varis_olasilik_tablo[atananrow[l] * vehicles.length + atanancolumn[l]]*100);
+			cell4.innerHTML = varis_saati_array[atananrow[l] * vehicles.length + atanancolumn[l]].toLocaleString();
 			var dolu_arac = "dolu" + eval(atanancolumn[l]+1);
 			if(document.getElementById(dolu_arac).checked == false){
 				cell5.innerHTML = "Araç boş"
 			} else {
-				cell5.innerHTML = Math.round(bos_mus_km[atananrow[l] * aracdizi.length + atanancolumn[l]]);
+				cell5.innerHTML = Math.round(bos_mus_km[atananrow[l] * vehicles.length + atanancolumn[l]]);
 			}
 		} else {
 			cell.innerHTML = "-";
@@ -1542,25 +927,25 @@ function ozet_tablo_yazdir() {
 	cell.align = "center";
 	cell.innerHTML = "Boş km oranı: %" + Math.floor(100*toplamlar2/toplamlar);
 	hesaplaText.innerHTML = '<b>Hesaplandı</b>';
-}
+};
 	
-function drawPath(posit) {
+var drawPath = function(posit) {
 	var arac_dizisira = 100000;
 	var musteri_dizisira = 100000;
 	var degisim = 0;
-	for(i=0;i<aracdizi.length;i++){
-		if(aracdizi[i].position == posit){
+	for(i=0;i<vehicles.length;i++){
+		if(vehicles[i].position == posit){
 			arac_dizisira = i;
 		}
 	}
-	for(i=0;i<musteridizi.length;i++){
-		if(musteridizi[i].position == posit){
+	for(i=0;i<customers.length;i++){
+		if(customers[i].position == posit){
 			musteri_dizisira = i;
 		}
 	}
 	if(arac_dizisira != 100000){
 		for(i=0;i<atanancolumn.length;i++){
-			if(atanancolumn[i] == arac_dizisira && atananrow[i] < musteridizi.length){
+			if(atanancolumn[i] == arac_dizisira && atananrow[i] < customers.length){
 				arac_dizisira = i;
 				degisim = 1;
 			}
@@ -1572,7 +957,7 @@ function drawPath(posit) {
 	degisim = 0;
 	if(musteri_dizisira != 100000){
 		for(i=0;i<atananrow.length;i++){
-			if(atananrow[i] == musteri_dizisira && atanancolumn[i] < aracdizi.length){
+			if(atananrow[i] == musteri_dizisira && atanancolumn[i] < vehicles.length){
 				musteri_dizisira = i;
 				degisim = 1;
 			}
@@ -1600,27 +985,4 @@ function drawPath(posit) {
 		document.getElementById('elevation_chart').style.border = '1px solid black';
 		document.getElementById('elevation_chart').innerHTML = "<font face='Verdana' color='#000000' size='1' style='position:absolute; left:12%; right:10%; top:45%'>Lütfen rota oluşturulmuş bir müşteri ya da araç seçiniz.</font>";
 	}
-}
-
-function plotElevation(results, status) {
-   	if (status == google.maps.ElevationStatus.OK) {
-   		elevations = results;
-   		var elevationPath = [];
-      	for (var i = 0; i < results.length; i++) {
-      		elevationPath.push(elevations[i].location);
-       	}
-       	var data = new google.visualization.DataTable();
-       	data.addColumn('string', 'Sample');
-       	data.addColumn('number', 'Rakım');
-       	for (i = 0; i < results.length; i++) {
-       		data.addRow(['', elevations[i].elevation]);
-       	}
-       	document.getElementById('elevation_chart').style.display = 'block';
-		document.getElementById('elevation_chart').style.border = '1px solid white';
-       	chart.draw(data, {
-       		legend: 'none',
-       		titleY: 'Rota Rakım (m)',
-			titleX: '                Araç---------------------------------------------------------------------Müşteri'
-       	});
-	}
-}
+};

@@ -4,6 +4,7 @@
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
 		<title>Logtimizer - Vehicle Scheduling Problem</title>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+		<link href='https://fonts.googleapis.com/css?family=Roboto&subset=latin,latin-ext' rel='stylesheet'>
 		<link rel="stylesheet" type="text/css" href="stylesheets/style-sch.css">
 		<script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
@@ -28,7 +29,7 @@
 				</div>
 				<div id="navbar" class="navbar-collapse collapse">
 					<ul class="nav navbar-nav navbar-right">
-						<li><a href="../navbar/">Home</a></li>
+						<li><a href="../">Home</a></li>
 						<li><a href="../navbar-static-top/">About</a></li>
 						<li><a href="./">Contact <span class="sr-only">(current)</span></a></li>
 					</ul>
@@ -36,36 +37,88 @@
 			</div>
 		</nav>
 		<div class="container">
-			<div id="map-canvas"></div>
-			<div class="container">
-				<div id="alt1">
-					<table id="aractablo">
-						<tr><th colspan=12>VEHICLES</th><th style="text-align:right"><a href="javascript:delete_row()" >Del Vehicle</a></th></tr>
-						<tr><th>No</th><th>Plate</th><th>Operation</th><th>Cont. Plate</th><th>Side</th><th>Top</th><th>Roof Raise?</th><th>Driver</th><th>ADR</th><th>Transit</th><th>Not Empty?</th><th>Exp.Customer</th><th>Delivery Deadline(m-d-yyyy h:m)</th></tr>
-					</table><br>
+			<div class="row">
+				<div class="col-md-9">
+					<div id="map-canvas"></div>
+					<div class="mainContent">
+						<div class="btn-group" data-toggle="buttons">
+							<label class="btn btn-default active">
+								<input type="radio" name="options" id="option1" autocomplete="off" checked> Add vehicles
+							</label>
+							<label class="btn btn-default">
+								<input type="radio" name="options" id="option2" autocomplete="off"> Add customers
+							</label>
+						</div>
+						<div id="vehicles"></div>
+						<div id="customers"></div>
+					</div>
 				</div>
-				<div id="alt2" style="width:100%" >
-					<table id="musteritablo">
-						<tr><th colspan=10>CUSTOMERS</th><th style="text-align:right"><a href="javascript:custdelete_row()" >Del Customer</a></th></tr>
-						<tr><th>No</th><th>Customer</th><th style="width:60px">Side</th><th style="width:60px">Top</th><th style="width:60px">Roof Raise?</th><th style="width:60px">Kara</th><th style="width:60px">ADR</th><th>Loading Date (m-d-yyyy h:m)</th><th>Outsource?</th><th>Subcontractor ID</th><th>Subcontractor cost</th></tr>
-					</table>
-				</div><br>
-				<div id="mesafe_tabl" style="width:100%">
-					<table id="mal_tablo" border=1 class="center"></table><br>
-					<table id="mal_tablo_km" class="center" border=1 style="position:relative"></table><br>
-					<table id="mal_tablo_ilk" class="center" border=1 style="position:relative"></table>    
+				<div class="col-md-3">
+					<div class="sidebar-module">
+						<h4>Truck Types</h4>
+						<p>Type 1, land route, driver with ADR</p>
+						<p>Type 2, land route, driver without ADR</p>
+						<img src="https://maps.googleapis.com/maps/api/staticmap?size=200x75&path=color:0xff0000|weight:3|41.0357,28.794|41.948,25.678|45.194,25.403|47.477,18.888|47.772,12.927" alt="Land Route on Map"/>
+						<p>Type 3, RoRo route, driver with ADR</p>
+						<p>Type 4, RoRo route, driver without ADR</p>
+						<img src="https://maps.googleapis.com/maps/api/staticmap?size=200x125&path=color:0xff0000|weight:3|40.842,29.285|40.209,24.792|35.779,22.375|45.665,13.739|47.772,12.927" alt="Land Route on Map"/>
+						<p>Type 5, RoRo Transit route, driver with ADR</p>
+						<p>Type 6, RoRo Transit route, driver without ADR</p>
+						<img src="https://maps.googleapis.com/maps/api/staticmap?size=200x100&path=color:0xff0000|weight:3|40.842,29.285|40.209,24.792|35.779,22.375|45.665,13.739|44.989,6.725" alt="Land Route on Map"/>
+					</div>
+					
+					<div class="sidebar-module">
+						<h4>Trailer Types</h4>
+						<p>Type 1, suitable for side and top loading, roof can be raisable</p>
+						<p>Type 2, suitable for side loading, roof can be raisable</p>
+						<p>Type 3, suitable for top loading, roof can be raisable</p>
+						<p>Type 4, roof can be raisable</p>
+						<p>Type 5, suitable for side and top loading</p>
+						<p>Type 6, suitable for side loading</p>
+						<p>Type 7, suitable for top loading</p>
+						<p>Type 8, can be loaded only from back door</p>
+					</div>
 				</div>
 			</div>
-			<div id="bos_nokt_kutusu">
-				<table id="giz_table" class="giz">
-					<tr><td>Lütfen Boşaltma Noktalarını Giriniz:</td><td><select id="bos_nokt_ekle"></select></td></tr>
-					<tr><td colspan=2><input id="yeni_bos_ekle_dugm" type="button" value="Add Location" onClick="bos_nokta_ekle();"></td></tr>
-				</table>
-			</div>
-			<footer class="footer">
-				<p>&copy; Logtimize 2014</p>
-			</footer>
 		</div>
+		<footer class="footer">
+			<p>&copy; Logtimize 2014</p>
+		</footer>
+		
+		<!-- Templates -->
+		<div class="addCustomerTemplate hidden" >
+			<div class="customer">
+			    <div class="row" >
+					<div class="checkInput col-md-6"><input type="text" class="name form-control" maxlength="10" placeholder="Customer" /></div>
+					<div class="checkInput col-md-1">Side?<input type="checkbox" class="side checkbox" value="1" /></div>
+					<div class="checkInput col-md-1">Top?<input type="checkbox" class="top checkbox" value="1" /></div>
+					<div class="checkInput col-md-2">Roof Raise?<input type="checkbox" class="roof checkbox" value="1" /></div>
+					<div class="checkInput col-md-1">Land?<input type="checkbox" class="land checkbox" value="1" /></div>
+					<div class="checkInput col-md-1">ADR?<input type="checkbox" class="adr checkbox" value="1" /></div>
+				</div>
+				<div class="row">
+					<div class="checkInput col-md-4">Loading Time:<input type="datetime-local" name="deldeadline"></div>
+					<div class="checkInput col-md-1">Subcontructor?<input type="checkbox" class="subcontractor checkbox" value="1" /></div>
+					<div class="checkInput col-md-3"><input type="text" class="subcontid form-control" maxlength="10" placeholder="Subcontractor ID" /></div>
+					<div class="checkInput col-md-3"><input type="text" class="subcontcost form-control" maxlength="10" placeholder="Subcontructor Cost" /></div>
+					<div class="checkInput col-md-1 delRow"><a href="#" class="delBox"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a></div>
+				</div>
+			</div>
+		</div>
+		<div class="addVehicleTemplate hidden" >
+			<div class="vehicle panel panel-default">
+				<div class="panel-body">
+					<div class="row" >
+						<div class="checkInput col-md-2"><input type="text" class="name form-control" maxlength="10" placeholder="Truck Type" /></div>
+						<div class="checkInput col-md-2"><input type="text" class="width form-control" maxlength="6"  placeholder="Container Type" /></div>
+						<div class="checkInput col-md-2"><input type="text" class="name form-control" maxlength="10" placeholder="Export Customer" /></div>
+						<div class="checkInput col-md-5">Delivery Deadline:<input type="datetime-local" name="deldeadline"></div>
+						<div class="checkInput col-md-1 delRow"><a href="#" class="delBox"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
 		<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places"></script>
 		<script src="schedule.js"></script>
 		<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->

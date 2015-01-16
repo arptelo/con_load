@@ -1,0 +1,26 @@
+{
+  "name": "Logtimize",
+  "version": "1.0.0",
+  "description": "Logistic operations optimization app",
+  "main": "con_load.js",
+  "scripts": {
+    "test": "mocha test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/arptelo/con_load.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/arptelo/con_load/issues"
+  },
+  "homepage": "https://github.com/arptelo/con_load",
+  "dependencies": {
+    "express": "^4.10.7"
+  },
+  "devDependencies": {
+    "mocha": "^2.1.0",
+    "supertest": "^0.15.0"
+  }
+}
