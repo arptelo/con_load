@@ -1,12 +1,10 @@
-var aktif_gizli_div_satiri,
-	customers = [],
+var customers = [],
 	vehicles = [],
 	atanancolumn = [],
 	atananrow = [],
 	bos_km = [],
 	bos_mus_km = [],
 	bosaltma_noktalar = [],
-	chart,
 	date,
 	delivery_dizi = [],
 	directionsDisplay= new google.maps.DirectionsRenderer(),
@@ -27,6 +25,13 @@ $(document).ready(function(){
 	$(".mainContent").on("click", ".delBox", function(e){
 		e.preventDefault();
 		$(this).closest(".panel").remove();
+	});
+	$(".mainContent label").click(function(){
+		if($(this).hasClass("first")){
+			pinType = 1;
+		} else {
+			pinType = 0;
+		}
 	});
 });
 
@@ -53,18 +58,17 @@ var check_routable = function(location){
 	};
 	directionsService.route(request, function(result, status) {
 		if (status !== google.maps.DirectionsStatus.OK) {
-			alert("Cannot build route. Please delete the marker and try again!");
+			alert("Cannot build route. Please change the marker location!");
 		}
 	});
 };
   
-var isaretekle = function(location) {
+var addMarker = function(location) {
 	var marker = new google.maps.Marker({
 		position : location,
 		map		 : map,
 		draggable: true
 	});
-	check_routable(marker.position);
 	google.maps.event.addListener(marker, 'click', function(event) {
 		drawPath(event.latLng);
 		check_routable(event.latLng);
@@ -74,9 +78,10 @@ var isaretekle = function(location) {
 	});
 	if(pinType){
 		vehicles.push(new Vehicle(marker));
-		addRow();
+		$("#vehicles").append($(".addVehicleTemplate").find("tbody").html());
 	} else {
-		customers.push(marker);
+		customers.push(new Customer(marker));
+		$("#customers").append($(".addCustomerTemplate").find("tbody").html());
 	}
 };
 
@@ -89,45 +94,9 @@ var initialize = function() {
 	};
 	map = new google.maps.Map($('#map-canvas')[0], options);
 	google.maps.event.addListener(map, 'click', function(event){
-		isaretekle(event.latLng);
+		addMarker(event.latLng);
 	});
 	directionsDisplay.setMap(map);
-};
-
-var bosaltma_noktalari = function(i){
-	var j;
-	aktif_gizli_div_satiri = i-1;
-	var delivery_konum = "ihrcustomer" + i;
-	delivery_konum = document.getElementById(delivery_konum);
-	var gizli_div_table = document.getElementById("giz_table");
-	while(gizli_div_table.rows.length > 2){
-		gizli_div_table.deleteRow(gizli_div_table.rows.length-1);
-	}
-	var row_number = gizli_div_table.rows.length;
-	var row_inserted = gizli_div_table.insertRow(row_number);
-	var cell_inserted = row_inserted.insertCell(0);
-	var duugme = document.getElementById("yeni_bos_ekle_dugm");
-	if(delivery_konum.selectedIndex === 0){
-		duugme.disabled=true;
-	} else {
-		duugme.disabled=false;
-	}
-	cell_inserted.innerHTML = "Son boşaltma noktası: " + delivery_konum.options[delivery_konum.selectedIndex].text;
-	cell_inserted.colSpan = 2;
-	for(j=0; j<bosaltma_noktalar[i-1].length; j++){
-		row_inserted = gizli_div_table.insertRow(row_number+j+1);
-		cell_inserted = row_inserted.insertCell(0);
-		cell_inserted.innerHTML = row_number+j-1 + ". boşaltma noktası: " + bosaltma_noktalar[i-1][j].isim;
-		cell_inserted = row_inserted.insertCell(1);
-		cell_inserted.innerHTML = "<a href='javascript:bos_nokta_sil(" + (row_number+j-2) + ")'>Sil</a>";
-	}
-	var gizli_div = document.getElementById('bos_nokt_kutusu');
-	if(gizli_div.style.display == 'none'){
-		gizli_div.style.display = 'block';
-		gizli_div.style.top = (763+(i-1)*26) + "px";
-	} else {
-		gizli_div.style.display = 'none';
-	}
 };
 
 var calcRoute = function(i,j) {
@@ -188,10 +157,6 @@ var calcRoute = function(i,j) {
 			}
 		}                                                                    
 	});
-};
-
-var addRow = function() {
-	$("#vehicles").append($(".addVehicleTemplate").html());
 };
 	
 var maliyet_hesapla = function() {
@@ -930,10 +895,11 @@ var ozet_tablo_yazdir = function() {
 };
 	
 var drawPath = function(posit) {
-	var arac_dizisira = 100000;
-	var musteri_dizisira = 100000;
-	var degisim = 0;
-	for(i=0;i<vehicles.length;i++){
+	var arac_dizisira = 100000,
+		musteri_dizisira = 100000,
+		degisim = 0,
+		i, x;
+	for(i=0, x=vehicles.length; i<x ;i++){
 		if(vehicles[i].position == posit){
 			arac_dizisira = i;
 		}
@@ -972,17 +938,5 @@ var drawPath = function(posit) {
 		i = musteri_dizisira;
 	} else {
 		i = 100000;
-	}
-	if(i<atananrow.length){
-		chart = new google.visualization.ColumnChart(document.getElementById('elevation_chart'));
-		var path = overview_path_array[i];
-       	var pathRequest = {
-       		'path'		: path,
-       		'samples'	: 256
-       	}
-       	elevator.getElevationAlongPath(pathRequest, plotElevation);
-	} else {
-		document.getElementById('elevation_chart').style.border = '1px solid black';
-		document.getElementById('elevation_chart').innerHTML = "<font face='Verdana' color='#000000' size='1' style='position:absolute; left:12%; right:10%; top:45%'>Lütfen rota oluşturulmuş bir müşteri ya da araç seçiniz.</font>";
 	}
 };

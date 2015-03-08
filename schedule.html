@@ -42,15 +42,15 @@
 					<div id="map-canvas"></div>
 					<div class="mainContent">
 						<div class="btn-group" data-toggle="buttons">
-							<label class="btn btn-default active">
+							<label class="btn btn-default first active">
 								<input type="radio" name="options" id="option1" autocomplete="off" checked> Add vehicles
 							</label>
-							<label class="btn btn-default">
+							<label class="btn btn-default second">
 								<input type="radio" name="options" id="option2" autocomplete="off"> Add customers
 							</label>
 						</div>
-						<div id="vehicles"></div>
-						<div id="customers"></div>
+						<table class="table table-condensed"><thead><tr><td>Truck</td><td>Trailer</td><td>Export Customer</td><td>Deadline</td></td></tr></thead></thead><tbody id="vehicles"></tbody></table>
+						<table class="table table-condensed"><tbody id="customers"></tbody></table>
 					</div>
 				</div>
 				<div class="col-md-3">
@@ -86,40 +86,33 @@
 		</footer>
 		
 		<!-- Templates -->
-		<div class="addCustomerTemplate hidden" >
-			<div class="customer">
-			    <div class="row" >
-					<div class="checkInput col-md-6"><input type="text" class="name form-control" maxlength="10" placeholder="Customer" /></div>
-					<div class="checkInput col-md-1">Side?<input type="checkbox" class="side checkbox" value="1" /></div>
-					<div class="checkInput col-md-1">Top?<input type="checkbox" class="top checkbox" value="1" /></div>
-					<div class="checkInput col-md-2">Roof Raise?<input type="checkbox" class="roof checkbox" value="1" /></div>
-					<div class="checkInput col-md-1">Land?<input type="checkbox" class="land checkbox" value="1" /></div>
-					<div class="checkInput col-md-1">ADR?<input type="checkbox" class="adr checkbox" value="1" /></div>
-				</div>
-				<div class="row">
-					<div class="checkInput col-md-4">Loading Time:<input type="datetime-local" name="deldeadline"></div>
-					<div class="checkInput col-md-1">Subcontructor?<input type="checkbox" class="subcontractor checkbox" value="1" /></div>
-					<div class="checkInput col-md-3"><input type="text" class="subcontid form-control" maxlength="10" placeholder="Subcontractor ID" /></div>
-					<div class="checkInput col-md-3"><input type="text" class="subcontcost form-control" maxlength="10" placeholder="Subcontructor Cost" /></div>
-					<div class="checkInput col-md-1 delRow"><a href="#" class="delBox"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a></div>
-				</div>
-			</div>
-		</div>
-		<div class="addVehicleTemplate hidden" >
-			<div class="vehicle panel panel-default">
-				<div class="panel-body">
-					<div class="row" >
-						<div class="checkInput col-md-2"><input type="text" class="name form-control" maxlength="10" placeholder="Truck Type" /></div>
-						<div class="checkInput col-md-2"><input type="text" class="width form-control" maxlength="6"  placeholder="Container Type" /></div>
-						<div class="checkInput col-md-2"><input type="text" class="name form-control" maxlength="10" placeholder="Export Customer" /></div>
-						<div class="checkInput col-md-5">Delivery Deadline:<input type="datetime-local" name="deldeadline"></div>
-						<div class="checkInput col-md-1 delRow"><a href="#" class="delBox"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a></div>
-					</div>
-				</div>
-			</div>
-		</div>
+		<table class="addCustomerTemplate hidden" >
+			<tr class="customer panel">
+				<td><input type="text" class="name form-control" maxlength="10" placeholder="Customer" /></td>
+				<td><input type="checkbox" class="side checkbox" value="1" /></td>
+				<td><input type="checkbox" class="top checkbox" value="1" /></td>
+				<td><input type="checkbox" class="roof checkbox" value="1" /></td>
+				<td><input type="checkbox" class="land checkbox" value="1" /></td>
+				<td><input type="checkbox" class="adr checkbox" value="1" /></td>
+				<td><input type="datetime-local" name="deldeadline" class="form-control"></td>
+				<td><input type="checkbox" class="subcontractor checkbox" value="1" /></td>
+				<td><input type="text" class="subcontid form-control" maxlength="10" placeholder="Subcontractor ID" /></td>
+				<td><input type="text" class="subcontcost form-control" maxlength="10" placeholder="Subcontructor Cost" /></td>
+				<td><a href="#" class="delBox"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a></td>
+			</tr>
+		</table>
+		<table class="addVehicleTemplate hidden" >
+			<tr class="vehicle panel">
+				<td><input type="text" class="form-control" maxlength="10" placeholder="Truck Type" /></td>
+				<td><input type="text" class="form-control" maxlength="6"  placeholder="Container Type" /></td>
+				<td><input type="text" class="form-control" maxlength="10" placeholder="Export Customer" /></td>
+				<td><input type="datetime-local" name="deldeadline" class="time form-control"></td>
+				<td><a href="#" class="delBox"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a></td>
+			</tr>
+		</table>
 		
 		<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places"></script>
+		<script src="sch_objects.js"></script>
 		<script src="schedule.js"></script>
 		<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
 		<script src="ie10-viewport-bug-workaround.js"></script>
