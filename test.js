@@ -4,7 +4,7 @@ var app = require("./app");
 
 describe("Requests to the root path", function(){
     it("Returns a 200 status code", function(done){
-         request(app)
+        request(app)
         .get('/')
         .expect(200)
         .end(function(error){
@@ -12,4 +12,12 @@ describe("Requests to the root path", function(){
             done();
         });
     });
+});
+
+describe("Showing scheduling page on /schedule", function(){
+   it("Returns a 200 status code", function(done){
+       request(app)
+        .get('/schedule')
+        .expect(200, done)
+   });
 });
