@@ -18,6 +18,6 @@ describe("Showing scheduling page on /schedule", function(){
    it("Returns a 200 status code", function(done){
        request(app)
         .get('/schedule')
-        .expect(200, done)
+        .expect(200, done);
    });
 });

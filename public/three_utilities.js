@@ -5,10 +5,10 @@ var controls;
 
 var setScene = function() {
 	scene = new THREE.Scene();
-	camera = new THREE.PerspectiveCamera( 45, 600/300, 0.1, 5000 );
+	camera = new THREE.PerspectiveCamera( 45, 400/300, 0.1, 5000 );
 	var container = document.getElementById("container3js");
 	renderer = new THREE.WebGLRenderer({alpha: true, antialias: true});
-	renderer.setSize( 600, 300 );
+	renderer.setSize( 400, 300 );
 	controls = new THREE.OrbitControls( camera, container );
 	controls.damping = 0.2;
 	controls.addEventListener( 'change', render );

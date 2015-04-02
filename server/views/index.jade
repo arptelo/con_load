@@ -1,0 +1,13 @@
+extends ../includes/layout
+
+block main-content
+	.container
+		.header
+			nav
+				ul.nav.nav-pills.pull-right
+					li(role="presentation", class="active")
+						a(href="/") Home
+				div(ng-include="'/partials/navbar-login'")
+			h3(class="text-muted") Logtimize
+		section.content
+			div(ng-view)

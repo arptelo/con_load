@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
-var app = require('./../app');
-app.listen(process.env.PORT, function(){
-    console.log("Listening on port whatever");
+var appConfig = require('./../server');
+var app = appConfig.app;
+var config = appConfig.config;
+app.listen(config.port, function(){
+    console.log("Listening on port " + config.port);
 });

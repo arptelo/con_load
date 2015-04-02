@@ -12,7 +12,12 @@ var animationBreaks = [],
     map,
     mapOptions = {
 		center: {lat: 39.13, lng: 35.4},
-		zoom: 5
+		zoom: 4,
+		panControl: false,
+		rotateControl: false,
+		streetViewControl: false,
+		zoomControl: false,
+		mapTypeControl: false
 	},
 	mapPin = {
 		path: "M24,47c0,0-18-9.417-18-28C6,9.059,14.059,1,24,1s18,8.059,18,18 C42,37.583,24,47,24,47z " +
@@ -27,19 +32,51 @@ var animationBreaks = [],
 	noOfReturnedCallbacks = 0,
 	pointer = -1,
 	directionsDisplay,
-	directionsService = new google.maps.DirectionsService();
-
+	directionsService = new google.maps.DirectionsService(),
+	styles1 = [{"featureType":"landscape","stylers":[{"saturation":-100},{"lightness":65},{"visibility":"on"}]},{"featureType":"poi","stylers":[{"saturation":-100},{"lightness":51},{"visibility":"simplified"}]},{"featureType":"road.highway","stylers":[{"saturation":-100},{"visibility":"simplified"}]},{"featureType":"road.arterial","stylers":[{"saturation":-100},{"lightness":30},{"visibility":"on"}]},{"featureType":"road.local","stylers":[{"saturation":-100},{"lightness":40},{"visibility":"on"}]},{"featureType":"transit","stylers":[{"saturation":-100},{"visibility":"simplified"}]},{"featureType":"administrative.province","stylers":[{"visibility":"off"}]},{"featureType":"water","elementType":"labels","stylers":[{"visibility":"on"},{"lightness":-25},{"saturation":-100}]},{"featureType":"water","elementType":"geometry","stylers":[{"hue":"#ffff00"},{"lightness":-25},{"saturation":-97}]}],
+	styles2 = [{"featureType":"landscape","stylers":[{"hue":"#F1FF00"},{"saturation":-27.4},{"lightness":9.4},{"gamma":1}]},{"featureType":"road.highway","stylers":[{"hue":"#0099FF"},{"saturation":-20},{"lightness":36.4},{"gamma":1}]},{"featureType":"road.arterial","stylers":[{"hue":"#00FF4F"},{"saturation":0},{"lightness":0},{"gamma":1}]},{"featureType":"road.local","stylers":[{"hue":"#FFB300"},{"saturation":-38},{"lightness":11.2},{"gamma":1}]},{"featureType":"water","stylers":[{"hue":"#00B6FF"},{"saturation":4.2},{"lightness":-63.4},{"gamma":1}]},{"featureType":"poi","stylers":[{"hue":"#9FFF00"},{"saturation":0},{"lightness":0},{"gamma":1}]}],
+	styles3 = [{"featureType":"water","elementType":"geometry","stylers":[{"visibility":"on"},{"color":"#aee2e0"}]},{"featureType":"landscape","elementType":"geometry.fill","stylers":[{"color":"#abce83"}]},{"featureType":"poi","elementType":"geometry.fill","stylers":[{"color":"#769E72"}]},{"featureType":"poi","elementType":"labels.text.fill","stylers":[{"color":"#7B8758"}]},{"featureType":"poi","elementType":"labels.text.stroke","stylers":[{"color":"#EBF4A4"}]},{"featureType":"poi.park","elementType":"geometry","stylers":[{"visibility":"simplified"},{"color":"#8dab68"}]},{"featureType":"road","elementType":"geometry.fill","stylers":[{"visibility":"simplified"}]},{"featureType":"road","elementType":"labels.text.fill","stylers":[{"color":"#5B5B3F"}]},{"featureType":"road","elementType":"labels.text.stroke","stylers":[{"color":"#ABCE83"}]},{"featureType":"road","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"road.local","elementType":"geometry","stylers":[{"color":"#A4C67D"}]},{"featureType":"road.arterial","elementType":"geometry","stylers":[{"color":"#9BBF72"}]},{"featureType":"road.highway","elementType":"geometry","stylers":[{"color":"#EBF4A4"}]},{"featureType":"transit","stylers":[{"visibility":"off"}]},{"featureType":"administrative","elementType":"geometry.stroke","stylers":[{"visibility":"on"},{"color":"#87ae79"}]},{"featureType":"administrative","elementType":"geometry.fill","stylers":[{"color":"#7f2200"},{"visibility":"off"}]},{"featureType":"administrative","elementType":"labels.text.stroke","stylers":[{"color":"#ffffff"},{"visibility":"on"},{"weight":4.1}]},{"featureType":"administrative","elementType":"labels.text.fill","stylers":[{"color":"#495421"}]},{"featureType":"administrative.neighborhood","elementType":"labels","stylers":[{"visibility":"off"}]}],
+	styledMap1 = new google.maps.StyledMapType(styles1,{name: "Gray Map"}),
+	styledMap2 = new google.maps.StyledMapType(styles2,{name: "Blue Map"}),
+	styledMap3 = new google.maps.StyledMapType(styles3,{name: "Green Map"});
+    
 $(document).ready(function(){
 	setScene();
 	map = new google.maps.Map($('#map-canvas')[0], mapOptions);
+	map.mapTypes.set('style1', styledMap1);
+	map.mapTypes.set('style2', styledMap2);
+	map.mapTypes.set('style3', styledMap3);
 	directionsDisplay = new google.maps.DirectionsRenderer({suppressMarkers: true});
 	directionsDisplay.setMap(map);
+	$(".mapStyle").click(function(){
+		var mapStyleType = $(this).data('style');
+		if(mapStyleType === 'ROADMAP'){
+			map.setMapTypeId(google.maps.MapTypeId.ROADMAP);
+		} else if(mapStyleType === 'SATELLITE'){
+			console.log("s");
+			map.setMapTypeId(google.maps.MapTypeId.SATELLITE);
+		} else if(mapStyleType === 'TERRAIN'){
+			map.setMapTypeId(google.maps.MapTypeId.TERRAIN);
+		} else if(mapStyleType === 'HYBRID'){
+			map.setMapTypeId(google.maps.MapTypeId.HYBRID);
+		} else {
+			map.setMapTypeId(mapStyleType);
+		}
+	});
+	$(".showPanels").click(function(e){
+		e.preventDefault();
+		$(".panels").stop().animate({left: '220px'}, 500);
+	});
+	$("#hidePanels").click(function(e){
+		e.preventDefault();
+		$(".panels").stop().animate({left: '-400px'}, 500);
+	});
 	$("#add-cargo").click(function(e){
 		e.preventDefault();
 		var marker = new google.maps.Marker({map: map});
 		checkpoints.push(new Checkpoint(marker));
 		var noCheckpoints = checkpoints.length;
-		var $chCon = $('.container.panels');
+		var $chCon = $('.panels');
 		$chCon.append($('.checkpointTemplate').html());
 		var $chPanel = $chCon.find('.panel').last();
 		$chPanel.addClass("active");
@@ -60,7 +97,7 @@ $(document).ready(function(){
 			$chPanel.find(".checkName").attr("placeholder", "Departure location...");
 			$chPanel.find(".panel-heading").append("<label class='return'><input type='checkbox' checked class='return-check' /> Return here</label>");
 			for(var i=0, x=trucks_array.length; i<x; i++){
-				$chPanel.find(".panel-body").find(".container").append("<div class='radio'>" +
+				$chPanel.find(".panel-body").find(".cont").append("<div class='radio'>" +
 					"<label>" +
 						"<input type='radio' name='optionsRadios' id='optionsRadios" + (i+1) + "' value='" + i + "' " + (i===0 ? "checked": "") + ">" + 
 						trucks_array[i].name + " ( " + trucks_array[i].length + " x " + trucks_array[i].width + " x " + trucks_array[i].height + " )" +
@@ -87,7 +124,7 @@ $(document).ready(function(){
 		$("#map-canvas").removeClass("hidden");
 		google.maps.event.trigger(map, 'resize');
 		map.setCenter({lat: 39.13, lng: 35.4});
-		map.setZoom(5);
+		map.setZoom(4);
 	});
 	$("#load-cargo").click(function(e){
 		e.preventDefault();
@@ -143,7 +180,7 @@ $(document).ready(function(){
 	});
 	$(".panels").on("click", ".add-box", function(e){
 		e.preventDefault();
-		var $chCon = $(this).closest(".panel").find(".container");
+		var $chCon = $(this).closest(".panel").find(".cont");
 		$chCon.append($('.addCargoTemplate').html());
 		var noOfRows = $(this).closest(".panel").find(".row").length;
 		var i = 1;
@@ -158,7 +195,7 @@ $(document).ready(function(){
 	});
 	$(".panels").on("change", ".color.pin", function(){
 		mapPin.strokeColor = $(this).val();
-		checkpoints[$(this).closest(".panel").index()].marker.setIcon(mapPin);	
+		checkpoints[$(this).closest(".panel").index()-2].marker.setIcon(mapPin);	
 	});
 	$(".panels").on("keyup", ".quantity", function(){
 		$(this).closest(".panel").find(".summaryQuantity").html($(this).val() + " boxes");

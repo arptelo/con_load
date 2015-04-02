@@ -1,0 +1,282 @@
+html {
+  position: relative;
+  height: 100%; }
+
+/* Space out content a bit */
+body {
+  width: 100%;
+  height: 100%;
+  font-family: "Roboto", sans-serif; }
+
+#map-canvas {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 0; }
+
+.topbar {
+  position: relative;
+  width: 100%;
+  height: 50px;
+  z-index: 10; }
+  .topbar .logodiv {
+    position: relative;
+    background-color: gray;
+    height: 50px;
+    width: 200px;
+    z-index: 10; }
+    .topbar .logodiv .navbar-brand {
+      padding: 15px;
+      width: 100%;
+      height: 50px;
+      color: #EEE;
+      text-align: center;
+      text-transform: uppercase;
+      font-weight: 400;
+      letter-spacing: 2px; }
+  .topbar .navbar {
+    position: absolute;
+    margin-bottom: 0;
+    width: 100%;
+    border: none;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 0;
+    z-index: 9; }
+    .topbar .navbar a {
+      color: black;
+      text-transform: uppercase;
+      font-weight: 600;
+      height: 50px; }
+      .topbar .navbar a:hover {
+        background-color: rgba(255, 255, 255, 0);
+        border-bottom: 3px solid #FF9D00; }
+      .topbar .navbar a:focus {
+        background-color: rgba(255, 255, 255, 0); }
+
+.leftside {
+  position: fixed;
+  height: 100%;
+  padding: 0;
+  width: 200px;
+  z-index: 10; }
+  .leftside .dashboard {
+    padding: 0;
+    height: 100%;
+    border: none;
+    background-color: #2E3449; }
+    .leftside .dashboard a {
+      padding: 1rem 2rem;
+      display: block;
+      border-bottom: 1px solid #4A6073;
+      color: #AAA; }
+      .leftside .dashboard a:hover {
+        background-color: #383f59;
+        border-left: 3px solid #FF9D00;
+        color: white;
+        text-decoration: none; }
+    .leftside .dashboard ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0; }
+      .leftside .dashboard ul li {
+        width: 100%;
+        cursor: pointer; }
+  .leftside #user {
+    height: 100px;
+    padding: 15px;
+    border-bottom: 1px solid #4A6073; }
+    .leftside #user .avatar {
+      height: 50px;
+      width: 50px;
+      border-radius: 50%;
+      border: 2px solid white;
+      margin: 0 auto;
+      background-color: gray;
+      background-image: url("../img/avatar.png");
+      background-size: 40px 40px;
+      background-repeat: no-repeat;
+      background-position: center; }
+    .leftside #user .userName {
+      color: white;
+      text-align: center;
+      margin-top: 5px; }
+
+.rightside {
+  position: fixed;
+  height: 24px;
+  width: 181px;
+  right: 20px;
+  top: 65px;
+  padding: 2px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 3px;
+  z-index: 10; }
+  .rightside .mapStyle {
+    position: relative;
+    border: 1px solid white;
+    border-radius: 4px;
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    margin-right: 2px;
+    font-size: 12px; }
+    .rightside .mapStyle[data-style="ROADMAP"] {
+      background-color: gray;
+      margin-left: 2px; }
+    .rightside .mapStyle[data-style="SATELLITE"] {
+      background-color: gray; }
+    .rightside .mapStyle[data-style="TERRAIN"] {
+      background-color: gray; }
+    .rightside .mapStyle[data-style="HYBRID"] {
+      background-color: gray; }
+    .rightside .mapStyle[data-style="style1"] {
+      background-color: lightgray; }
+    .rightside .mapStyle[data-style="style2"] {
+      background-color: #E1EE00; }
+    .rightside .mapStyle[data-style="style3"] {
+      background-color: #ABCE83; }
+    .rightside .mapStyle:hover {
+      cursor: pointer; }
+
+/* Checkpoint Box */
+.checkInput {
+  font-size: 0.8em;
+  padding: 5px;
+  text-align: center;
+  vertical-align: middle; }
+  .checkInput .up {
+    margin: 0 auto; }
+
+.checkName {
+  float: right;
+  border-radius: 10px;
+  color: black;
+  font-size: 0.8em;
+  width: 250px;
+  height: 20px;
+  margin-right: 10px; }
+
+.color.pin {
+  float: right;
+  width: 23px;
+  height: 20px;
+  margin-right: 10px;
+  border-radius: 10px;
+  padding: 1px; }
+
+.return {
+  display: block;
+  padding-left: 15px;
+  text-indent: -15px;
+  margin-bottom: 0; }
+
+.return-check {
+  width: 16px;
+  height: 13px;
+  padding: 0;
+  margin: 0 8px 0 0 !important;
+  vertical-align: bottom;
+  position: relative;
+  top: -3px;
+  *overflow: hidden; }
+
+.panels {
+  position: absolute;
+  width: 600px;
+  left: -400px;
+  bottom: 20px;
+  top: 60px;
+  border: 1px solid white;
+  background-color: rgba(46, 34, 49, 0.5);
+  overflow-y: scroll; }
+  .panels .buttonDiv {
+    height: 90px;
+    margin: 0;
+    text-align: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid white;
+    background: #cbcfde; }
+    .panels .buttonDiv .withBorder {
+      border-left: 1px solid white; }
+    .panels .buttonDiv .buttons {
+      display: inline-block;
+      width: 146px;
+      height: 90px;
+      margin: 0 auto; }
+      .panels .buttonDiv .buttons a {
+        margin: 0;
+        display: block; }
+      .panels .buttonDiv .buttons img {
+        height: 50px;
+        width: 50px;
+        margin: 0; }
+      .panels .buttonDiv .buttons span {
+        height: 50px;
+        width: 50px;
+        margin: 0 auto;
+        color: #333;
+        font-size: 35px;
+        padding: 7.5px; }
+  .panels::-webkit-scrollbar {
+    width: 0px;
+    background-color: #F5F5F5; }
+  .panels::-webkit-scrollbar-thumb {
+    border-radius: 1px;
+    background-color: #2E3449; }
+  .panels::-webkit-scrollbar-track {
+    background-color: rgba(46, 34, 49, 0.5); }
+  .panels .canvasAndMap .buttonsDiv {
+    position: absolute;
+    top: 117px;
+    left: 188px; }
+    .panels .canvasAndMap .buttonsDiv .animate {
+      font-size: 25px;
+      color: #2E3449; }
+  .panels .canvasAndMap #container3js {
+    background-color: white;
+    width: 400px;
+    height: 300px;
+    margin: 5px auto;
+    border: 1px solid #2E3449; }
+
+.panel {
+  margin: 5px 10px;
+  color: black; }
+  .panel a {
+    text-decoration: none;
+    color: black; }
+    .panel a:hover {
+      text-decoration: none; }
+  .panel .delCheck {
+    float: right; }
+  .panel .panel-heading {
+    background-color: #cbcfde; }
+  .panel .panel-body {
+    padding: 0; }
+    .panel .panel-body .delBox {
+      font-size: 14px; }
+    .panel .panel-body .delRow {
+      padding: 12px; }
+
+.radio {
+  margin-left: 20px; }
+
+.row {
+  margin: 0; }
+
+.form-control {
+  font-size: 0.9em; }
+
+#add-cargo {
+  text-decoration: none; }
+
+.glyphicon-plus-sign {
+  margin-right: 10px; }
+
+.glyphicon-remove {
+  color: #337AB7; }
+
+i {
+  margin-right: 1rem; }
+
+/*# sourceMappingURL=style-load.css.map */
