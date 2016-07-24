@@ -25,6 +25,7 @@ module.exports = function(config){
   
   var User = mongoose.model('User', userSchema);
   User.find({}).exec(function(err, collection){
+    if(err) console.log(err);
     if(collection.length === 0){
       var salt, hash;
       salt = createSalt();
