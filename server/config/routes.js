@@ -12,6 +12,10 @@ module.exports = function(app){
     res.end();
   });
   
+  app.get('/load', function(req, res){
+      res.render('load');
+  });
+  
   app.get('*', function(req, res){
       res.render('index', {
         bootstrappedUser: req.user

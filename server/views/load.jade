@@ -1,0 +1,150 @@
+doctype html
+html
+  head
+    meta(name="viewport" content="initial-scale=1.0, user-scalable=no")
+    title Logtimizer - Vehicle Scheduling Problem
+    link(rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css")
+    link(href='https://fonts.googleapis.com/css?family=Roboto&subset=latin,latin-ext' rel='stylesheet')
+    link(rel="stylesheet" type="text/css" href="css/style-load.css")
+    script(src="https://code.jquery.com/jquery-1.11.0.min.js")
+    script(src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js")
+    // HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries
+    //[if lt IE 9]
+    script(src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js")
+    script(src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js")
+    //[endif]
+  body
+    #map-canvas
+    .topbar
+      .logodiv
+        a.navbar-brand(href="#") Logtimize
+      nav.navbar.navbar-fixed-top
+        .container-fluid
+          .navbar-header
+            button.navbar-toggle.collapsed(type="button" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar")
+              span.sr-only Toggle navigation
+              span.icon-bar
+              span.icon-bar
+              span.icon-bar
+          #navbar.navbar-collapse collapse
+            ul(class="nav navbar-nav navbar-right")
+              li
+                a(href="/") Home
+              li
+                a(href="../navbar-static-top/") About
+              li
+                a(href="/") Contact
+                  span(class="sr-only") (current)
+    .leftside
+      .dashboard
+        #user
+          .avatar
+          .userName John Doe
+        ul(class="no-bullet clearfix left")
+          li: a(class="link") 
+            i(class="glyphicon glyphicon-home") 
+            span(class="toggle")  Home
+          li: a(class="showPanels")
+            i(class="glyphicon glyphicon-map-marker")
+            span(class="toggle")  Resources
+          li: a 
+            i(class="glyphicon glyphicon-usd")
+            span(class="toggle")  Savings
+          li: a 
+            i(class="glyphicon glyphicon-user") 
+            span(class="toggle")  Team
+          li: a 
+            i(class="glyphicon glyphicon-envelope") 
+            span(class="toggle")  Mail
+          li.item.toggle-link: a 
+            i(class="glyphicon glyphicon-arrow-left") 
+            span.toggle  Collapse
+
+    .panels
+      .buttonDiv.loadButtonDiv
+        .buttons 
+          a#add-cargo.btn(href="#") 
+            img(src="img/add_checkpoint.png") 
+          i Add checkpoint
+        .buttons.withBorder 
+          a#opt-route.btn(href="#") 
+            img(src="img/route.png") 
+          i Route
+        .buttons.withBorder 
+          a#load-cargo.btn(href="#") 
+            img(src="img/load.png") 
+          i Load
+        .buttons.withBorder 
+          a#hidePanels.btn(href="#") 
+            span.glyphicon.glyphicon-arrow-left 
+          i Hide
+      .canvasAndMap.hidden
+        .buttonsDiv
+          a.animate(href="#" data-step="-1000") 
+            span.glyphicon.glyphicon-fast-backward
+          a.animate(href="#" data-step="-999") 
+            span.glyphicon.glyphicon-backward
+          a.animate(href="#" data-step="-1") 
+            span.glyphicon.glyphicon-step-backward
+          a.animate(href="#" data-step="11") 
+            span.glyphicon.glyphicon-play
+          a.animate(href="#" data-step="0") 
+            span.glyphicon.glyphicon-pause
+          a.animate(href="#" data-step="1") 
+            span.glyphicon.glyphicon-step-forward
+          a.animate(href="#" data-step="999") 
+            span.glyphicon.glyphicon-forward
+          a.animate(href="#" data-step="1000") 
+            span.glyphicon.glyphicon-fast-forward
+        div#container3js
+    .rightside
+      .mapStyle(data-style="ROADMAP")
+      .mapStyle(data-style="SATELLITE")
+      .mapStyle(data-style="TERRAIN")
+      .mapStyle(data-style="HYBRID")
+      .mapStyle(data-style="style1")
+      .mapStyle(data-style="style2")
+      .mapStyle(data-style="style3")
+      
+    // templates
+    .checkpointTemplate.hidden
+      .panel
+        .panel-heading(role="tab" id="")
+          a.add-box(href="#") 
+            span.glyphicon.glyphicon-plus-sign(aria-hidden="true")
+          a.expand(data-toggle="collapse" href="" aria-expanded="true" aria-controls="") Edit - 
+            span.summaryQuantity No cargo
+          a.delCheck(href="#") x
+          input.checkName.form-control(type="text" id="" placeholder="Delivery location...")
+          input.color.pin.form-control(type="color" value="#FF0000")
+        .panel-collapse.collapse.in(id="" role="tabpanel" aria-labelledby="")
+          .panel-body
+            .cont
+    .addCargoTemplate.hidden
+      .row
+        .checkInput.col-md-1
+          input.name.form-control(type="text" maxlength="10" placeholder="Box Name")
+        .checkInput.col-md-2
+          input.quantity.form-control(type="text" maxlength="6"  placeholder="Quantity")
+        .checkInput.col-md-2
+          input.width.form-control(type="text" maxlength="6"  placeholder="Width")
+        .checkInput.col-md-2
+          input.length.form-control(type="text" maxlength="6"  placeholder="Length")
+        .checkInput.col-md-2
+          input.height.form-control(type="text" maxlength="6"  placeholder="Height")
+        .checkInput.col-md-1 Side Up?
+          input.up.checkbox(type="checkbox" value="1")
+        .checkInput.col-md-1.colors
+          input.color.form-control(type="color" value="#FF0000")
+        .checkInput.col-md-1.delRow
+          a.delBox(href="#")
+            span.glyphicon.glyphicon-remove(aria-hidden="true")
+    // scripts
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r69/three.js")
+    script(src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places")
+    script(src="orbit_control.js")
+    script(src="three_utilities.js")
+    script(src="objects.js")
+    script(src="con_load.js")
+    // IE10 viewport hack for Surface/desktop Windows 8 bug
+    script(src="ie10-viewport-bug-workaround.js")

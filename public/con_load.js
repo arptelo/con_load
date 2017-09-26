@@ -123,8 +123,8 @@ $(document).ready(function(){
 		$(".loadButtonDiv").removeClass("hidden");
 		$("#map-canvas").removeClass("hidden");
 		google.maps.event.trigger(map, 'resize');
-		map.setCenter({lat: 39.13, lng: 35.4});
-		map.setZoom(4);
+		// map.setCenter({lat: 39.13, lng: 35.4});
+		// map.setZoom(4);
 	});
 	$("#load-cargo").click(function(e){
 		e.preventDefault();
